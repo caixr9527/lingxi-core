@@ -18,7 +18,7 @@ class CustomException(Exception):
     data: Any = field(default_factory=dict)
 
     def __init__(self, message: str = "", data: Any = None):
-        super.__init__()
+        super().__init__()
         self.message = message
         self.data = data
 
