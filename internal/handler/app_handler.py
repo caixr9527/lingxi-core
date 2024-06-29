@@ -10,15 +10,22 @@ import os
 from flask import request
 from openai import OpenAI
 
+from internal.exception import CustomException
+from internal.schema.app_schema import CompletionReq
+from pkg.response import success_json, validate_error_json
+
 
 class AppHandler:
 
     def completion(self):
         """聊天接口"""
+        req = CompletionReq()
+        if not req.validate():
+            return validate_error_json(req.errors)
         # 1.提取从接口中获取的输入
         query = request.json.get("query")
         # 2.构建OpenAI客户端，发送请求
-        client = OpenAI(base_url=os.getenv("OPEN_BASE_URL"))
+        client = OpenAI(base_url=os.getenv("OPENAI_BASE_URL"))
         # 3.返回前端
         completion = client.chat.completions.create(
             model="moonshot-v1-8k",
@@ -28,7 +35,8 @@ class AppHandler:
             ]
         )
         content = completion.choices[0].message.content
-        return content
+        return success_json({"content": content})
 
     def ping(self):
-        return {"ping": "pong"}
+        raise CustomException(message="数据未找到")
+        # return {"ping": "pong"}
