@@ -8,13 +8,13 @@
 import os
 
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
 
 from config import Config
 from internal.exception import CustomException
 from internal.model import App
 from internal.router import Router
 from pkg.response import Response, json, HttpCode
+from pkg.sqlalchemy import SQLAlchemy
 
 
 class Http(Flask):
