@@ -5,13 +5,13 @@
 @Author : rxccai@gmail.com
 @File   : app_handler.py
 """
-import os
 import uuid
 from dataclasses import dataclass
 
-from flask import request
 from injector import inject
-from openai import OpenAI
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_openai import ChatOpenAI
 
 from internal.exception import CustomException
 from internal.schema.app_schema import CompletionReq
@@ -41,24 +41,19 @@ class AppHandler:
         app = self.app_service.delete_app(id)
         return success_message(f"删除应用详情，名称为{app.name}")
 
-    def completion(self):
+    def debug(self, app_id: uuid.UUID):
         """聊天接口"""
         req = CompletionReq()
         if not req.validate():
             return validate_error_json(req.errors)
         # 1.提取从接口中获取的输入
-        query = request.json.get("query")
+        prompt = ChatPromptTemplate.from_template("{query}")
         # 2.构建OpenAI客户端，发送请求
-        client = OpenAI(base_url=os.getenv("OPENAI_BASE_URL"))
+        llm = ChatOpenAI(model="moonshot-v1-8k")
         # 3.返回前端
-        completion = client.chat.completions.create(
-            model="moonshot-v1-8k",
-            messages=[
-                {"role": "system", "content": "你是聊天机器人，请根据用户的输入回复信息"},
-                {"role": "user", "content": query},
-            ]
-        )
-        content = completion.choices[0].message.content
+        parser = StrOutputParser()
+        chain = prompt | llm | parser
+        content = chain.invoke({"query": req.query.data})
         return success_json({"content": content})
 
     def ping(self):
