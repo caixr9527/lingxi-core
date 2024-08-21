@@ -22,7 +22,7 @@ from langchain_openai import ChatOpenAI
 
 from internal.exception import CustomException
 from internal.schema.app_schema import CompletionReq
-from internal.service import AppService
+from internal.service import AppService, VectorDatabaseService
 from pkg.response import success_json, validate_error_json, success_message
 
 
@@ -30,6 +30,7 @@ from pkg.response import success_json, validate_error_json, success_message
 @dataclass
 class AppHandler:
     app_service: AppService
+    vector_database_service: VectorDatabaseService
 
     def create_app(self):
         """创建新的APP记录"""
@@ -71,8 +72,9 @@ class AppHandler:
         req = CompletionReq()
         if not req.validate():
             return validate_error_json(req.errors)
+        system_prompt = "你是一个强大的聊天机器人,能根据对应的上下文和历史对话信息回复用户问题。\n\n<context>{context}</context>"
         prompt = ChatPromptTemplate.from_messages([
-            ("system", "你是一个强大的聊天机器人,能根据用户的提问回复对应的问题"),
+            ("system", system_prompt),
             MessagesPlaceholder("history"),
             ("human", "{query}"),
         ])
@@ -84,14 +86,20 @@ class AppHandler:
             chat_memory=FileChatMessageHistory("./storage/memory/chat_history.txt")
         )
         llm = ChatOpenAI(model="moonshot-v1-8k")
+        retriever = self.vector_database_service.get_retriever() | self.vector_database_service.combine_documents
         chain = (RunnablePassthrough.assign(
-            history=RunnableLambda(self._load_memory_variables) | itemgetter("history"))
-                 | prompt | llm | StrOutputParser()).with_listeners(on_end=self._save_content)
+            history=RunnableLambda(self._load_memory_variables) | itemgetter("history"),
+            context=itemgetter("query") | retriever
+        ) | prompt | llm | StrOutputParser()).with_listeners(on_end=self._save_content)
 
         chain_input = {"query": req.query.data}
         content = chain.invoke(chain_input, config={"configurable": {"memory": memory}})
 
         return success_json({"content": content})
+
+    # @classmethod
+    # def _combine_documents(cls, documents: list[Document]) -> str:
+    #     return "\n\n".join([document.page_content for document in documents])
 
     def ping(self):
         raise CustomException(message="数据未找到")
