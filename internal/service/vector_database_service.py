@@ -50,5 +50,4 @@ class VectorDatabaseService:
     def combine_documents(cls, documents: list[Document]) -> str:
         """将对应的文档列表使用换行符合并"""
         doc = "\n\n".join([document.page_content for document in documents])
-        print(doc)
         return doc
