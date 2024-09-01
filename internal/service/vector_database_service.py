@@ -29,7 +29,7 @@ class VectorDatabaseService:
             host=os.getenv("WEAVIATE_HOST"),
             port=int(os.getenv("WEAVIATE_PORT"))
         )
-
+        # todo 这里使用text-embedding-3-small
         embedding = HuggingFaceEndpointEmbeddings(
             model="sentence-transformers/all-MiniLM-L12-v2",
         )

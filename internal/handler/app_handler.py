@@ -85,6 +85,7 @@ class AppHandler:
             return_messages=True,
             chat_memory=FileChatMessageHistory("./storage/memory/chat_history.txt")
         )
+        # todo 这里换成chatgpt的模型
         llm = ChatOpenAI(model="moonshot-v1-8k")
         retriever = self.vector_database_service.get_retriever() | self.vector_database_service.combine_documents
         chain = (RunnablePassthrough.assign(
