@@ -1,0 +1,12 @@
+- name: google
+  label: Google
+  description: 谷歌服务提供商，涵盖了谷歌搜索等工具
+  icon: icon.svg
+  background: "#E5E7EB"
+  category: 网络搜索
+#- name: duckduckgo
+#  label: DuckDuckGo
+#  description: 这是一个注重隐私等搜索引擎
+#  icon: icon.svg
+#  background: "#FFFFFF"
+#  category: 网络搜索

@@ -20,7 +20,7 @@ from langchain_core.runnables import RunnablePassthrough, RunnableLambda, Runnab
 from langchain_core.tracers import Run
 from langchain_openai import ChatOpenAI
 
-from internal.exception import CustomException
+from internal.core.tools.builtin_tools.providers import ProviderFactory
 from internal.schema.app_schema import CompletionReq
 from internal.service import AppService, VectorDatabaseService
 from pkg.response import success_json, validate_error_json, success_message
@@ -31,6 +31,7 @@ from pkg.response import success_json, validate_error_json, success_message
 class AppHandler:
     app_service: AppService
     vector_database_service: VectorDatabaseService
+    provider_factory: ProviderFactory
 
     def create_app(self):
         """创建新的APP记录"""
@@ -103,5 +104,8 @@ class AppHandler:
     #     return "\n\n".join([document.page_content for document in documents])
 
     def ping(self):
-        raise CustomException(message="数据未找到")
-        # return {"ping": "pong"}
+        # raise CustomException(message="数据未找到")
+        google_seper = self.provider_factory.get_tool("google", "google_serper")()
+        print(google_seper)
+        print(google_seper.invoke("2023年北京半程马拉松的前3名成绩是多少"))
+        return {"ping": "pong"}
