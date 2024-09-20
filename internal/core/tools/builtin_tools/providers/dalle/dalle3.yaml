@@ -1,0 +1,24 @@
+name: dalle
+label: DALLE-3绘图工具
+description: DALLE-3是一个文本生成图片的工具
+params:
+  - name: size
+    label: 图片尺寸
+    type: select
+    required: true
+    options:
+      - value: 1024*1024
+        label: "(方)1024*1024"
+      - value: 1972*1024
+        label: "(横屏)1972*1024"
+      - value: 1024*1972
+        label: "(竖屏)1024*1972"
+  - name: style
+    label: 图片风格
+    type: select
+    required: true
+    options:
+      - value: vivid
+        label: "生动"
+      - value: natural
+        label: "自然"

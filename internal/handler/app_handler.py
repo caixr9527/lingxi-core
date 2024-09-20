@@ -108,7 +108,10 @@ class AppHandler:
         # google_seper = self.provider_factory.get_tool("google", "google_serper")()
         # print(google_seper)
         # print(google_seper.invoke("2023年北京半程马拉松的前3名成绩是多少"))
-        google = self.provider_factory.get_provider("google")
-        google_serper_entity = google.get_tool_entity("google_serper")
-        print(google_serper_entity)
-        return {"ping": "pong"}
+        # ------
+        # google = self.provider_factory.get_provider("google")
+        # google_serper_entity = google.get_tool_entity("google_serper")
+        # print(google_serper_entity)
+        # ------
+        providers = self.provider_factory.get_provider_entities()
+        return success_json({"providers": [provider.dict() for provider in providers]})
