@@ -1,10 +1,11 @@
-name: dalle
+name: dalle3
 label: DALLE-3绘图工具
 description: DALLE-3是一个文本生成图片的工具
 params:
   - name: size
     label: 图片尺寸
     type: select
+    default: 1024*1024
     required: true
     options:
       - value: 1024*1024
@@ -16,6 +17,7 @@ params:
   - name: style
     label: 图片风格
     type: select
+    default: vivid
     required: true
     options:
       - value: vivid

@@ -13,6 +13,8 @@ import requests
 from langchain_core.pydantic_v1 import BaseModel, Field
 from langchain_core.tools import BaseTool
 
+from internal.lib.helper import add_attribute
+
 
 class GaodeWeatherArgsSchema(BaseModel):
     city: str = Field(description="需要查询天气预报的目标城市，例如：广州")
@@ -64,7 +66,7 @@ class GaodeWeatherTool(BaseTool):
             return f"获取{kwargs.get('city', '')}天气预报信息失败"
 
 
-# @add_attribute("args_schema", GaodeWeatherArgsSchema)
+@add_attribute("args_schema", GaodeWeatherArgsSchema)
 def gaode_weather(**kwargs) -> BaseTool:
     """获取高德天气预报查询工具"""
     return GaodeWeatherTool()
