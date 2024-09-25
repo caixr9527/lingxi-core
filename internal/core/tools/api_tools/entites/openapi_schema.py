@@ -33,7 +33,6 @@ class OpenAPISchema(BaseModel):
     description: str = Field(default="", validate_default=True, description="工具提供者的描述信息")
     paths: dict[str, dict] = Field(default_factory=dict, validate_default=True, description="工具提供者的路径参数字典")
 
-    @classmethod
     @field_validator("server", mode="before")
     def validate_server(cls, server: str) -> str:
         """校验server数据"""
@@ -41,14 +40,12 @@ class OpenAPISchema(BaseModel):
             raise ValidateException("server不能为空")
         return server
 
-    @classmethod
     @field_validator("description", mode="before")
     def validate_description(cls, description: str) -> str:
         if description is None or description == "":
             raise ValidateException("description不能为空")
         return description
 
-    @classmethod
     @field_validator("paths", mode="before")
     def validate_paths(cls, paths: dict[str, dict]) -> dict[str, dict]:
         # paths不能为空且类型必须为字典
