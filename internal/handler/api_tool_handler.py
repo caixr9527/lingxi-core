@@ -9,7 +9,7 @@ from dataclasses import dataclass
 
 from injector import inject
 
-from internal.schema.api_tool_schema import ValidateOpenAPISchemaReq
+from internal.schema.api_tool_schema import ValidateOpenAPISchemaReq, CreateApiToolReq
 from internal.service import ApiToolService
 from pkg.response import validate_error_json, success_message
 
@@ -19,6 +19,14 @@ from pkg.response import validate_error_json, success_message
 class ApiToolHandler:
     """自定义API插件处理器"""
     api_tool_service: ApiToolService
+
+    def create_api_tool(self):
+        """创建自定义API工具"""
+        req = CreateApiToolReq()
+        if not req.validate():
+            return validate_error_json(req.errors)
+        self.api_tool_service.create_api_tool(req)
+        return success_message("创建成功")
 
     def validate_openapi_schema(self):
         """校验参数"""
