@@ -24,7 +24,19 @@ class ApiToolService:
     """自定义api插件服务"""
     db: SQLAlchemy
 
+    def get_api_tool(self, provider_id: UUID, tool_name: str) -> ApiTool:
+        # todo
+        account_id = "e7300838-b215-4f97-b420-2333a699e22e"
+        api_tool = self.db.session.query(ApiTool).filter_by(
+            provider_id=provider_id,
+            name=tool_name,
+        ).one_or_none()
+        if api_tool is None or str(api_tool.account_id) != account_id:
+            raise NotFoundException("该工具不存在")
+        return api_tool
+
     def get_api_tool_provider(self, provider_id: UUID) -> ApiToolProvider:
+        # todo
         account_id = "e7300838-b215-4f97-b420-2333a699e22e"
         api_tool_provider = self.db.session.query(ApiToolProvider).get(provider_id)
         if api_tool_provider is None or str(api_tool_provider.account_id) != account_id:
@@ -32,6 +44,7 @@ class ApiToolService:
         return api_tool_provider
 
     def create_api_tool(self, req: CreateApiToolReq) -> None:
+        # todo
         account_id = "e7300838-b215-4f97-b420-2333a699e22e"
         openapi_schema = self.parse_openapi_schema(req.openapi_schema.data)
         api_tool_provider = self.db.session.query(ApiToolProvider).filter_by(
