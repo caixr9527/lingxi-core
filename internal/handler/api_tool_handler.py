@@ -46,6 +46,10 @@ class ApiToolHandler:
         resp = GetApiToolProviderResp()
         return success_json(resp.dump(api_tool_provider))
 
+    def delete_api_tool_provider(self, provider_id: UUID):
+        self.api_tool_service.delete_api_tool_provider(provider_id)
+        return success_message("删除成功")
+
     def validate_openapi_schema(self):
         """校验参数"""
         # 提取数据并校验

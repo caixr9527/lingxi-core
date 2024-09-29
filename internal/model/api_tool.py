@@ -17,6 +17,7 @@ class ApiToolProvider(db.Model):
     """API工具提供者模型"""
     __tablename__ = "api_tool_provider"
     __table_args__ = (
+
         PrimaryKeyConstraint("id", name="pk_api_tool_provider_id"),
     )
 

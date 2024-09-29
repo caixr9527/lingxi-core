@@ -77,6 +77,20 @@ class ApiToolService:
                     )
                     self.db.session.add(api_tool)
 
+    def delete_api_tool_provider(self, provider_id: UUID):
+        # todo
+        account_id = "e7300838-b215-4f97-b420-2333a699e22e"
+        api_tool_provider = self.db.session.query(ApiToolProvider).get(provider_id)
+        if api_tool_provider is None or str(api_tool_provider.account_id) != account_id:
+            raise NotFoundException("工具提供者不存在")
+
+        with self.db.auto_commit():
+            self.db.session.query(ApiTool).filter(
+                ApiTool.provider_id == provider_id,
+                ApiTool.account_id == account_id,
+            ).delete()
+            self.db.session.delete(api_tool_provider)
+
     @classmethod
     def parse_openapi_schema(cls, openapi_schema_str: str) -> OpenAPISchema:
         try:
