@@ -6,9 +6,11 @@
 @File   : api_tool_schema.py
 """
 from flask_wtf import FlaskForm
+from marshmallow import Schema, fields, pre_dump
 from wtforms import StringField, ValidationError
 from wtforms.validators import DataRequired, Length, URL
 
+from internal.model import ApiToolProvider
 from .schema import ListField
 
 
@@ -42,3 +44,23 @@ class CreateApiToolReq(FlaskForm):
                 raise ValidationError("headers元素类型错误")
             if set(header.keys()) != {"key", "value"}:
                 raise ValidationError("headers里面必须包含key和value")
+
+
+class GetApiToolProviderResp(Schema):
+    id = fields.UUID()
+    name = fields.String()
+    icon = fields.String()
+    openapi_schema = fields.String()
+    headers = fields.List(fields.Dict, default=[])
+    created_at = fields.Integer(default=0)
+
+    @pre_dump
+    def process_data(self, data: ApiToolProvider, **kwargs):
+        return {
+            "id": data.id,
+            "name": data.name,
+            "icon": data.icon,
+            "openapi_schema": data.openapi_schema,
+            "headers": data.headers,
+            "created_at": int(data.created_at.timestamp()),
+        }
