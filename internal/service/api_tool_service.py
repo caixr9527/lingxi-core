@@ -7,14 +7,17 @@
 """
 import json
 from dataclasses import dataclass
+from typing import Any
 from uuid import UUID
 
 from injector import inject
+from sqlalchemy import desc
 
 from internal.core.tools.api_tools.entites import OpenAPISchema
 from internal.exception import ValidateException, NotFoundException
 from internal.model import ApiToolProvider, ApiTool
-from internal.schema.api_tool_schema import CreateApiToolReq
+from internal.schema.api_tool_schema import CreateApiToolReq, GetApiToolProvidersWithPageReq
+from pkg.paginator import Paginator
 from pkg.sqlalchemy import SQLAlchemy
 
 
@@ -23,6 +26,18 @@ from pkg.sqlalchemy import SQLAlchemy
 class ApiToolService:
     """自定义api插件服务"""
     db: SQLAlchemy
+
+    def get_api_tool_providers_with_page(self, req: GetApiToolProvidersWithPageReq) -> tuple[list[Any], Paginator]:
+        # todo
+        account_id = "e7300838-b215-4f97-b420-2333a699e22e"
+        paginator = Paginator(db=self.db, req=req)
+        filters = [ApiToolProvider.account_id == account_id]
+        if req.search_word.data:
+            filters.append(ApiToolProvider.name.ilike(f"%{req.search_word.data}%"))
+        api_tool_providers = paginator.paginate(
+            self.db.session.query(ApiToolProvider).filter(*filters).order_by(desc("created_at"))
+        )
+        return api_tool_providers, paginator
 
     def get_api_tool(self, provider_id: UUID, tool_name: str) -> ApiTool:
         # todo
