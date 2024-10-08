@@ -19,18 +19,19 @@ from internal.model import ApiToolProvider, ApiTool
 from internal.schema.api_tool_schema import CreateApiToolReq, GetApiToolProvidersWithPageReq, UpdateApiToolProviderReq
 from pkg.paginator import Paginator
 from pkg.sqlalchemy import SQLAlchemy
+from .base_service import BaseService
 
 
 @inject
 @dataclass
-class ApiToolService:
+class ApiToolService(BaseService):
     """自定义api插件服务"""
     db: SQLAlchemy
 
     def update_api_tool_provider(self, provider_id: UUID, req: UpdateApiToolProviderReq):
         # todo
         account_id = "e7300838-b215-4f97-b420-2333a699e22e"
-        api_tool_provider = self.db.session.query(ApiToolProvider).get(provider_id)
+        api_tool_provider = self.get(ApiToolProvider, provider_id)
         if api_tool_provider is None or str(api_tool_provider.account_id) != account_id:
             raise ValidateException("该工具提供者不存在")
         openapi_schema = self.parse_openapi_schema(req.openapi_schema.data)
@@ -46,23 +47,27 @@ class ApiToolService:
                 ApiTool.provider_id == api_tool_provider.id,
                 ApiTool.account_id == account_id
             ).delete()
-            api_tool_provider.name = req.name.data
-            api_tool_provider.icon = req.icon.data
-            api_tool_provider.headers = req.headers.data
-            api_tool_provider.openapi_schema = req.openapi_schema.data
 
-            for path, path_item in openapi_schema.paths.items():
-                for method, method_item in path_item.items():
-                    api_tool = ApiTool(
-                        account_id=account_id,
-                        provider_id=api_tool_provider.id,
-                        name=method_item.get("operationId"),
-                        description=method_item.get("description"),
-                        url=f"{openapi_schema.server}{path}",
-                        method=method,
-                        parameters=method_item.get("parameters", []),
-                    )
-                    self.db.session.add(api_tool)
+        self.update(
+            api_tool_provider,
+            name=req.name.data,
+            icon=req.icon.data,
+            headers=req.headers.data,
+            openapi_schema=req.openapi_schema.data,
+        )
+
+        for path, path_item in openapi_schema.paths.items():
+            for method, method_item in path_item.items():
+                self.create(
+                    ApiTool,
+                    account_id=account_id,
+                    provider_id=api_tool_provider.id,
+                    name=method_item.get("operationId"),
+                    description=method_item.get("description"),
+                    url=f"{openapi_schema.server}{path}",
+                    method=method,
+                    parameters=method_item.get("parameters", []),
+                )
 
     def get_api_tool_providers_with_page(self, req: GetApiToolProvidersWithPageReq) -> tuple[list[Any], Paginator]:
         # todo
@@ -90,7 +95,7 @@ class ApiToolService:
     def get_api_tool_provider(self, provider_id: UUID) -> ApiToolProvider:
         # todo
         account_id = "e7300838-b215-4f97-b420-2333a699e22e"
-        api_tool_provider = self.db.session.query(ApiToolProvider).get(provider_id)
+        api_tool_provider = self.get(ApiToolProvider, provider_id)
         if api_tool_provider is None or str(api_tool_provider.account_id) != account_id:
             raise NotFoundException("该工具提供者不存在")
         return api_tool_provider
@@ -105,34 +110,33 @@ class ApiToolService:
         ).one_or_none()
         if api_tool_provider:
             raise ValidateException(f"该工具{req.name.data}已存在")
-        with self.db.auto_commit():
-            api_tool_provider = ApiToolProvider(
-                account_id=account_id,
-                name=req.name.data,
-                icon=req.icon.data,
-                description=openapi_schema.description,
-                openapi_schema=req.openapi_schema.data,
-                headers=req.headers.data,
-            )
-            self.db.session.add(api_tool_provider)
-            self.db.session.flush()
-            for path, path_item in openapi_schema.paths.items():
-                for method, method_item in path_item.items():
-                    api_tool = ApiTool(
-                        account_id=account_id,
-                        provider_id=api_tool_provider.id,
-                        name=method_item.get("operationId"),
-                        description=method_item.get("description"),
-                        url=f"{openapi_schema.server}{path}",
-                        method=method,
-                        parameters=method_item.get("parameters", []),
-                    )
-                    self.db.session.add(api_tool)
+        api_tool_provider = self.create(
+            ApiToolProvider,
+            account_id=account_id,
+            name=req.name.data,
+            icon=req.icon.data,
+            description=openapi_schema.description,
+            openapi_schema=req.openapi_schema.data,
+            headers=req.headers.data,
+        )
+
+        for path, path_item in openapi_schema.paths.items():
+            for method, method_item in path_item.items():
+                self.create(
+                    ApiTool,
+                    account_id=account_id,
+                    provider_id=api_tool_provider.id,
+                    name=method_item.get("operationId"),
+                    description=method_item.get("description"),
+                    url=f"{openapi_schema.server}{path}",
+                    method=method,
+                    parameters=method_item.get("parameters", []),
+                )
 
     def delete_api_tool_provider(self, provider_id: UUID):
         # todo
         account_id = "e7300838-b215-4f97-b420-2333a699e22e"
-        api_tool_provider = self.db.session.query(ApiToolProvider).get(provider_id)
+        api_tool_provider = self.get(ApiToolProvider, provider_id)
         if api_tool_provider is None or str(api_tool_provider.account_id) != account_id:
             raise NotFoundException("工具提供者不存在")
 

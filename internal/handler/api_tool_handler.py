@@ -39,7 +39,7 @@ class ApiToolHandler:
         resp = GetApiToolProvidersWithPageResp(many=True)
         return success_json(PageModel(list=resp.dump(api_tool_providers), paginator=paginator))
 
-    def create_api_tool(self):
+    def create_api_tool_provider(self):
         """创建自定义API工具"""
         req = CreateApiToolReq()
         if not req.validate():
