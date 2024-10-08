@@ -17,7 +17,8 @@ from internal.schema.api_tool_schema import (
     GetApiToolProviderResp,
     GetApiToolResp,
     GetApiToolProvidersWithPageReq,
-    GetApiToolProvidersWithPageResp
+    GetApiToolProvidersWithPageResp,
+    UpdateApiToolProviderReq
 )
 from internal.service import ApiToolService
 from pkg.paginator import PageModel
@@ -45,6 +46,14 @@ class ApiToolHandler:
             return validate_error_json(req.errors)
         self.api_tool_service.create_api_tool(req)
         return success_message("创建成功")
+
+    def update_api_tool_provider(self, provider_id: UUID):
+        req = UpdateApiToolProviderReq()
+        if not req.validate():
+            return validate_error_json(req.errors)
+
+        self.api_tool_service.update_api_tool_provider(provider_id, req)
+        return success_message("更新成功")
 
     def get_api_tool(self, provider_id: UUID, tool_name: str):
         api_tool = self.api_tool_service.get_api_tool(provider_id, tool_name)
