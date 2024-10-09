@@ -14,6 +14,7 @@ from injector import inject
 from sqlalchemy import desc
 
 from internal.core.tools.api_tools.entites import OpenAPISchema
+from internal.core.tools.api_tools.providers import ApiProviderManager
 from internal.exception import ValidateException, NotFoundException
 from internal.model import ApiToolProvider, ApiTool
 from internal.schema.api_tool_schema import CreateApiToolReq, GetApiToolProvidersWithPageReq, UpdateApiToolProviderReq
@@ -27,6 +28,7 @@ from .base_service import BaseService
 class ApiToolService(BaseService):
     """自定义api插件服务"""
     db: SQLAlchemy
+    api_provider_manager: ApiProviderManager
 
     def update_api_tool_provider(self, provider_id: UUID, req: UpdateApiToolProviderReq):
         # todo
@@ -156,3 +158,23 @@ class ApiToolService(BaseService):
         except Exception as e:
             raise ValidateException("格式错误")
         return OpenAPISchema(**data)
+
+    def api_tool_invoke(self):
+        provider_id = ""
+        tool_name = ""
+        api_tool = self.db.session.query(ApiTool).filter(
+            ApiTool.provider_id == provider_id,
+            ApiTool.name == tool_name,
+        ).one_or_none()
+        api_tool_provider = api_tool.provider
+        from internal.core.tools.api_tools.entites import ToolEntity
+        tool = self.api_provider_manager.get_tool(ToolEntity(
+            id=provider_id,
+            name=tool_name,
+            url=api_tool.url,
+            method=api_tool.method,
+            description=api_tool.description,
+            headers=api_tool_provider.headers,
+            parameters=api_tool.parameters
+        ))
+        return tool.invoke({"q": "love", "doctype": "json"})
