@@ -1,15 +1,15 @@
 - category: search
-  name: 搜索
+  name: 网络搜索
   icon: search.svg
 - category: image
-  name: 图片
+  name: 图片处理
   icon: image.svg
 - category: weather
-  name: 天气
+  name: 天气预报
   icon: weather.svg
 - category: tool
-  name: 工具
+  name: 使用工具
   icon: tool.svg
 - category: other
-  name: 其他
+  name: 其他工具
   icon: other.svg
