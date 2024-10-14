@@ -55,6 +55,7 @@ class ApiToolService(BaseService):
             name=req.name.data,
             icon=req.icon.data,
             headers=req.headers.data,
+            description=openapi_schema.description,
             openapi_schema=req.openapi_schema.data,
         )
 
