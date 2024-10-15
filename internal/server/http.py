@@ -5,6 +5,7 @@
 @Author : rxccai@gmail.com
 @File   : http.py
 """
+import logging
 import os
 
 from flask import Flask
@@ -13,6 +14,7 @@ from flask_migrate import Migrate
 
 from config import Config
 from internal.exception import CustomException
+from internal.extension import logging_extension
 from internal.router import Router
 from pkg.response import Response, json, HttpCode
 from pkg.sqlalchemy import SQLAlchemy
@@ -37,6 +39,7 @@ class Http(Flask):
         # 初始化flask扩展
         db.init_app(self)
         migrate.init_app(self, db, directory="internal/migration")
+        logging_extension.init_app(self)
         # 跨域
         CORS(self, resources={
             r"/*": {
@@ -50,6 +53,8 @@ class Http(Flask):
         router.register_router(self)
 
     def _register_error_handler(self, error: Exception):
+        # 日志记录异常信息
+        logging.error("An error occurred: %s", error, exc_info=True)
         # 判断是否自定义异常
         if isinstance(error, CustomException):
             return json(Response(

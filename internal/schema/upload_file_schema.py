@@ -23,14 +23,14 @@ class UploadFileReq(FlaskForm):
 
 
 class UploadFileResp(Schema):
-    id = fields.UUID(default="")
-    account_id = fields.UUID(default="")
-    name = fields.String(default="")
-    key = fields.String(default="")
-    size = fields.String(default=0)
-    extension = fields.String(default="")
-    mime_type = fields.String(default="")
-    created_at = fields.Integer(default=0)
+    id = fields.UUID(dump_default="")
+    account_id = fields.UUID(dump_default="")
+    name = fields.String(dump_default="")
+    key = fields.String(dump_default="")
+    size = fields.String(dump_default=0)
+    extension = fields.String(dump_default="")
+    mime_type = fields.String(dump_default="")
+    created_at = fields.Integer(dump_default=0)
 
     @pre_dump
     def process_data(self, data: UploadFile, **kwargs):
