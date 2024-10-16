@@ -20,5 +20,13 @@ DEFAULT_CONFIG = {
     "REDIS_USERNAME": "",
     "REDIS_PASSWORD": "",
     "REDIS_DB": "0",
-    "REDIS_USE_SSL": "False"
+    "REDIS_USE_SSL": "False",
+
+    # celery默认配置
+    "CELERY_BROKER_DB": 1,
+    "CELERY_RESULT_BACKEND_DB": 1,
+    "CELERY_TASK_IGNORE_RESULT": "False",
+    "CELERY_RESULT_EXPIRES": 3600,
+    "CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP": "True"
+
 }

@@ -23,6 +23,7 @@ from langchain_openai import ChatOpenAI
 from internal.core.tools.builtin_tools.providers import BuiltinProviderManager
 from internal.schema.app_schema import CompletionReq
 from internal.service import AppService, VectorDatabaseService
+from internal.task.demo_task import demo_task
 from pkg.response import success_json, validate_error_json, success_message
 
 
@@ -113,5 +114,7 @@ class AppHandler:
         # google_serper_entity = google.get_tool_entity("google_serper")
         # print(google_serper_entity)
         # ------
-        providers = self.provider_factory.get_provider_entities()
-        return success_json({"providers": [provider.dict() for provider in providers]})
+        # providers = self.provider_factory.get_provider_entities()
+        # return success_json({"providers": [provider.dict() for provider in providers]})
+        demo_task.delay(uuid.uuid4())
+        return success_json()

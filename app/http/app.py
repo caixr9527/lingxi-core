@@ -27,5 +27,7 @@ app = Http(__name__,
            db=injector.get(SQLAlchemy),
            migrate=injector.get(Migrate),
            router=injector.get(Router))
+
+celery = app.extensions["celery"]
 if __name__ == "__main__":
     app.run(debug=True)
