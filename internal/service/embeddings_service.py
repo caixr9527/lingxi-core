@@ -5,7 +5,6 @@
 @Author : rxccai@gmail.com
 @File   : embeddings_service.py
 """
-import os.path
 from dataclasses import dataclass
 
 import tiktoken
@@ -13,7 +12,7 @@ from injector import inject
 from langchain.embeddings import CacheBackedEmbeddings
 from langchain_community.storage import RedisStore
 from langchain_core.embeddings import Embeddings
-from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_openai import OpenAIEmbeddings
 from redis import Redis
 
 
@@ -26,14 +25,14 @@ class EmbeddingsService:
 
     def __init__(self, redis: Redis):
         self._store = RedisStore(client=redis)
-        self._embeddings = HuggingFaceEmbeddings(
-            model_name="Alibaba-NLP/gte-multilingual-base",
-            cache_folder=os.path.join(os.getcwd(), "internal", "core", "embeddings"),
-            model_kwargs={
-                "trust_remote_code": True,
-            }
-        )
-        # self._embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
+        # self._embeddings = HuggingFaceEmbeddings(
+        #     model_name="Alibaba-NLP/gte-multilingual-base",
+        #     cache_folder=os.path.join(os.getcwd(), "internal", "core", "embeddings"),
+        #     model_kwargs={
+        #         "trust_remote_code": True,
+        #     }
+        # )
+        self._embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
         self._cache_backed_embeddings = CacheBackedEmbeddings.from_bytes_store(
             self._embeddings,
             self._store,

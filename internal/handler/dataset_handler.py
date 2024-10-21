@@ -11,11 +11,14 @@ from uuid import UUID
 from flask import request
 from injector import inject
 
+from internal.core.file_extractor import FileExtractor
+from internal.model import UploadFile
 from internal.schema.dataset_schema import CreateDatasetReq, GetDatasetResp, UpdateDatasetReq, GetDatasetsWithPageReq, \
     GetDatasetsWithPageResp
 from internal.service import DatasetService, EmbeddingsService, JiebaService
 from pkg.paginator import PageModel
 from pkg.response import validate_error_json, success_message, success_json
+from pkg.sqlalchemy import SQLAlchemy
 
 
 @inject
@@ -24,11 +27,16 @@ class DatasetHandler:
     dataset_service: DatasetService
     embeddings_service: EmbeddingsService
     jieba_service: JiebaService
+    file_extractor: FileExtractor
+    db: SQLAlchemy
 
     def embeddings_query(self):
-        query = request.args.get("query")
-        keywords = self.jieba_service.extract_keywords(query)
-        return success_json({"keywords": keywords})
+        upload_file = self.db.session.query(UploadFile).get("8ed477e0-603f-449a-9617-223abd8cd940")
+        content = self.file_extractor.load(upload_file, True)
+        return success_json({"content": content})
+        # query = request.args.get("query")
+        # keywords = self.jieba_service.extract_keywords(query)
+        # return success_json({"keywords": keywords})
 
     def create_dataset(self):
         req = CreateDatasetReq()
