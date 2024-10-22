@@ -10,7 +10,13 @@ from dataclasses import dataclass
 from flask import Flask, Blueprint
 from injector import inject
 
-from internal.handler import AppHandler, BuiltinToolHandler, ApiToolHandler, UploadFileHandler, DatasetHandler
+from internal.handler import (
+    AppHandler,
+    BuiltinToolHandler,
+    ApiToolHandler,
+    UploadFileHandler,
+    DatasetHandler,
+    DocumentHandler)
 
 
 @inject
@@ -22,6 +28,7 @@ class Router:
     api_tool_handler: ApiToolHandler
     upload_file_handler: UploadFileHandler
     dataset_handler: DatasetHandler
+    document_handler: DocumentHandler
 
     def register_router(self, app: Flask):
         """注册路由"""
@@ -88,6 +95,8 @@ class Router:
         bp.add_url_rule("/datasets/<uuid:dataset_id>", view_func=self.dataset_handler.get_dataset)
         bp.add_url_rule("/datasets/<uuid:dataset_id>", methods=["POST"], view_func=self.dataset_handler.update_dataset)
         bp.add_url_rule("/datasets/embeddings", view_func=self.dataset_handler.embeddings_query)
-
+        bp.add_url_rule("/datasets/<uuid:dataset_id>/documents",
+                        methods=["POST"],
+                        view_func=self.document_handler.create_document)
         # 4.应用上注册蓝图
         app.register_blueprint(bp)

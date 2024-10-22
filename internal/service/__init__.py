@@ -11,6 +11,7 @@ from .base_service import BaseService
 from .builtin_tool_service import BuiltinToolService
 from .cos_service import CosService
 from .dataset_service import DatasetService
+from .document_service import DocumentService
 from .embeddings_service import EmbeddingsService
 from .jieba_service import JiebaService
 from .upload_file_service import UploadFileService
@@ -26,5 +27,6 @@ __all__ = [
     "CosService",
     "DatasetService",
     "EmbeddingsService",
-    "JiebaService"
+    "JiebaService",
+    "DocumentService"
 ]
