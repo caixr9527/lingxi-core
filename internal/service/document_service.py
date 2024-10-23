@@ -53,7 +53,7 @@ class DocumentService(BaseService):
             ProcessRule,
             account_id=account_id,
             dataset_id=dataset_id,
-            model=process_type,
+            mode=process_type,
             rule=rule
         )
         position = self.get_last_document_position(dataset_id)
