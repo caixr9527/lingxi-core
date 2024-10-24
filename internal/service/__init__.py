@@ -13,7 +13,9 @@ from .cos_service import CosService
 from .dataset_service import DatasetService
 from .document_service import DocumentService
 from .embeddings_service import EmbeddingsService
+from .indexing_service import IndexingService
 from .jieba_service import JiebaService
+from .process_rule_service import ProcessRuleService
 from .upload_file_service import UploadFileService
 from .vector_database_service import VectorDatabaseService
 
@@ -28,5 +30,7 @@ __all__ = [
     "DatasetService",
     "EmbeddingsService",
     "JiebaService",
-    "DocumentService"
+    "DocumentService",
+    "IndexingService",
+    "ProcessRuleService",
 ]

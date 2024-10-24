@@ -6,6 +6,7 @@
 @File   : module.py
 """
 from flask_migrate import Migrate
+from injector import Injector
 from injector import Module, Binder
 from redis import Redis
 
@@ -22,3 +23,6 @@ class ExtensionModule(Module):
         binder.bind(SQLAlchemy, to=db)
         binder.bind(Migrate, to=migrate)
         binder.bind(Redis, to=redis_client)
+
+
+injector = Injector([ExtensionModule])

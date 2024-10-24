@@ -38,3 +38,19 @@ DEFAULT_PROCESS_RULE = {
         }
     }
 }
+
+
+class DocumentStatus(str, Enum):
+    WAITING = "waiting"
+    PARSING = "parsing"
+    SPLITTING = "splitting"
+    INDEXING = "indexing"
+    COMPLETED = "completed"
+    ERROR = "error"
+
+
+class SegmentStatus(str, Enum):
+    WAITING = "waiting"
+    INDEXING = "indexing"
+    COMPLETED = "completed"
+    ERROR = "error"

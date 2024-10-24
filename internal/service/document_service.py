@@ -18,6 +18,7 @@ from internal.entity.dataset_entity import ProcessType
 from internal.entity.upload_file_entity import ALL_DOCUMENT_EXTENSION
 from internal.exception import ForbiddenException, FailException
 from internal.model import Document, Dataset, UploadFile, ProcessRule
+from internal.task.document_task import build_documents
 from pkg.sqlalchemy import SQLAlchemy
 from .base_service import BaseService
 
@@ -71,6 +72,8 @@ class DocumentService(BaseService):
                 position=position,
             )
             documents.append(document)
+
+        build_documents.delay([document.id for document in documents])
 
         return documents, batch
 
