@@ -6,6 +6,7 @@
 @File   : helper.py
 """
 import importlib
+from hashlib import sha3_256
 from typing import Any
 
 
@@ -20,3 +21,8 @@ def add_attribute(attr_name: str, attr_value: Any):
         return func
 
     return decorator
+
+
+def generate_text_hash(text: str) -> str:
+    text = str(text) + "None"
+    return sha3_256(text.encode()).hexdigest()

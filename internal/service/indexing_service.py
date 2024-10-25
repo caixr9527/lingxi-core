@@ -17,7 +17,8 @@ from langchain_core.documents import Document as LCDocument
 from sqlalchemy import func
 
 from internal.core.file_extractor import FileExtractor
-from internal.entity.dataset_entity import DocumentStatus
+from internal.entity.dataset_entity import DocumentStatus, SegmentStatus
+from internal.lib.helper import generate_text_hash
 from internal.model import Document, Segment
 from pkg.sqlalchemy import SQLAlchemy
 from .base_service import BaseService
@@ -122,6 +123,13 @@ class IndexingService(BaseService):
                 "segment_enabled": False,
             }
             segments.append(segment)
+        self.update(
+            document,
+            token_count=sum([segment.token_count for segment in segments]),
+            status=DocumentStatus.INDEXING,
+            splitting_completed_at=datetime.now(),
+        )
+        return lc_segments
 
     @classmethod
     def _clean_extra_text(cls, text: str) -> str:
