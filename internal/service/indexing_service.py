@@ -23,7 +23,10 @@ from internal.model import Document, Segment
 from pkg.sqlalchemy import SQLAlchemy
 from .base_service import BaseService
 from .embeddings_service import EmbeddingsService
+from .jieba_service import JiebaService
+from .keyword_table_service import KeywordTableService
 from .process_rule_service import ProcessRuleService
+from .vector_database_service import VectorDatabaseService
 
 
 @inject
@@ -33,6 +36,9 @@ class IndexingService(BaseService):
     file_extractor: FileExtractor
     process_rule_service: ProcessRuleService
     embeddings_service: EmbeddingsService
+    jieba_service: JiebaService
+    keyword_table_service: KeywordTableService
+    vector_database_service: VectorDatabaseService
 
     def build_documents(self, document_ids: list[UUID]) -> None:
         # 根据传递的文档id获取所有文档
@@ -52,7 +58,9 @@ class IndexingService(BaseService):
                 # 执行文档分割
                 lc_segments = self._splitting(document, lc_documents)
                 # 执行文档索引构建
+                self._indexing(document, lc_segments)
                 # 存储操作
+                self._completed(document, lc_segments)
             except Exception as e:
                 logging.exception(f"构建文档 {document.id}, 发生错误信息: {str(e)}")
                 self.update(
@@ -61,6 +69,63 @@ class IndexingService(BaseService):
                     error=str(e),
                     stopped_at=datetime.now(),
                 )
+
+    def _completed(self, document: Document, lc_segments: list[LCDocument]) -> None:
+        for lc_segment in lc_segments:
+            lc_segment.metadata["document_enabled"] = True
+            lc_segment.metadata["segment_enabled"] = True
+
+        for i in range(0, len(lc_segments), 10):
+            chunks = lc_segments[i:i + 10]
+            ids = [chunk.metadata["node_id"] for chunk in chunks]
+            self.vector_database_service.vector_store.add_documents(
+                chunks,
+                ids=ids
+            )
+            self.db.session.query(Segment).filter(
+                Segment.node_id.in_(ids)
+            ).update({
+                "status": SegmentStatus.COMPLETED,
+                "completed_at": datetime.now(),
+                "enabled": True,
+            })
+        self.update(
+            document,
+            status=DocumentStatus.COMPLETED,
+            completed_at=datetime.now(),
+            enabled=True,
+        )
+
+    def _indexing(self, document: Document, lc_segments: list[LCDocument]) -> None:
+        for lc_segment in lc_segments:
+            keywords = self.jieba_service.extract_keywords(lc_segment.page_content, 10)
+            self.db.session.query(Segment).filter(
+                Segment.id == lc_segment.metadata["segment_id"]
+            ).update(
+                {
+                    "keywords": keywords,
+                    "status": SegmentStatus.INDEXING,
+                    "indexing_completed_at": datetime.now()
+                }
+            )
+            keyword_table_record = self.keyword_table_service.get_keyword_table_from_dataset_id(document.dataset_id)
+            keyword_table = {
+                field: set(value) for field, value in keyword_table_record.keyword_table.items()
+            }
+            for keyword in keywords:
+                if keyword not in keyword_table:
+                    keyword_table[keyword] = set()
+                keyword_table[keyword].add(lc_segment.metadata["segment_id"])
+
+            self.update(
+                keyword_table_record,
+                keyword_table={field: list(value) for field, value in keyword_table.items()}
+            )
+
+        self.update(
+            document,
+            indexing_completed_at=datetime.now(),
+        )
 
     def _parsing(self, document: Document) -> list[LCDocument]:
         # 获取upload_file 并加载Langchain文档
