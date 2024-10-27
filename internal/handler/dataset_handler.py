@@ -13,9 +13,14 @@ from injector import inject
 
 from internal.core.file_extractor import FileExtractor
 from internal.model import UploadFile
-from internal.schema.dataset_schema import CreateDatasetReq, GetDatasetResp, UpdateDatasetReq, GetDatasetsWithPageReq, \
+from internal.schema.dataset_schema import (
+    CreateDatasetReq,
+    GetDatasetResp,
+    UpdateDatasetReq,
+    GetDatasetsWithPageReq,
     GetDatasetsWithPageResp
-from internal.service import DatasetService, EmbeddingsService, JiebaService
+)
+from internal.service import DatasetService, EmbeddingsService, JiebaService, VectorDatabaseService
 from pkg.paginator import PageModel
 from pkg.response import validate_error_json, success_message, success_json
 from pkg.sqlalchemy import SQLAlchemy
@@ -28,6 +33,7 @@ class DatasetHandler:
     embeddings_service: EmbeddingsService
     jieba_service: JiebaService
     file_extractor: FileExtractor
+    vector_database_service: VectorDatabaseService
     db: SQLAlchemy
 
     def embeddings_query(self):
@@ -37,6 +43,33 @@ class DatasetHandler:
         # query = request.args.get("query")
         # keywords = self.jieba_service.extract_keywords(query)
         # return success_json({"keywords": keywords})
+
+    def hit(self, dataset_id: UUID):
+        from weaviate.classes.query import Filter
+        query = "长恨歌"
+        retriever = self.vector_database_service.vector_store.as_retriever(
+            search_type="mmr",
+            search_kwargs={
+                "k": 10,
+                "filters": Filter.all_of([
+                    Filter.by_property("document_enabled").equal(True),
+                    Filter.by_property("segment_enabled").equal(True),
+                    Filter.any_of([
+                        Filter.by_property("dataset_id").equal("e6fc9059-2570-4315-994e-e566d4398926"),
+                        Filter.by_property("dataset_id").equal("e6fc9059-2570-4315-994e-e566d4398927"),
+                    ])
+                ])
+            }
+        )
+        documents = retriever.invoke(query)
+        return success_json({
+            "documents": [
+                {
+                    "page_content": document.page_content,
+                    "metadata": document.metadata
+                } for document in documents
+            ]
+        })
 
     def create_dataset(self):
         req = CreateDatasetReq()

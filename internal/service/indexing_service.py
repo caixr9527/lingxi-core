@@ -8,10 +8,12 @@
 import logging
 import re
 import uuid
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from datetime import datetime
 from uuid import UUID
 
+from flask import Flask, current_app
 from injector import inject
 from langchain_core.documents import Document as LCDocument
 from sqlalchemy import func
@@ -71,24 +73,51 @@ class IndexingService(BaseService):
                 )
 
     def _completed(self, document: Document, lc_segments: list[LCDocument]) -> None:
+        """存储文档片段到向量数据库，并完成状态更新"""
+        # 1.循环遍历片段列表数据，将文档状态及片段状态设置成True
         for lc_segment in lc_segments:
             lc_segment.metadata["document_enabled"] = True
             lc_segment.metadata["segment_enabled"] = True
 
-        for i in range(0, len(lc_segments), 10):
-            chunks = lc_segments[i:i + 10]
-            ids = [chunk.metadata["node_id"] for chunk in chunks]
-            self.vector_database_service.vector_store.add_documents(
-                chunks,
-                ids=ids
-            )
-            self.db.session.query(Segment).filter(
-                Segment.node_id.in_(ids)
-            ).update({
-                "status": SegmentStatus.COMPLETED,
-                "completed_at": datetime.now(),
-                "enabled": True,
-            })
+        # 2.调用向量数据库，每次存储10条数据，避免一次传递过多的数据
+        def thread_func(flask_app: Flask, chunks: list[LCDocument], ids: list[UUID]) -> None:
+            """线程函数，执行向量数据库与postgres数据的存储"""
+            with flask_app.app_context():
+                try:
+                    self.vector_database_service.vector_store.add_documents(
+                        chunks, ids=ids,
+                    )
+                    with self.db.auto_commit():
+                        self.db.session.query(Segment).filter(
+                            Segment.node_id.in_(ids)
+                        ).update({
+                            "status": SegmentStatus.COMPLETED,
+                            "completed_at": datetime.now(),
+                            "enabled": True,
+                        })
+                except Exception as e:
+                    logging.exception(f"构建文档片段索引发生异常，错误信息： {str(e)}")
+                    with self.db.auto_commit():
+                        self.db.session.query(Segment).filter(
+                            Segment.node_id.in_(ids)
+                        ).update({
+                            "status": SegmentStatus.ERROR,
+                            "completed_at": None,
+                            "stopped_at": datetime.now(),
+                            "enabled": False,
+                        })
+
+        with ThreadPoolExecutor(max_workers=5) as executor:
+            futures = []
+            for i in range(0, len(lc_segments), 10):
+                chunks = lc_segments[i:i + 10]
+                ids = [chunk.metadata["node_id"] for chunk in chunks]
+                futures.append(executor.submit(thread_func, current_app._get_current_object(), chunks, ids))
+
+            for future in futures:
+                future.result()
+
+        # 6.更新文档的状态数据
         self.update(
             document,
             status=DocumentStatus.COMPLETED,
