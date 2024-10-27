@@ -6,6 +6,7 @@
 @File   : helper.py
 """
 import importlib
+from datetime import datetime
 from hashlib import sha3_256
 from typing import Any
 
@@ -26,3 +27,9 @@ def add_attribute(attr_name: str, attr_value: Any):
 def generate_text_hash(text: str) -> str:
     text = str(text) + "None"
     return sha3_256(text.encode()).hexdigest()
+
+
+def datetime_to_timestamp(dt: datetime) -> int:
+    if dt is None:
+        return 0
+    return int(dt.timestamp())
