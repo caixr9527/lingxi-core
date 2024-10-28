@@ -19,7 +19,9 @@ from internal.entity.upload_file_entity import ALL_DOCUMENT_EXTENSION
 from internal.exception import ForbiddenException, FailException, NotFoundException
 from internal.lib.helper import datetime_to_timestamp
 from internal.model import Document, Dataset, UploadFile, ProcessRule, Segment
+from internal.schema.document_schema import GetDocumentsWithPageReq
 from internal.task.document_task import build_documents
+from pkg.paginator import Paginator
 from pkg.sqlalchemy import SQLAlchemy
 from .base_service import BaseService
 
@@ -128,3 +130,44 @@ class DocumentService(BaseService):
                 "created_at": datetime_to_timestamp(document.created_at),
             })
         return documents_status
+
+    def get_document(self, dataset_id: UUID, document_id: UUID) -> Document:
+        # todo
+        account_id = "e7300838-b215-4f97-b420-2333a699e22e"
+        document = self.get(Document, document_id)
+        if document is None:
+            raise NotFoundException("该文档不存在")
+        if document.dataset_id != dataset_id or str(document.account_id) != account_id:
+            raise ForbiddenException("当前用户无权限获取该文档")
+        return document
+
+    def update_document(self, dataset_id: UUID, document_id: UUID, **kwargs) -> Document:
+        # todo
+        account_id = "e7300838-b215-4f97-b420-2333a699e22e"
+        document = self.get(Document, document_id)
+        if document is None:
+            raise NotFoundException("该文档不存在")
+        if document.dataset_id != dataset_id or str(document.account_id) != account_id:
+            raise ForbiddenException("当前用户无权限获取该文档")
+
+        return self.update(document, **kwargs)
+
+    def get_document_with_page(self, dataset_id: UUID,
+                               req: GetDocumentsWithPageReq) -> tuple[list[Document], Paginator]:
+        # todo
+        account_id = "e7300838-b215-4f97-b420-2333a699e22e"
+        dataset = self.get(Dataset, dataset_id)
+        if dataset is None or str(dataset.account_id) != account_id:
+            raise NotFoundException("该知识库不存在或无权限")
+        paginator = Paginator(db=self.db, req=req)
+        filters = [
+            Document.account_id == account_id,
+            Document.dataset_id == dataset_id,
+        ]
+        if req.search_word.data:
+            filters.append(Document.name.ilike(f"%{req.search_word.data}%"))
+
+        documents = paginator.paginate(
+            self.db.session.query(Document).filter(*filters).order_by(desc("created_at"))
+        )
+        return documents, paginator
