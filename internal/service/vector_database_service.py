@@ -13,8 +13,11 @@ from langchain_core.documents import Document
 from langchain_core.vectorstores import VectorStoreRetriever
 from langchain_weaviate import WeaviateVectorStore
 from weaviate import WeaviateClient
+from weaviate.collections import Collection
 
 from .embeddings_service import EmbeddingsService
+
+COLLECTION_NAME = "Dataset"
 
 
 @inject
@@ -39,7 +42,7 @@ class VectorDatabaseService:
         # 2. 创建LangChain向量数据库
         self.vector_store = WeaviateVectorStore(
             client=self.client,
-            index_name="Dataset",
+            index_name=COLLECTION_NAME,
             text_key="text",
             embedding=self.embeddings_service.embeddings
         )
@@ -53,3 +56,7 @@ class VectorDatabaseService:
         """将对应的文档列表使用换行符合并"""
         doc = "\n\n".join([document.page_content for document in documents])
         return doc
+
+    @property
+    def collection(self) -> Collection:
+        return self.client.collections.get(COLLECTION_NAME)

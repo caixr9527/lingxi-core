@@ -17,7 +17,8 @@ from internal.schema.document_schema import (
     GetDocumentResp,
     UpdateDocumentNameReq,
     GetDocumentsWithPageReq,
-    GetDocumentsWithPageResp
+    GetDocumentsWithPageResp,
+    UpdateDocumentEnabledReq
 )
 from internal.service import DocumentService
 from pkg.paginator import PageModel
@@ -48,6 +49,13 @@ class DocumentHandler:
             return validate_error_json(req.errors)
         self.document_service.update_document(dataset_id, document_id, name=req.name.data)
         return success_message("更新文档名称成功")
+
+    def update_document_enabled(self, dataset_id: UUID, document_id: UUID):
+        req = UpdateDocumentEnabledReq()
+        if not req.validate():
+            return validate_error_json(req.errors)
+        self.document_service.update_document_enabled(dataset_id, document_id, enabled=req.enabled.data)
+        return success_message("更新文档状态成功")
 
     def get_document_with_page(self, dataset_id: UUID):
         req = GetDocumentsWithPageReq(request.args)

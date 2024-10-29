@@ -16,10 +16,13 @@ from uuid import UUID
 from flask import Flask, current_app
 from injector import inject
 from langchain_core.documents import Document as LCDocument
+from redis import Redis
 from sqlalchemy import func
 
 from internal.core.file_extractor import FileExtractor
+from internal.entity.cache_entity import LOCK_DOCUMENT_UPDATE_ENABLED
 from internal.entity.dataset_entity import DocumentStatus, SegmentStatus
+from internal.exception import NotFoundException
 from internal.lib.helper import generate_text_hash
 from internal.model import Document, Segment
 from pkg.sqlalchemy import SQLAlchemy
@@ -41,6 +44,7 @@ class IndexingService(BaseService):
     jieba_service: JiebaService
     keyword_table_service: KeywordTableService
     vector_database_service: VectorDatabaseService
+    redis_client: Redis
 
     def build_documents(self, document_ids: list[UUID]) -> None:
         # 根据传递的文档id获取所有文档
@@ -71,6 +75,38 @@ class IndexingService(BaseService):
                     error=str(e),
                     stopped_at=datetime.now(),
                 )
+
+    def update_document_enabled(self, document_id: UUID) -> None:
+        cache_key = LOCK_DOCUMENT_UPDATE_ENABLED.format(document_id=document_id)
+        document = self.get(Document, document_id)
+        if document is None:
+            logging.exception(f"当前文档: {document_id} 不存在")
+            raise NotFoundException("该文档不存在")
+
+        node_ids = [
+            node_id for node_id in self.db.session.query(Segment).with_entities(Segment.node_id).filter(
+                Segment.document_id == document_id,
+            ).all()
+        ]
+        try:
+            collection = self.vector_database_service.collection
+            for node_id in node_ids:
+                collection.data.update(
+                    uuid=node_id,
+                    properties={
+                        "document_enabled": document.enabled,
+                    }
+                )
+        except Exception as e:
+            logging.exception(f"修改向量数据库文档启用状态失败，文档ID：{document_id}, 错误信息：{str(e)}")
+            origin_enabled = not document.enabled
+            self.update(
+                document,
+                enabled=origin_enabled,
+                disabled_at=None if origin_enabled else datetime.now(),
+            )
+        finally:
+            self.redis_client.delete(cache_key)
 
     def _completed(self, document: Document, lc_segments: list[LCDocument]) -> None:
         """存储文档片段到向量数据库，并完成状态更新"""
