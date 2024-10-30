@@ -21,7 +21,7 @@ def build_documents(document_ids: list[UUID]) -> None:
 
 
 @shared_task
-def update_documents_enabled(document_id: UUID) -> None:
+def update_document_enabled(document_id: UUID) -> None:
     from app.http.module import injector
     from internal.service.indexing_service import IndexingService
     indexing_service = injector.get(IndexingService)

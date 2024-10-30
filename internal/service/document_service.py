@@ -23,7 +23,7 @@ from internal.exception import ForbiddenException, FailException, NotFoundExcept
 from internal.lib.helper import datetime_to_timestamp
 from internal.model import Document, Dataset, UploadFile, ProcessRule, Segment
 from internal.schema.document_schema import GetDocumentsWithPageReq
-from internal.task.document_task import build_documents, update_documents_enabled
+from internal.task.document_task import build_documents, update_document_enabled
 from pkg.paginator import Paginator
 from pkg.sqlalchemy import SQLAlchemy
 from .base_service import BaseService
@@ -199,5 +199,5 @@ class DocumentService(BaseService):
             disabled_at=None if enabled else datetime.now()
         )
         self.redis_client.setex(cache_key, LOCK_EXPIRE_TIME, 1)
-        update_documents_enabled.delay(document.id)
+        update_document_enabled.delay(document.id)
         return document
