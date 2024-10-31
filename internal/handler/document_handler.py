@@ -57,6 +57,10 @@ class DocumentHandler:
         self.document_service.update_document_enabled(dataset_id, document_id, enabled=req.enabled.data)
         return success_message("更新文档状态成功")
 
+    def delete_document(self, dataset_id: UUID, document_id: UUID):
+        self.document_service.delete_document(dataset_id, document_id)
+        return success_message("删除文档成功")
+
     def get_document_with_page(self, dataset_id: UUID):
         req = GetDocumentsWithPageReq(request.args)
         if not req.validate():

@@ -23,7 +23,7 @@ from internal.exception import ForbiddenException, FailException, NotFoundExcept
 from internal.lib.helper import datetime_to_timestamp
 from internal.model import Document, Dataset, UploadFile, ProcessRule, Segment
 from internal.schema.document_schema import GetDocumentsWithPageReq
-from internal.task.document_task import build_documents, update_document_enabled
+from internal.task.document_task import build_documents, update_document_enabled, delete_document
 from pkg.paginator import Paginator
 from pkg.sqlalchemy import SQLAlchemy
 from .base_service import BaseService
@@ -200,4 +200,22 @@ class DocumentService(BaseService):
         )
         self.redis_client.setex(cache_key, LOCK_EXPIRE_TIME, 1)
         update_document_enabled.delay(document.id)
+        return document
+
+    def delete_document(self, dataset_id: UUID, document_id: UUID) -> Document:
+        # todo
+        # 权限判断
+        account_id = "e7300838-b215-4f97-b420-2333a699e22e"
+        document = self.get(Document, document_id)
+        if document is None:
+            raise NotFoundException("该文档不存在，请核实后重试")
+        if document.dataset_id != dataset_id or str(document.account_id) != account_id:
+            raise ForbiddenException("当前用户无权限删除该知识库下的文档，请核实后重试")
+        # 状态判断
+        if document.status not in [DocumentStatus.COMPLETED, DocumentStatus.ERROR]:
+            raise FailException("当前文档处于不可删除状态，请稍后重试")
+        # 删除逻辑
+        self.delete(document)
+        delete_document.delay(dataset_id, document_id)
+        # 异步任务删除
         return document

@@ -18,9 +18,14 @@ from injector import inject
 from langchain_core.documents import Document as LCDocument
 from redis import Redis
 from sqlalchemy import func
+from weaviate.classes.query import Filter
 
 from internal.core.file_extractor import FileExtractor
-from internal.entity.cache_entity import LOCK_DOCUMENT_UPDATE_ENABLED
+from internal.entity.cache_entity import (
+    LOCK_KEYWORD_TABLE_UPDATE_KEYWORD_TABLE,
+    LOCK_EXPIRE_TIME,
+    LOCK_DOCUMENT_UPDATE_ENABLED
+)
 from internal.entity.dataset_entity import DocumentStatus, SegmentStatus
 from internal.exception import NotFoundException
 from internal.lib.helper import generate_text_hash
@@ -107,6 +112,45 @@ class IndexingService(BaseService):
             )
         finally:
             self.redis_client.delete(cache_key)
+
+    def delete_document(self, dataset_id: UUID, document_id: UUID) -> None:
+        # 查找该文档下的所有片段id列表
+        segment_ids = [
+            str(id) for id, in self.db.session.query(Segment).with_entities(Segment.id).filter(
+                Segment.document_id == document_id,
+            ).all()
+        ]
+
+        # 删除向量数据库相关文档
+        collection = self.vector_database_service.collection
+        collection.data.delete_many(
+            where=Filter.by_property("document_id").equal(document_id),
+        )
+        with self.db.auto_commit():
+            self.db.session.query(Segment).filter(
+                Segment.document_id == document_id
+            ).delete()
+
+        segment_ids_to_delete = set(segment_ids)
+        keywords_to_delete = set()
+        # 更新知识库关键词表，需加锁
+        cache_key = LOCK_KEYWORD_TABLE_UPDATE_KEYWORD_TABLE.format(dataset_id=dataset_id),
+        with self.redis_client.lock(str(cache_key), timeout=LOCK_EXPIRE_TIME):
+            # 获取关键词表
+            keyword_table_record = self.keyword_table_service.get_keyword_table_from_dataset_id(dataset_id)
+            keyword_table = keyword_table_record.keyword_table.copy()
+            for keyword, ids in keyword_table.items():
+                ids_set = set(ids)
+                if segment_ids_to_delete.intersection(ids_set):
+                    keyword_table[keyword] = list(ids_set.difference(segment_ids_to_delete))
+                    if not keyword_table[keyword]:
+                        keywords_to_delete.add(keyword)
+            # 检测空关键词并删除
+            for keyword in keywords_to_delete:
+                del keyword_table[keyword]
+
+            # 将数据更新到关键词表
+            self.update(keyword_table_record, keyword_table=keyword_table)
 
     def _completed(self, document: Document, lc_segments: list[LCDocument]) -> None:
         """存储文档片段到向量数据库，并完成状态更新"""
