@@ -84,7 +84,7 @@ class IndexingService(BaseService):
             raise NotFoundException("该文档不存在")
 
         node_ids = [
-            node_id for node_id in self.db.session.query(Segment).with_entities(Segment.node_id).filter(
+            node_id for node_id, in self.db.session.query(Segment).with_entities(Segment.node_id).filter(
                 Segment.document_id == document_id,
             ).all()
         ]
