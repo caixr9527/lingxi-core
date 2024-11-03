@@ -35,7 +35,7 @@ class KeywordTableService(BaseService):
 
         return keyword_table
 
-    def delete_keyword_table_from_dis(self, dataset_id: UUID, segment_ids: list[UUID]) -> None:
+    def delete_keyword_table_from_ids(self, dataset_id: UUID, segment_ids: list[UUID]) -> None:
         # 删除知识库表的多余数据
         cache_key = LOCK_KEYWORD_TABLE_UPDATE_KEYWORD_TABLE.format(dataset_id=dataset_id)
         with self.redis_client.lock(str(cache_key), timeout=LOCK_EXPIRE_TIME):
@@ -59,7 +59,7 @@ class KeywordTableService(BaseService):
             # 将数据更新到关键词表
             self.update(keyword_table_record, keyword_table=keyword_table)
 
-    def add_keyword_table_from_dis(self, dataset_id: UUID, segment_ids: list[UUID]) -> None:
+    def add_keyword_table_from_ids(self, dataset_id: UUID, segment_ids: list[UUID]) -> None:
         cache_key = LOCK_KEYWORD_TABLE_UPDATE_KEYWORD_TABLE.format(dataset_id=dataset_id)
         with self.redis_client.lock(str(cache_key), timeout=LOCK_EXPIRE_TIME):
             keyword_table_record = self.get_keyword_table_from_dataset_id(dataset_id)

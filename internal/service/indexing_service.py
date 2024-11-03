@@ -118,10 +118,10 @@ class IndexingService(BaseService):
             if document.enabled is True:
                 # 禁用改为启用，新增关键词
                 enabled_segment_ids = [id for id, _, enabled in segments if enabled is True]
-                self.keyword_table_service.add_keyword_table_from_dis(document.dataset_id, enabled_segment_ids)
+                self.keyword_table_service.add_keyword_table_from_ids(document.dataset_id, enabled_segment_ids)
             else:
                 # 启用改为禁用，删除关键词
-                self.keyword_table_service.delete_keyword_table_from_dis(document.dataset_id, segment_ids)
+                self.keyword_table_service.delete_keyword_table_from_ids(document.dataset_id, segment_ids)
 
         except Exception as e:
             logging.exception(f"修改向量数据库文档启用状态失败，文档ID：{document_id}, 错误信息：{str(e)}")
@@ -153,7 +153,7 @@ class IndexingService(BaseService):
             ).delete()
 
         # 删除关键词记录
-        self.keyword_table_service.delete_keyword_table_from_dis(dataset_id, segment_ids)
+        self.keyword_table_service.delete_keyword_table_from_ids(dataset_id, segment_ids)
 
     def _completed(self, document: Document, lc_segments: list[LCDocument]) -> None:
         """存储文档片段到向量数据库，并完成状态更新"""

@@ -16,7 +16,9 @@ from internal.handler import (
     ApiToolHandler,
     UploadFileHandler,
     DatasetHandler,
-    DocumentHandler)
+    DocumentHandler,
+    SegmentHandler,
+)
 
 
 @inject
@@ -29,6 +31,7 @@ class Router:
     upload_file_handler: UploadFileHandler
     dataset_handler: DatasetHandler
     document_handler: DocumentHandler
+    segment_handler: SegmentHandler
 
     def register_router(self, app: Flask):
         """注册路由"""
@@ -112,6 +115,14 @@ class Router:
                         view_func=self.document_handler.delete_document)
         bp.add_url_rule("/datasets/<uuid:dataset_id>/documents/batch/<string:batch>",
                         view_func=self.document_handler.get_documents_status)
+
+        bp.add_url_rule("/datasets/<uuid:dataset_id>/documents/<uuid:document_id>/segments",
+                        view_func=self.segment_handler.get_segment_with_page)
+        bp.add_url_rule("/datasets/<uuid:dataset_id>/documents/<uuid:document_id>/segments/<uuid:segment_id>",
+                        view_func=self.segment_handler.get_segment)
+        bp.add_url_rule("/datasets/<uuid:dataset_id>/documents/<uuid:document_id>/segments/<uuid:segment_id>/enabled",
+                        methods=["POST"],
+                        view_func=self.segment_handler.update_segment_enabled)
         bp.add_url_rule("/datasets/<uuid:dataset_id>/hit", methods=["POST"], view_func=self.dataset_handler.hit)
         # 4.应用上注册蓝图
         app.register_blueprint(bp)

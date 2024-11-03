@@ -52,14 +52,15 @@ class DatasetHandler:
             search_kwargs={
                 "k": 10,
                 "filters": Filter.all_of([
-                    Filter.by_property("document_enabled").equal(True),
-                    Filter.by_property("segment_enabled").equal(True),
-                    Filter.any_of([
-                        # Filter.by_property("dataset_id").equal("e6fc9059-2570-4315-994e-e566d4398926"),
-                        # Filter.by_property("dataset_id").equal("e6fc9059-2570-4315-994e-e566d4398927"),
-                        Filter.by_property("document_id").equal("8547c5c6-e27b-45ad-8f89-0c1a4f871031"),
-
-                    ])
+                    Filter.by_property("segment_id").equal("e1441889-5322-466f-a253-081673bcbc42"),
+                    # Filter.by_property("document_enabled").equal(True),
+                    # Filter.by_property("segment_enabled").equal(True),
+                    # Filter.any_of([
+                    #     Filter.by_property("dataset_id").equal("e6fc9059-2570-4315-994e-e566d4398926"),
+                    #     Filter.by_property("dataset_id").equal("e6fc9059-2570-4315-994e-e566d4398927"),
+                    #     Filter.by_property("document_id").equal("8547c5c6-e27b-45ad-8f89-0c1a4f871031"),
+                    #
+                    # ])
                 ])
             }
         )
