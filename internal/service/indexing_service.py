@@ -22,8 +22,6 @@ from weaviate.classes.query import Filter
 
 from internal.core.file_extractor import FileExtractor
 from internal.entity.cache_entity import (
-    LOCK_KEYWORD_TABLE_UPDATE_KEYWORD_TABLE,
-    LOCK_EXPIRE_TIME,
     LOCK_DOCUMENT_UPDATE_ENABLED
 )
 from internal.entity.dataset_entity import DocumentStatus, SegmentStatus
@@ -88,20 +86,43 @@ class IndexingService(BaseService):
             logging.exception(f"当前文档: {document_id} 不存在")
             raise NotFoundException("该文档不存在")
 
-        node_ids = [
-            node_id for node_id, in self.db.session.query(Segment).with_entities(Segment.node_id).filter(
-                Segment.document_id == document_id,
-            ).all()
-        ]
+        segments = self.db.session.query(Segment).with_entities(Segment.id, Segment.node_id, Segment.enabled).filter(
+            Segment.document_id == document_id,
+            Segment.status == SegmentStatus.COMPLETED
+        ).all()
+
+        segment_ids = [id for id, _, _ in segments]
+        node_ids = [node_id for _, node_id, _ in segments]
         try:
             collection = self.vector_database_service.collection
             for node_id in node_ids:
-                collection.data.update(
-                    uuid=node_id,
-                    properties={
-                        "document_enabled": document.enabled,
-                    }
-                )
+                try:
+                    collection.data.update(
+                        uuid=node_id,
+                        properties={
+                            "document_enabled": document.enabled,
+                        }
+                    )
+                except Exception as e:
+                    with self.db.auto_commit():
+                        self.db.session.query(Segment).filter(
+                            Segment.node_id == node_id
+                        ).update({
+                            "error": str(e),
+                            "status": SegmentStatus.ERROR,
+                            "enabled": False,
+                            "disabled_at": datetime.now(),
+                            "stopped_at": datetime.now()
+                        })
+
+            if document.enabled is True:
+                # 禁用改为启用，新增关键词
+                enabled_segment_ids = [id for id, _, enabled in segments if enabled is True]
+                self.keyword_table_service.add_keyword_table_from_dis(document.dataset_id, enabled_segment_ids)
+            else:
+                # 启用改为禁用，删除关键词
+                self.keyword_table_service.delete_keyword_table_from_dis(document.dataset_id, segment_ids)
+
         except Exception as e:
             logging.exception(f"修改向量数据库文档启用状态失败，文档ID：{document_id}, 错误信息：{str(e)}")
             origin_enabled = not document.enabled
@@ -116,7 +137,7 @@ class IndexingService(BaseService):
     def delete_document(self, dataset_id: UUID, document_id: UUID) -> None:
         # 查找该文档下的所有片段id列表
         segment_ids = [
-            str(id) for id, in self.db.session.query(Segment).with_entities(Segment.id).filter(
+            id for id, in self.db.session.query(Segment).with_entities(Segment.id).filter(
                 Segment.document_id == document_id,
             ).all()
         ]
@@ -131,26 +152,8 @@ class IndexingService(BaseService):
                 Segment.document_id == document_id
             ).delete()
 
-        segment_ids_to_delete = set(segment_ids)
-        keywords_to_delete = set()
-        # 更新知识库关键词表，需加锁
-        cache_key = LOCK_KEYWORD_TABLE_UPDATE_KEYWORD_TABLE.format(dataset_id=dataset_id),
-        with self.redis_client.lock(str(cache_key), timeout=LOCK_EXPIRE_TIME):
-            # 获取关键词表
-            keyword_table_record = self.keyword_table_service.get_keyword_table_from_dataset_id(dataset_id)
-            keyword_table = keyword_table_record.keyword_table.copy()
-            for keyword, ids in keyword_table.items():
-                ids_set = set(ids)
-                if segment_ids_to_delete.intersection(ids_set):
-                    keyword_table[keyword] = list(ids_set.difference(segment_ids_to_delete))
-                    if not keyword_table[keyword]:
-                        keywords_to_delete.add(keyword)
-            # 检测空关键词并删除
-            for keyword in keywords_to_delete:
-                del keyword_table[keyword]
-
-            # 将数据更新到关键词表
-            self.update(keyword_table_record, keyword_table=keyword_table)
+        # 删除关键词记录
+        self.keyword_table_service.delete_keyword_table_from_dis(dataset_id, segment_ids)
 
     def _completed(self, document: Document, lc_segments: list[LCDocument]) -> None:
         """存储文档片段到向量数据库，并完成状态更新"""

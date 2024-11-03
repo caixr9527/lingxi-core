@@ -57,7 +57,7 @@ class DatasetHandler:
                     Filter.any_of([
                         # Filter.by_property("dataset_id").equal("e6fc9059-2570-4315-994e-e566d4398926"),
                         # Filter.by_property("dataset_id").equal("e6fc9059-2570-4315-994e-e566d4398927"),
-                        Filter.by_property("document_id").equal("a1d3eff4-c3c5-4ddc-928c-0224475d29a4"),
+                        Filter.by_property("document_id").equal("8547c5c6-e27b-45ad-8f89-0c1a4f871031"),
 
                     ])
                 ])
