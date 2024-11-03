@@ -60,24 +60,28 @@ class KeywordTableService(BaseService):
             self.update(keyword_table_record, keyword_table=keyword_table)
 
     def add_keyword_table_from_ids(self, dataset_id: UUID, segment_ids: list[UUID]) -> None:
+        # 1.新增知识库关键词表里多余的数据，该操作需要上锁，避免在并发的情况下拿到错误的数据
         cache_key = LOCK_KEYWORD_TABLE_UPDATE_KEYWORD_TABLE.format(dataset_id=dataset_id)
-        with self.redis_client.lock(str(cache_key), timeout=LOCK_EXPIRE_TIME):
+        with self.redis_client.lock(cache_key, timeout=LOCK_EXPIRE_TIME):
+            # 2.获取指定知识库的关键词比哦啊
             keyword_table_record = self.get_keyword_table_from_dataset_id(dataset_id)
             keyword_table = {
                 field: set(value) for field, value in keyword_table_record.keyword_table.items()
             }
 
-            # 根据segment_id查询片段关键词
+            # 3.根据segment_ids查找片段的关键词信息
             segments = self.db.session.query(Segment).with_entities(Segment.id, Segment.keywords).filter(
                 Segment.id.in_(segment_ids),
             ).all()
 
+            # 4.循环将新关键词添加到关键词表中
             for id, keywords in segments:
                 for keyword in keywords:
                     if keyword not in keyword_table:
                         keyword_table[keyword] = set()
                     keyword_table[keyword].add(str(id))
 
+            # 5.更新关键词表
             self.update(
                 keyword_table_record,
                 keyword_table={field: list(value) for field, value in keyword_table.items()}
