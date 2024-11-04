@@ -23,7 +23,8 @@ from internal.lib.helper import generate_text_hash
 from internal.model import Segment, Document
 from internal.schema.segment_schema import (
     GetSegmentsWithPageReq,
-    CreateSegmentReq
+    CreateSegmentReq,
+    UpdateSegmentReq
 )
 from pkg.paginator import Paginator
 from pkg.sqlalchemy import SQLAlchemy
@@ -124,6 +125,78 @@ class SegmentService(BaseService):
                     stopped_at=datetime.now(),
                 )
             raise FailException("新增文档片段失败，请稍后重试")
+
+    def update_segment(
+            self, dataset_id: UUID, document_id: UUID, segment_id: UUID, req: UpdateSegmentReq,
+    ) -> Segment:
+        """根据传递的信息更新指定的文档片段信息"""
+        # todo:等待授权认证模块完成进行切换调整
+        account_id = "e7300838-b215-4f97-b420-2333a699e22e"
+
+        # 1.获取片段信息并校验权限
+        segment = self.get(Segment, segment_id)
+        if (
+                segment is None
+                or str(segment.account_id) != account_id
+                or segment.dataset_id != dataset_id
+                or segment.document_id != document_id
+        ):
+            raise NotFoundException("该文档片段不存在，或无权限修改，请核实后重试")
+
+        # 2.判断文档片段是否处于可修改的环境
+        if segment.status != SegmentStatus.COMPLETED:
+            raise FailException("当前片段不可修改状态，请稍后尝试")
+
+        # 3.检测是否传递了keywords，如果没有传递的话，调用jieba服务生成关键词
+        if req.keywords.data is None or len(req.keywords.data) == 0:
+            req.keywords.data = self.jieba_service.extract_keywords(req.content.data, 10)
+
+        # 4.计算新内容hash值，用于判断是否需要更新向量数据库以及文档详情
+        new_hash = generate_text_hash(req.content.data)
+        required_update = segment.hash != new_hash
+
+        try:
+            # 5.更新segment表记录
+            self.update(
+                segment,
+                keywords=req.keywords.data,
+                content=req.content.data,
+                hash=new_hash,
+                character_count=len(req.content.data),
+                token_count=self.embeddings_service.calculate_token_count(req.content.data),
+            )
+
+            # 7.更新片段归属关键词信息
+            self.keyword_table_service.delete_keyword_table_from_ids(dataset_id, [segment_id])
+            self.keyword_table_service.add_keyword_table_from_ids(dataset_id, [segment_id])
+
+            # 8.检测是否需要更新文档信息以及向量数据库
+            if required_update:
+                # 7.更新文档信息，涵盖字符总数、token总次数
+                document = segment.document
+                document_character_count, document_token_count = self.db.session.query(
+                    func.coalesce(func.sum(Segment.character_count), 0),
+                    func.coalesce(func.sum(Segment.token_count), 0)
+                ).first()
+                self.update(
+                    document,
+                    character_count=document_character_count,
+                    token_count=document_token_count,
+                )
+
+                # 9.更新向量数据库对应记录
+                self.vector_database_service.collection.data.update(
+                    uuid=str(segment.node_id),
+                    properties={
+                        "text": req.content.data,
+                    },
+                    vector=self.embeddings_service.embeddings.embed_query(req.content.data)
+                )
+        except Exception as e:
+            logging.exception(f"更新文档片段记录失败, segment_id: {segment}, 错误信息: {str(e)}")
+            raise FailException("更新文档片段记录失败，请稍后尝试")
+
+        return segment
 
     def update_segment_enabled(self, dataset_id: UUID, document_id: UUID, segment_id: UUID, enabled: bool) -> Segment:
         # todo

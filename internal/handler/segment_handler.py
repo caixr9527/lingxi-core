@@ -16,7 +16,8 @@ from internal.schema.segment_schema import (
     GetSegmentsWithPageResp,
     GetSegmentResp,
     UpdateSegmentEnabledReq,
-    CreateSegmentReq
+    CreateSegmentReq,
+    UpdateSegmentReq
 )
 from internal.service import SegmentService
 from pkg.paginator import PageModel
@@ -55,3 +56,15 @@ class SegmentHandler:
             return validate_error_json(req.errors)
         self.segment_service.update_segment_enabled(dataset_id, document_id, segment_id, req.enabled.data)
         return success_message("修改片段状态成功")
+
+    def update_segment(self, dataset_id: UUID, document_id: UUID, segment_id: UUID):
+        """根据传递的信息更新文档片段信息"""
+        # 1.提取请求并校验
+        req = UpdateSegmentReq()
+        if not req.validate():
+            return validate_error_json(req.errors)
+
+        # 2.调用服务更新文档片段信息
+        self.segment_service.update_segment(dataset_id, document_id, segment_id, req)
+
+        return success_message("更新文档片段成功")
