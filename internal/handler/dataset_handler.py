@@ -52,7 +52,7 @@ class DatasetHandler:
             search_kwargs={
                 "k": 10,
                 "filters": Filter.all_of([
-                    Filter.by_property("segment_id").equal("e1441889-5322-466f-a253-081673bcbc42"),
+                    Filter.by_property("document_id").equal("38d5df91-4cdc-4407-931b-283eebb836f8"),
                     # Filter.by_property("document_enabled").equal(True),
                     # Filter.by_property("segment_enabled").equal(True),
                     # Filter.any_of([

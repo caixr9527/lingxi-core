@@ -118,6 +118,9 @@ class Router:
 
         bp.add_url_rule("/datasets/<uuid:dataset_id>/documents/<uuid:document_id>/segments",
                         view_func=self.segment_handler.get_segment_with_page)
+        bp.add_url_rule("/datasets/<uuid:dataset_id>/documents/<uuid:document_id>/segments",
+                        methods=["POST"],
+                        view_func=self.segment_handler.create_segment)
         bp.add_url_rule("/datasets/<uuid:dataset_id>/documents/<uuid:document_id>/segments/<uuid:segment_id>",
                         view_func=self.segment_handler.get_segment)
         bp.add_url_rule("/datasets/<uuid:dataset_id>/documents/<uuid:document_id>/segments/<uuid:segment_id>/enabled",
