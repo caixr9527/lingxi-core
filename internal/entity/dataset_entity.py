@@ -54,3 +54,14 @@ class SegmentStatus(str, Enum):
     INDEXING = "indexing"
     COMPLETED = "completed"
     ERROR = "error"
+
+
+class RetrievalStrategy(str, Enum):
+    FULL_TEXT = "full_text"
+    SEMANTIC = "semantic"
+    HYBRID = "hybrid"
+
+
+class RetrievalSource(str, Enum):
+    HIT_TESTING = "hit_testing"
+    APP = "app"

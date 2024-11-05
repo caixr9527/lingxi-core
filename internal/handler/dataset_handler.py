@@ -18,7 +18,9 @@ from internal.schema.dataset_schema import (
     GetDatasetResp,
     UpdateDatasetReq,
     GetDatasetsWithPageReq,
-    GetDatasetsWithPageResp
+    GetDatasetsWithPageResp,
+    HitReq,
+    GetDatasetQueriesResp
 )
 from internal.service import DatasetService, EmbeddingsService, JiebaService, VectorDatabaseService
 from pkg.paginator import PageModel
@@ -45,34 +47,17 @@ class DatasetHandler:
         # return success_json({"keywords": keywords})
 
     def hit(self, dataset_id: UUID):
-        from weaviate.classes.query import Filter
-        query = "长恨歌"
-        retriever = self.vector_database_service.vector_store.as_retriever(
-            search_type="mmr",
-            search_kwargs={
-                "k": 10,
-                "filters": Filter.all_of([
-                    Filter.by_property("document_id").equal("38d5df91-4cdc-4407-931b-283eebb836f8"),
-                    # Filter.by_property("document_enabled").equal(True),
-                    # Filter.by_property("segment_enabled").equal(True),
-                    # Filter.any_of([
-                    #     Filter.by_property("dataset_id").equal("e6fc9059-2570-4315-994e-e566d4398926"),
-                    #     Filter.by_property("dataset_id").equal("e6fc9059-2570-4315-994e-e566d4398927"),
-                    #     Filter.by_property("document_id").equal("8547c5c6-e27b-45ad-8f89-0c1a4f871031"),
-                    #
-                    # ])
-                ])
-            }
-        )
-        documents = retriever.invoke(query)
-        return success_json({
-            "documents": [
-                {
-                    "page_content": document.page_content,
-                    "metadata": document.metadata
-                } for document in documents
-            ]
-        })
+        req = HitReq()
+        if not req.validate():
+            return validate_error_json(req.errors)
+        hit_result = self.dataset_service.hit(dataset_id, req)
+        return success_json(hit_result)
+
+    def get_dataset_queries(self, dataset_id: UUID):
+
+        dataset_queries = self.dataset_service.get_dataset_queries(dataset_id)
+        resp = GetDatasetQueriesResp(many=True)
+        return success_json(resp.dump(dataset_queries))
 
     def create_dataset(self):
         req = CreateDatasetReq()

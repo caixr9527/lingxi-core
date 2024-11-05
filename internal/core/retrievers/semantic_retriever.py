@@ -19,12 +19,12 @@ from weaviate.classes.query import Filter
 class SemanticRetriever(BaseRetriever):
     """相似性检索器"""
     dataset_ids: list[UUID]
-    vector_service: WeaviateVectorStore
+    vector_store: WeaviateVectorStore
     search_kwargs: dict = Field(default_factory=dict)
 
     def _get_relevant_documents(self, query: str, *, run_manager: CallbackManagerForRetrieverRun) -> List[LCDocument]:
         k = self.search_kwargs.pop("k", 4)
-        search_result = self.vector_service.similarity_search_with_relevance_scores(
+        search_result = self.vector_store.similarity_search_with_relevance_scores(
             query=query,
             k=k,
             **{

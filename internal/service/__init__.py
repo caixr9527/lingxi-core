@@ -17,6 +17,7 @@ from .indexing_service import IndexingService
 from .jieba_service import JiebaService
 from .keyword_table_service import KeywordTableService
 from .process_rule_service import ProcessRuleService
+from .retrieval_service import RetrievalService
 from .segment_service import SegmentService
 from .upload_file_service import UploadFileService
 from .vector_database_service import VectorDatabaseService
@@ -36,5 +37,6 @@ __all__ = [
     "IndexingService",
     "ProcessRuleService",
     "KeywordTableService",
-    "SegmentService"
+    "SegmentService",
+    "RetrievalService"
 ]
