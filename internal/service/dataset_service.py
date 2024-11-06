@@ -5,6 +5,7 @@
 @Author : rxccai@gmail.com
 @File   : dataset_service.py
 """
+import logging
 from dataclasses import dataclass
 from uuid import UUID
 
@@ -12,15 +13,16 @@ from injector import inject
 from sqlalchemy import desc
 
 from internal.entity.dataset_entity import DEFAULT_DATASET_DESCRIPTION_FORMATTER
-from internal.exception import ValidateException, NotFoundException
+from internal.exception import ValidateException, NotFoundException, FailException
 from internal.lib.helper import datetime_to_timestamp
-from internal.model import Dataset, Segment, DatasetQuery
+from internal.model import Dataset, Segment, DatasetQuery, AppDatasetJoin
 from internal.schema.dataset_schema import (
     CreateDatasetReq,
     UpdateDatasetReq,
     GetDatasetsWithPageReq,
     HitReq
 )
+from internal.task.dataset_task import delete_dataset
 from pkg.paginator import Paginator
 from pkg.sqlalchemy import SQLAlchemy
 from .base_service import BaseService
@@ -178,3 +180,27 @@ class DatasetService(BaseService):
         ).order_by(desc("created_at")).limit(10).all()
 
         return dataset_queries
+
+    def delete_dataset(self, dataset_id: UUID) -> Dataset:
+        """根据传递的知识库id删除知识库信息，涵盖知识库底下的所有文档、片段、关键词，以及向量数据库里存储的数据"""
+        # todo:等待授权认证模块完成进行切换调整
+        account_id = "e7300838-b215-4f97-b420-2333a699e22e"
+
+        # 1.获取知识库并校验权限
+        dataset = self.get(Dataset, dataset_id)
+        if dataset is None or str(dataset.account_id) != account_id:
+            raise NotFoundException("该知识库不存在")
+
+        try:
+            # 2.删除知识库基础记录以及知识库和应用关联的记录
+            self.delete(dataset)
+            with self.db.auto_commit():
+                self.db.session.query(AppDatasetJoin).filter(
+                    AppDatasetJoin.dataset_id == dataset_id,
+                ).delete()
+
+            # 3.调用异步任务执行后续的操作
+            delete_dataset.delay(dataset_id)
+        except Exception as e:
+            logging.exception(f"删除知识库失败, dataset_id: {dataset_id}, 错误信息: {str(e)}")
+            raise FailException("删除知识库失败，请稍后重试")
