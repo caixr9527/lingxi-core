@@ -98,6 +98,8 @@ class Router:
         bp.add_url_rule("/datasets/<uuid:dataset_id>", view_func=self.dataset_handler.get_dataset)
         bp.add_url_rule("/datasets/<uuid:dataset_id>", methods=["POST"], view_func=self.dataset_handler.update_dataset)
         bp.add_url_rule("/datasets/<uuid:dataset_id>/queries", view_func=self.dataset_handler.get_dataset_queries)
+        bp.add_url_rule("/datasets/<uuid:dataset_id>/delete", methods=["POST"],
+                        view_func=self.dataset_handler.delete_dataset)
         bp.add_url_rule("/datasets/embeddings", view_func=self.dataset_handler.embeddings_query)
         bp.add_url_rule("/datasets/<uuid:dataset_id>/documents", view_func=self.document_handler.get_document_with_page)
         bp.add_url_rule("/datasets/<uuid:dataset_id>/documents",
@@ -131,6 +133,11 @@ class Router:
             "/datasets/<uuid:dataset_id>/documents/<uuid:document_id>/segments/<uuid:segment_id>",
             methods=["POST"],
             view_func=self.segment_handler.update_segment,
+        )
+        bp.add_url_rule(
+            "/datasets/<uuid:dataset_id>/documents/<uuid:document_id>/segments/<uuid:segment_id>/delete",
+            methods=["POST"],
+            view_func=self.segment_handler.delete_segment,
         )
         bp.add_url_rule("/datasets/<uuid:dataset_id>/hit", methods=["POST"], view_func=self.dataset_handler.hit)
         # 4.应用上注册蓝图

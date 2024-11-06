@@ -90,3 +90,8 @@ class DatasetHandler:
         resp = GetDatasetsWithPageResp(many=True)
 
         return success_json(PageModel(list=resp.dump(datasets), paginator=paginator))
+
+    def delete_dataset(self, dataset_id: UUID):
+        """根据传递的知识库id删除知识库"""
+        self.dataset_service.delete_dataset(dataset_id)
+        return success_message("删除知识库成功")

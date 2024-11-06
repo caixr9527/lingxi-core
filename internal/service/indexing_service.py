@@ -27,7 +27,7 @@ from internal.entity.cache_entity import (
 from internal.entity.dataset_entity import DocumentStatus, SegmentStatus
 from internal.exception import NotFoundException
 from internal.lib.helper import generate_text_hash
-from internal.model import Document, Segment
+from internal.model import Document, Segment, KeywordTable, DatasetQuery
 from pkg.sqlalchemy import SQLAlchemy
 from .base_service import BaseService
 from .embeddings_service import EmbeddingsService
@@ -316,3 +316,34 @@ class IndexingService(BaseService):
         text = re.sub(r'[\x00-\x08\x0B\x0C\x0E-\x1F\x7F\xEF\xBF\xBE]', '', text)
         text = re.sub('\uFFFE', '', text)  # 删除零宽非标记字符
         return text
+
+    def delete_dataset(self, dataset_id: UUID) -> None:
+        """根据传递的知识库id执行相应的删除操作"""
+        try:
+            with self.db.auto_commit():
+                # 1.删除关联的文档记录
+                self.db.session.query(Document).filter(
+                    Document.dataset_id == dataset_id,
+                ).delete()
+
+                # 2.删除关联的片段记录
+                self.db.session.query(Segment).filter(
+                    Segment.dataset_id == dataset_id,
+                ).delete()
+
+                # 3.删除关联的关键词表记录
+                self.db.session.query(KeywordTable).filter(
+                    KeywordTable.dataset_id == dataset_id,
+                ).delete()
+
+                # 4.删除知识库查询记录
+                self.db.session.query(DatasetQuery).filter(
+                    DatasetQuery.dataset_id == dataset_id,
+                ).delete()
+
+            # 5.调用向量数据库删除知识库的关联记录
+            self.vector_database_service.collection.data.delete_many(
+                where=Filter.by_property("dataset_id").equal(str(dataset_id))
+            )
+        except Exception as e:
+            logging.exception(f"异步删除知识库关联内容出错, dataset_id: {dataset_id}, 错误信息: {str(e)}")
