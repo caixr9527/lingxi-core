@@ -5,9 +5,11 @@
 @Author : rxccai@gmail.com
 @File   : app_handler.py
 """
+import json
 import uuid
 from dataclasses import dataclass
 from operator import itemgetter
+from queue import Queue
 from typing import Any, Dict
 
 from injector import inject
@@ -19,6 +21,7 @@ from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.runnables import RunnablePassthrough, RunnableLambda, RunnableConfig
 from langchain_core.tracers import Run
 from langchain_openai import ChatOpenAI
+from langgraph.graph import MessagesState
 
 from internal.core.tools.builtin_tools.providers import BuiltinProviderManager
 from internal.schema.app_schema import CompletionReq
@@ -32,7 +35,7 @@ from pkg.response import success_json, validate_error_json, success_message
 class AppHandler:
     app_service: AppService
     vector_database_service: VectorDatabaseService
-    provider_factory: BuiltinProviderManager
+    builtin_provider_manager: BuiltinProviderManager
 
     def create_app(self):
         """创建新的APP记录"""
@@ -70,6 +73,50 @@ class AppHandler:
             configurable_memory.save_context(run_obj.inputs, run_obj.outputs)
 
     def debug(self, app_id: uuid.UUID):
+        req = CompletionReq()
+        if not req.validate():
+            return validate_error_json(req.errors)
+        q = Queue()
+        query = req.query.data
+
+        def graph_app() -> None:
+            tools = [
+                self.builtin_provider_manager.get_tool("google", "google_serper")(),
+                self.builtin_provider_manager.get_tool("gaode", "gaode_weather")(),
+                self.builtin_provider_manager.get_tool("dalle", "dalle3")(),
+            ]
+
+            def chatbot(state: MessagesState) -> MessagesState:
+                llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.7).bind_tools(tools)
+                is_first_chunk = True
+                is_tool_call = False
+                gathered = None
+                id = str(uuid.uuid4())
+                for chunk in llm.stream(state["messages"]):
+                    if is_first_chunk and chunk.content == "" and not chunk.tool_calls:
+                        continue
+
+                    if is_first_chunk:
+                        gathered = chunk
+                        is_first_chunk = False
+                    else:
+                        gathered += chunk
+                    if chunk.tool_calls or is_tool_call:
+                        is_tool_call = True
+                        q.put({
+                            "id": id,
+                            "event": "agent_thought",
+                            "data": json.dumps(chunk.tool_call_chunk),
+                        })
+                    else:
+                        q.put({
+                            "id": id,
+                            "event": "agent_message",
+                            "data": chunk.content,
+                        })
+                return {"messages": [gathered]}
+
+    def _debug(self, app_id: uuid.UUID):
         """聊天接口"""
         req = CompletionReq()
         if not req.validate():
