@@ -28,8 +28,7 @@ from langgraph.graph import MessagesState, StateGraph
 
 from internal.core.tools.builtin_tools.providers import BuiltinProviderManager
 from internal.schema.app_schema import CompletionReq
-from internal.service import AppService, VectorDatabaseService
-from internal.task.demo_task import demo_task
+from internal.service import AppService, VectorDatabaseService, ConversationService
 from pkg.response import success_json, validate_error_json, success_message, compact_generate_response
 
 
@@ -39,6 +38,7 @@ class AppHandler:
     app_service: AppService
     vector_database_service: VectorDatabaseService
     builtin_provider_manager: BuiltinProviderManager
+    conversation_service: ConversationService
 
     def create_app(self):
         """创建新的APP记录"""
@@ -227,5 +227,10 @@ class AppHandler:
         # ------
         # providers = self.provider_factory.get_provider_entities()
         # return success_json({"providers": [provider.dict() for provider in providers]})
-        demo_task.delay(uuid.uuid4())
-        return success_json()
+        # demo_task.delay(uuid.uuid4())
+        human_message = "你好，我是Chatgpt，有什么可以帮助您的"
+        # ai_message = "你好，我是Chatgpt，有什么可以帮助您的"
+        # old_summary = "人类询问AI关于LLM（大语言模型）和Agent（智能代理）的介绍。AI解释说，LLM是基于深度学习的大型语言模型，专门用于处理自然语言，能够完成语言生成、翻译、情感分析等任务。Agent是一种智能系统，能够自主执行任务并与环境交互，具备自动执行、交互性和多模态处理等特性。LLM和Agent常常结合使用，Agent利用LLM理解人类指令并生成自然语言回复。"
+        # summary = self.conversation_service.summary(human_message, ai_message, old_summary)
+        conversation_name = self.conversation_service.generate_conversation_name(human_message)
+        return success_json({"conversation_name": conversation_name})
