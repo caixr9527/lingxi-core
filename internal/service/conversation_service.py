@@ -13,7 +13,13 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
 
-from internal.entity.conversation_entity import SUMMARIZER_TEMPLATE, CONVERSATION_NAME_TEMPLATE, ConversationInfo
+from internal.entity.conversation_entity import (
+    SUMMARIZER_TEMPLATE,
+    CONVERSATION_NAME_TEMPLATE,
+    ConversationInfo,
+    SUGGESTED_QUESTIONS_TEMPLATE,
+    SuggestedQuestions
+)
 from pkg.sqlalchemy import SQLAlchemy
 from .base_service import BaseService
 
@@ -44,7 +50,7 @@ class ConversationService(BaseService):
             ("human", "{query}")
         ])
         # 构建llm设置温度降低幻觉概率
-        llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.5)
+        llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
 
         structured_llm = llm.with_structured_output(ConversationInfo)
 
@@ -65,3 +71,29 @@ class ConversationService(BaseService):
             name = name[:75] + "..."
 
         return name
+
+    @classmethod
+    def generate_suggested_questions(cls, histories: str) -> list[str]:
+        prompt = ChatPromptTemplate.from_messages([
+            ("system", SUGGESTED_QUESTIONS_TEMPLATE),
+            ("human", "{histories}")
+        ])
+        # 构建llm设置温度降低幻觉概率
+        llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
+
+        structured_llm = llm.with_structured_output(SuggestedQuestions)
+
+        chain = prompt | structured_llm
+
+        suggested_questions = chain.invoke({"histories": histories})
+        questions = []
+        try:
+            if suggested_questions and hasattr(suggested_questions, "questions"):
+                questions = suggested_questions.questions
+        except Exception as e:
+            logging.exception(f"生成建议问题出错, suggested_questions: {suggested_questions}, 错误信息: {str(e)}")
+
+        if len(questions) > 3:
+            questions = questions[:3]
+
+        return questions
