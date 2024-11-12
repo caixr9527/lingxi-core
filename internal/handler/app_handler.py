@@ -228,10 +228,18 @@ class AppHandler:
         # providers = self.provider_factory.get_provider_entities()
         # return success_json({"providers": [provider.dict() for provider in providers]})
         # demo_task.delay(uuid.uuid4())
-        human_message = "Java是一门很强大的编程语言"
+        # human_message = "Java是一门很强大的编程语言"
         # ai_message = "你好，我是Chatgpt，有什么可以帮助您的"
         # old_summary = "人类询问AI关于LLM（大语言模型）和Agent（智能代理）的介绍。AI解释说，LLM是基于深度学习的大型语言模型，专门用于处理自然语言，能够完成语言生成、翻译、情感分析等任务。Agent是一种智能系统，能够自主执行任务并与环境交互，具备自动执行、交互性和多模态处理等特性。LLM和Agent常常结合使用，Agent利用LLM理解人类指令并生成自然语言回复。"
         # summary = self.conversation_service.summary(human_message, ai_message, old_summary)
         # conversation_name = self.conversation_service.generate_conversation_name(human_message)
-        questions = self.conversation_service.generate_suggested_questions(human_message)
-        return success_json({"questions": questions})
+        # questions = self.conversation_service.generate_suggested_questions(human_message)
+        from internal.core.agent.agents import FunctionCallAgent
+        from internal.core.agent.entities.agent_entity import AgentConfig
+        from langchain_openai import ChatOpenAI
+        agent = FunctionCallAgent(AgentConfig(
+            llm=ChatOpenAI(model="gpt-4o-mini"),
+            preset_prompt="你是一个拥有20年经验的诗人, 请根据用户提供的主题来写一首诗"
+        ))
+        state = agent.run("月光", [], "")
+        return success_json({"message": state["messages"][-1].content})
