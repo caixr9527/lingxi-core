@@ -6,15 +6,19 @@
 @File   : function_call_agent.py
 """
 import json
+import time
+import uuid
 from threading import Thread
-from typing import Literal
+from typing import Literal, Generator
 
 from langchain_core.messages import AnyMessage, HumanMessage, SystemMessage, RemoveMessage, ToolMessage
+from langchain_core.messages import messages_to_dict
 from langgraph.constants import END
 from langgraph.graph import StateGraph
 from langgraph.graph.state import CompiledGraph
 
 from internal.core.agent.entities.agent_entity import AgentState, AGENT_SYSTEM_PROMPT_TEMPLATE
+from internal.core.agent.entities.queue_entity import AgentQueueEvent, QueueEvent
 from internal.exception import FailException
 from .base_agent import BaseAgent
 
@@ -22,7 +26,12 @@ from .base_agent import BaseAgent
 class FunctionCallAgent(BaseAgent):
     """基于函数调用/工具调用的智能体"""
 
-    def run(self, query: str, history: list[AnyMessage] = None, long_term_memory: str = ""):
+    def run(
+            self,
+            query: str,
+            history: list[AnyMessage] = None,
+            long_term_memory: str = ""
+    ) -> Generator[AgentQueueEvent, None, None]:
         if history is None:
             history = []
         agent = self._build_agent()
@@ -35,6 +44,7 @@ class FunctionCallAgent(BaseAgent):
                             },
                         ))
         thread.start()
+        yield from self.agent_queue_manager.listen()
 
     def _build_agent(self) -> CompiledGraph:
         graph = StateGraph(AgentState)
@@ -56,6 +66,12 @@ class FunctionCallAgent(BaseAgent):
         long_term_memory = ""
         if self.agent_config.enable_long_term_memory:
             long_term_memory = state["long_term_memory"]
+            self.agent_queue_manager.publish(AgentQueueEvent(
+                id=uuid.uuid4(),
+                task_id=self.agent_queue_manager.task_id,
+                event=QueueEvent.LONG_TERM_MEMORY_RECALL,
+                observation=long_term_memory,
+            ))
 
         preset_messages = [
             SystemMessage(AGENT_SYSTEM_PROMPT_TEMPLATE.format(
@@ -76,18 +92,50 @@ class FunctionCallAgent(BaseAgent):
         }
 
     def _llm_node(self, state: AgentState) -> AgentState:
+        id = uuid.uuid4()
+        start_at = time.perf_counter()
         llm = self.agent_config.llm
         if hasattr(llm, "bind_tools") and callable(getattr(llm, "bind_tools")) and len(self.agent_config.tools) > 0:
             llm = llm.bind_tools(self.agent_config.tools)
 
         gathered = None
         is_first_chunk = True
+        generation_type = ""
         for chunk in llm.stream(state["messages"]):
             if is_first_chunk:
                 gathered = chunk
                 is_first_chunk = False
             else:
                 gathered += chunk
+
+            if not generation_type:
+                if chunk.tool_calls:
+                    generation_type = "thought"
+                elif chunk.content:
+                    generation_type = "message"
+
+            if generation_type == "message":
+                self.agent_queue_manager.publish(AgentQueueEvent(
+                    id=id,
+                    task_id=self.agent_queue_manager.task_id,
+                    event=QueueEvent.AGENT_MESSAGE,
+                    thought=chunk.content,
+                    messages=messages_to_dict(state["messages"]),
+                    answer=chunk.content,
+                    latency=(time.perf_counter() - start_at)
+                ))
+
+        if generation_type == "thought":
+            self.agent_queue_manager.publish(AgentQueueEvent(
+                id=id,
+                task_id=self.agent_queue_manager.task_id,
+                event=QueueEvent.AGENT_THOUGHT,
+                messages=messages_to_dict(state["messages"]),
+                latency=(time.perf_counter() - start_at)
+            ))
+        elif generation_type == "message":
+            self.agent_queue_manager.stop_listen()
+
         return {"messages": [gathered]}
 
     def _tools_node(self, state: AgentState) -> AgentState:
@@ -97,12 +145,29 @@ class FunctionCallAgent(BaseAgent):
 
         messages = []
         for tool_call in tool_calls:
+            id = uuid.uuid4()
+            start_at = time.perf_counter()
+
             tool = tools_by_name[tool_call["name"]]
             tool_result = tool.invoke(tool_call["args"])
             messages.append(ToolMessage(
                 tool_call_id=tool_call["id"],
                 content=json.dumps(tool_result),
                 name=tool_call["name"],
+            ))
+            event = (
+                QueueEvent.AGENT_ACTION
+                if tool_call["name"] != "dataset_retrieval"
+                else QueueEvent.DATASET_RETRIEVAL
+            )
+            self.agent_queue_manager.publish(AgentQueueEvent(
+                id=id,
+                task_id=self.agent_queue_manager.task_id,
+                event=event,
+                observation=json.dumps(tool_result),
+                tool=tool_call["name"],
+                tool_input=tool_call["args"],
+                latency=(time.perf_counter() - start_at)
             ))
         return {"messages": messages}
 
