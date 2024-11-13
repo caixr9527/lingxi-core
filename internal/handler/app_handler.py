@@ -8,7 +8,6 @@
 import json
 import uuid
 from dataclasses import dataclass
-from threading import Thread
 from typing import Any, Dict, Generator
 
 from injector import inject
@@ -16,10 +15,12 @@ from langchain_core.memory import BaseMemory
 from langchain_core.runnables import RunnableConfig
 from langchain_core.tracers import Run
 from langchain_openai import ChatOpenAI
+from redis import Redis
 
 from internal.core.agent.agents import FunctionCallAgent, AgentQueueManager
-from internal.core.agent.entities.agent_entity import AgentConfig, AgentState
+from internal.core.agent.entities.agent_entity import AgentConfig
 from internal.core.tools.builtin_tools.providers import BuiltinProviderManager
+from internal.entity.conversation_entity import InvokeFrom
 from internal.schema.app_schema import CompletionReq
 from internal.service import AppService, VectorDatabaseService, ConversationService
 from pkg.response import success_json, validate_error_json, success_message, compact_generate_response
@@ -32,6 +33,7 @@ class AppHandler:
     vector_database_service: VectorDatabaseService
     builtin_provider_manager: BuiltinProviderManager
     conversation_service: ConversationService
+    redis_client: Redis
 
     def create_app(self):
         """创建新的APP记录"""
@@ -79,26 +81,35 @@ class AppHandler:
             self.builtin_provider_manager.get_tool("dalle", "dalle3")(),
         ]
 
-        FunctionCallAgent, AgentQueueManager
-        AgentConfig, AgentState
-        agnet = FunctionCallAgent(
+        agent = FunctionCallAgent(
             AgentConfig(
-                llm=ChatOpenAI("gpt-4o-mini"),
+                llm=ChatOpenAI(model="gpt-4o-mini"),
                 enable_long_term_memory=True,
+                tools=tools,
+            ),
+            AgentQueueManager(
+                user_id=uuid.uuid4(),
+                task_id=uuid.uuid4(),
+                invoke_from=InvokeFrom.DEBUGGER,
+                redis_client=self.redis_client
             )
         )
 
         def stream_event_response() -> Generator:
-            # 从队列获取数据
-            while True:
-                item = q.get()
-                if item is None:
-                    break
-                yield f"event: {item.get('event')}\ndata: {json.dumps(item)}\n\n"
-                q.task_done()
+            for agent_queue_event in agent.run(req.query.data, [], "用户介绍自己叫慕小课"):
+                data = {
+                    "id": str(agent_queue_event.id),
+                    "task_id": str(agent_queue_event.task_id),
+                    "event": agent_queue_event.event,
+                    "thought": agent_queue_event.thought,
+                    "observation ": agent_queue_event.observation,
+                    "tool": agent_queue_event.tool,
+                    "tool_input": agent_queue_event.tool_input,
+                    "answer": agent_queue_event.answer,
+                    "latency": agent_queue_event.latency
+                }
+                yield f"event: {data["event"]}\ndata: {json.dumps(data)}\n\n "
 
-        t = Thread(target=graph_app)
-        t.start()
         return compact_generate_response(stream_event_response())
 
     # @classmethod
