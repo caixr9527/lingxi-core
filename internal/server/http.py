@@ -46,9 +46,9 @@ class Http(Flask):
         CORS(self, resources={
             r"/*": {
                 "origins": "*",
-                "support_credentials": True,
+                "supports_credentials": True,
                 # "methods": ["GET", "POST"],
-                # "all_headers": ["Content-Type"]
+                # "allow_headers": ["Content-Type"],
             }
         })
         # 注册应用路由
