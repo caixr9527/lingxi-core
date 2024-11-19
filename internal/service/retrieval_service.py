@@ -84,17 +84,17 @@ class RetrievalService(BaseService):
             lc_documents = hybrid_retriever.invoke(query)[:k]
 
         # 4.添加知识库查询记录
-        for lc_document in lc_documents:
+        unique_dataset_ids = list(set(str(lc_document.metadata["dataset_id"]) for lc_document in lc_documents))
+        for dataset_id in unique_dataset_ids:
             self.create(
                 DatasetQuery,
-                dataset_id=lc_document.metadata["dataset_id"],
+                dataset_id=dataset_id,
                 query=query,
                 source=retrival_source,
                 # todo:等待APP配置模块完成后进行调整
                 source_app_id=None,
                 created_by=account_id,
             )
-
         # 5.批量更新片段的命中次数，召回次数，涵盖了构建+执行语句
         with self.db.auto_commit():
             stmt = (
