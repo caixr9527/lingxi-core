@@ -16,6 +16,7 @@ from .document_service import DocumentService
 from .embeddings_service import EmbeddingsService
 from .indexing_service import IndexingService
 from .jieba_service import JiebaService
+from .jwt_service import JwtService
 from .keyword_table_service import KeywordTableService
 from .process_rule_service import ProcessRuleService
 from .retrieval_service import RetrievalService
@@ -41,4 +42,5 @@ __all__ = [
     "SegmentService",
     "RetrievalService",
     "ConversationService",
+    "JwtService",
 ]
