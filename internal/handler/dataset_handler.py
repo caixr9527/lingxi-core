@@ -9,6 +9,7 @@ from dataclasses import dataclass
 from uuid import UUID
 
 from flask import request
+from flask_login import login_required
 from injector import inject
 
 from internal.core.file_extractor import FileExtractor
@@ -80,6 +81,7 @@ class DatasetHandler:
 
         return success_message("更新知识库成功")
 
+    @login_required
     def get_datasets_with_page(self):
         req = GetDatasetsWithPageReq(request.args)
         if not req.validate():
