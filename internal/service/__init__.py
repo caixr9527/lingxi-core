@@ -5,6 +5,7 @@
 @Author : rxccai@gmail.com
 @File   : __init__.py.py
 """
+from .account_service import AccountService
 from .api_tool_service import ApiToolService
 from .app_service import AppService
 from .base_service import BaseService
@@ -43,4 +44,5 @@ __all__ = [
     "RetrievalService",
     "ConversationService",
     "JwtService",
+    "AccountService",
 ]
