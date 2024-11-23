@@ -18,6 +18,7 @@ from internal.handler import (
     DatasetHandler,
     DocumentHandler,
     SegmentHandler,
+    OAuthHandler,
 )
 
 
@@ -32,6 +33,7 @@ class Router:
     dataset_handler: DatasetHandler
     document_handler: DocumentHandler
     segment_handler: SegmentHandler
+    oauth_handler: OAuthHandler
 
     def register_router(self, app: Flask):
         """注册路由"""
@@ -140,5 +142,13 @@ class Router:
             view_func=self.segment_handler.delete_segment,
         )
         bp.add_url_rule("/datasets/<uuid:dataset_id>/hit", methods=["POST"], view_func=self.dataset_handler.hit)
+
+        # 授权认证模块路由
+        bp.add_url_rule("/oauth/<string:provider_name>", view_func=self.oauth_handler.provider)
+        bp.add_url_rule(
+            "/oauth/authorize/<string:provider_name>",
+            methods=["POST"],
+            view_func=self.oauth_handler.authorize)
+
         # 4.应用上注册蓝图
         app.register_blueprint(bp)
