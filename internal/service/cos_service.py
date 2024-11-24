@@ -17,7 +17,7 @@ from werkzeug.datastructures import FileStorage
 
 from internal.entity.upload_file_entity import ALLOW_IMAGE_EXTENSION, ALL_DOCUMENT_EXTENSION
 from internal.exception import FailException
-from internal.model import UploadFile
+from internal.model import UploadFile, Account
 from .upload_file_service import UploadFileService
 
 
@@ -26,9 +26,8 @@ from .upload_file_service import UploadFileService
 class CosService:
     upload_file_service: UploadFileService
 
-    def upload_file(self, file: FileStorage, only_image: bool = False) -> UploadFile:
-        # todo
-        account_id = "e7300838-b215-4f97-b420-2333a699e22e"
+    def upload_file(self, file: FileStorage, account: Account, only_image: bool = False) -> UploadFile:
+
         filename = file.filename
         extension = filename.rsplit(".", 1)[-1] if "." in filename else ""
         if extension.lower() not in (ALLOW_IMAGE_EXTENSION + ALL_DOCUMENT_EXTENSION):
@@ -47,7 +46,7 @@ class CosService:
         except Exception as e:
             raise FailException("上传文件失败，请稍后重试")
         return self.upload_file_service.create_upload_file(
-            account_id=account_id,
+            account_id=account.id,
             name=filename,
             key=upload_filename,
             size=len(file_content),
