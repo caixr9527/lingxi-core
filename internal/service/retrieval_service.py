@@ -15,7 +15,7 @@ from sqlalchemy import update
 
 from internal.entity.dataset_entity import RetrievalStrategy, RetrievalSource
 from internal.exception import NotFoundException
-from internal.model import Dataset, DatasetQuery, Segment
+from internal.model import Dataset, DatasetQuery, Segment, Account
 from pkg.sqlalchemy import SQLAlchemy
 from .base_service import BaseService
 from .jieba_service import JiebaService
@@ -33,19 +33,18 @@ class RetrievalService(BaseService):
             self,
             query: str,
             dataset_ids: list[UUID],
+            account: Account,
             retrieval_strategy: str = RetrievalStrategy.SEMANTIC,
             k: int = 4,
             score: float = 0,
             retrival_source: str = RetrievalSource.HIT_TESTING,
     ) -> list[LCDocument]:
         """根据传递的query+知识库列表执行检索，并返回检索的文档+得分数据（如果为全文检索，得分为0）"""
-        # todo
-        account_id = "e7300838-b215-4f97-b420-2333a699e22e"
 
         # 校验权限，更新知识库id
         datasets = self.db.session.query(Dataset).filter(
             Dataset.id.in_(dataset_ids),
-            Dataset.account_id == account_id
+            Dataset.account_id == account.id
         ).all()
         if datasets is None or len(datasets) == 0:
             raise NotFoundException("当前无知识库可执行检索")
@@ -75,7 +74,7 @@ class RetrievalService(BaseService):
         )
 
         # 执行检索
-        # 3.根据不同的检索策略执行检索
+        # 根据不同的检索策略执行检索
         if retrieval_strategy == RetrievalStrategy.SEMANTIC:
             lc_documents = semantic_retriever.invoke(query)[:k]
         elif retrieval_strategy == RetrievalStrategy.FULL_TEXT:
@@ -83,7 +82,7 @@ class RetrievalService(BaseService):
         else:
             lc_documents = hybrid_retriever.invoke(query)[:k]
 
-        # 4.添加知识库查询记录
+        # 添加知识库查询记录
         unique_dataset_ids = list(set(str(lc_document.metadata["dataset_id"]) for lc_document in lc_documents))
         for dataset_id in unique_dataset_ids:
             self.create(
@@ -93,9 +92,9 @@ class RetrievalService(BaseService):
                 source=retrival_source,
                 # todo:等待APP配置模块完成后进行调整
                 source_app_id=None,
-                created_by=account_id,
+                created_by=account.id,
             )
-        # 5.批量更新片段的命中次数，召回次数，涵盖了构建+执行语句
+        # 批量更新片段的命中次数，召回次数，涵盖了构建+执行语句
         with self.db.auto_commit():
             stmt = (
                 update(Segment)
