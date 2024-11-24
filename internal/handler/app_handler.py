@@ -10,6 +10,7 @@ import uuid
 from dataclasses import dataclass
 from typing import Any, Dict, Generator
 
+from flask_login import login_required
 from injector import inject
 from langchain_core.memory import BaseMemory
 from langchain_core.runnables import RunnableConfig
@@ -35,19 +36,23 @@ class AppHandler:
     conversation_service: ConversationService
     redis_client: Redis
 
+    @login_required
     def create_app(self):
         """创建新的APP记录"""
         app = self.app_service.create_app()
         return success_message(f"应用创建成功,id为{app.id}")
 
+    @login_required
     def get_app(self, id: uuid.UUID):
         app = self.app_service.get_app(id)
         return success_message(f"获取应用详情，名称为{app.name}")
 
+    @login_required
     def update_app(self, id: uuid.UUID):
         app = self.app_service.update_app(id)
         return success_message(f"更新应用详情，名称为{app.name}")
 
+    @login_required
     def delete_app(self, id: uuid.UUID):
         app = self.app_service.delete_app(id)
         return success_message(f"删除应用详情，名称为{app.name}")
