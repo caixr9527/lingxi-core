@@ -45,6 +45,8 @@ class AppHandler:
     @login_required
     def get_app(self, id: uuid.UUID):
         app = self.app_service.get_app(id)
+        if not app:
+            return success_message(f"应用{id}不存在")
         return success_message(f"获取应用详情，名称为{app.name}")
 
     @login_required
