@@ -90,13 +90,13 @@ class ApiToolService(BaseService):
             provider_id=provider_id,
             name=tool_name,
         ).one_or_none()
-        if api_tool is None or str(api_tool.account_id) != account.id:
+        if api_tool is None or api_tool.account_id != account.id:
             raise NotFoundException("该工具不存在")
         return api_tool
 
     def get_api_tool_provider(self, provider_id: UUID, account: Account) -> ApiToolProvider:
         api_tool_provider = self.get(ApiToolProvider, provider_id)
-        if api_tool_provider is None or str(api_tool_provider.account_id) != account.id:
+        if api_tool_provider is None or api_tool_provider.account_id != account.id:
             raise NotFoundException("该工具提供者不存在")
         return api_tool_provider
 
@@ -133,7 +133,7 @@ class ApiToolService(BaseService):
 
     def delete_api_tool_provider(self, provider_id: UUID, account: Account):
         api_tool_provider = self.get(ApiToolProvider, provider_id)
-        if api_tool_provider is None or str(api_tool_provider.account_id) != account.id:
+        if api_tool_provider is None or api_tool_provider.account_id != account.id:
             raise NotFoundException("工具提供者不存在")
 
         with self.db.auto_commit():
