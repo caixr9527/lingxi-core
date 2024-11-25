@@ -30,7 +30,6 @@ class AccountHandler:
         req = UpdatePasswordReq()
         if not req.validate():
             return validate_error_json(req.errors)
-        print(current_user)
         self.account_service.update_password(req.password.data, account=current_user)
         return success_message("修改密码成功")
 
