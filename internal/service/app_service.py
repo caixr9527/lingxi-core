@@ -10,26 +10,58 @@ from dataclasses import dataclass
 
 from injector import inject
 
-from internal.model import App
+from internal.entity.app_entity import AppStatus, AppConfigType, DEFAULT_APP_CONFIG
+from internal.exception import NotFoundException, UnauthorizedException
+from internal.model import App, Account, AppConfigVersion
+from internal.schema.app_schema import CreateAppReq
 from pkg.sqlalchemy import SQLAlchemy
+from .base_service import BaseService
 
 
 @inject
 @dataclass
-class AppService:
+class AppService(BaseService):
     """应用服务器逻辑"""
     db: SQLAlchemy
 
-    def create_app(self) -> App:
+    def create_app(self, req: CreateAppReq, account: Account) -> App:
         with self.db.auto_commit():
-            # 1.创建实体类
-            app = App(name="测试机器人", account_id=uuid.uuid4(), icon="", description="这是一个简单到聊天机器人")
-            # 2.将实体类添加到session会话中
+            # 2.创建应用记录，并刷新数据，从而可以拿到应用id
+            app = App(
+                id=uuid.uuid4(),
+                account_id=account.id,
+                name=req.name.data,
+                icon=req.icon.data,
+                description=req.description.data,
+                status=AppStatus.DRAFT,
+            )
             self.db.session.add(app)
+            self.db.session.flush()
+
+            # 3.添加草稿记录
+            app_config_version = AppConfigVersion(
+                id=uuid.uuid4(),
+                app_id=app.id,
+                version=0,
+                config_type=AppConfigType.DRAFT,
+                **DEFAULT_APP_CONFIG,
+            )
+            self.db.session.add(app_config_version)
+            self.db.session.flush()
+
+            # 4.为应用添加草稿配置id
+            app.draft_app_config_id = app_config_version.id
+
+        # 5.返回创建的应用记录
         return app
 
-    def get_app(self, id: uuid.UUID) -> App:
-        return self.db.session.query(App).get(id)
+    def get_app(self, app_id: uuid.UUID, account: Account) -> App:
+        app = self.get(App, app_id)
+        if not app:
+            raise NotFoundException("应用不存在")
+        if app.account_id != account.id:
+            raise UnauthorizedException("当前账号无权限")
+        return app
 
     def update_app(self, id: uuid.UUID) -> App:
         with self.db.auto_commit():
