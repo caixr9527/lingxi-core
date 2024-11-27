@@ -36,5 +36,9 @@ class AppHandler:
         resp = GetAppResp()
         return success_json(resp.dump(app))
 
+    @login_required
+    def get_draft_app_config(self, app_id: uuid.UUID):
+        return success_json(self.app_service.get_draft_app_config(app_id, account=current_user))
+
     def ping(self):
         pass
