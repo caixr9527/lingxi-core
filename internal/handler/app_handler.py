@@ -8,6 +8,7 @@
 import uuid
 from dataclasses import dataclass
 
+from flask import request
 from flask_login import login_required, current_user
 from injector import inject
 
@@ -39,6 +40,12 @@ class AppHandler:
     @login_required
     def get_draft_app_config(self, app_id: uuid.UUID):
         return success_json(self.app_service.get_draft_app_config(app_id, account=current_user))
+
+    @login_required
+    def update_draft_app_config(self, app_id: uuid.UUID):
+        draft_app_config = request.get_json(force=True, silent=True) or {}
+        draft_app_config = self.app_service._validate_draft_app_config(draft_app_config, account=current_user)
+        return success_json(draft_app_config)
 
     def ping(self):
         pass
