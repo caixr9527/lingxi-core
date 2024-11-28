@@ -47,5 +47,10 @@ class AppHandler:
         self.app_service.update_draft_app_config(app_id, draft_app_config, account=current_user)
         return success_message("更新应用草稿配置成功")
 
+    @login_required
+    def publish(self, app_id: uuid.UUID):
+        self.app_service.publish_draft_app_config(app_id, account=current_user)
+        return success_message("发布/更新应用配置成功")
+
     def ping(self):
         pass
