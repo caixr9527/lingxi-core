@@ -14,7 +14,7 @@ from injector import inject
 
 from internal.schema.app_schema import CreateAppReq, GetAppResp
 from internal.service import AppService
-from pkg.response import validate_error_json, success_json
+from pkg.response import validate_error_json, success_json, success_message
 
 
 @inject
@@ -44,8 +44,8 @@ class AppHandler:
     @login_required
     def update_draft_app_config(self, app_id: uuid.UUID):
         draft_app_config = request.get_json(force=True, silent=True) or {}
-        draft_app_config = self.app_service._validate_draft_app_config(draft_app_config, account=current_user)
-        return success_json(draft_app_config)
+        self.app_service.update_draft_app_config(app_id, draft_app_config, account=current_user)
+        return success_message("更新应用草稿配置成功")
 
     def ping(self):
         pass

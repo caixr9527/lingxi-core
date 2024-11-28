@@ -7,6 +7,7 @@
 """
 import uuid
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Any
 from uuid import UUID
 
@@ -185,6 +186,20 @@ class AppService(BaseService):
             "updated_at": datetime_to_timestamp(draft_app_config.updated_at),
             "created_at": datetime_to_timestamp(draft_app_config.created_at),
         }
+
+    def update_draft_app_config(self,
+                                app_id: UUID,
+                                draft_app_config: dict[str, Any],
+                                account: Account) -> AppConfigVersion:
+        app = self.get_app(app_id, account)
+        draft_app_config = self._validate_draft_app_config(draft_app_config, account)
+        draft_app_config_record = app.draft_app_config
+        self.update(
+            draft_app_config_record,
+            update_at=datetime.now(),
+            **draft_app_config,
+        )
+        return draft_app_config_record
 
     def _validate_draft_app_config(self, draft_app_config: dict[str, Any], account: Account) -> dict[str, Any]:
         """校验传递的应用草稿配置信息，返回校验后的数据"""
