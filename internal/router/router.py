@@ -52,6 +52,12 @@ class Router:
                         view_func=self.app_handler.update_draft_app_config)
         bp.add_url_rule("/apps/<uuid:app_id>/publish", methods=["POST"],
                         view_func=self.app_handler.publish)
+        bp.add_url_rule("/apps/<uuid:app_id>/cancel-publish", methods=["POST"],
+                        view_func=self.app_handler.cancel_publish)
+        bp.add_url_rule("/apps/<uuid:app_id>/publish-histories",
+                        view_func=self.app_handler.get_publish_histories_with_page)
+        bp.add_url_rule("/apps/<uuid:app_id>/fallback-history", methods=["POST"],
+                        view_func=self.app_handler.fallback_history_to_draft)
 
         # 3.内置插件广场模块
         bp.add_url_rule("/builtin-tools", view_func=self.builtin_tool_handler.get_builtin_tools)
