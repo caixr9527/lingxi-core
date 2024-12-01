@@ -20,7 +20,7 @@ from internal.schema.app_schema import (
     FallbackHistoryToDraftReq,
     UpdateDebugConversationSummaryReq
 )
-from internal.service import AppService
+from internal.service import AppService, RetrievalService
 from pkg.paginator import PageModel
 from pkg.response import validate_error_json, success_json, success_message
 
@@ -29,6 +29,7 @@ from pkg.response import validate_error_json, success_json, success_message
 @dataclass
 class AppHandler:
     app_service: AppService
+    retrieval_service: RetrievalService
 
     @login_required
     def create_app(self):
@@ -105,5 +106,19 @@ class AppHandler:
         self.app_service.delete_debug_conversation(app_id, account=current_user)
         return success_message("删除AI应用长期记忆成功")
 
+    @login_required
     def ping(self):
-        pass
+        from internal.entity.dataset_entity import RetrievalStrategy, RetrievalSource
+        dataset_retrieval = self.retrieval_service.create_langchain_tool_from_search(
+            dataset_ids=["e6fc9059-2570-4315-994e-e566d4398926", "3ea4623d-3c7a-45f0-9ace-33e68ab408e0"],
+            account_id=current_user.id,
+            retrieval_strategy=RetrievalStrategy.SEMANTIC,
+            k=10,
+            score=0.5,
+            retrival_source=RetrievalSource.DEBUG
+        )
+        print("工具名称：", dataset_retrieval.name)
+        print("工具描述：", dataset_retrieval.description)
+        print("工具参数：", dataset_retrieval.args)
+        content = dataset_retrieval.invoke({"query": "能简单介绍下什么是LLMOPS吗"})
+        return success_json({"content": content})

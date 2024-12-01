@@ -9,7 +9,6 @@ import os
 
 import weaviate
 from injector import inject
-from langchain_core.documents import Document
 from langchain_core.vectorstores import VectorStoreRetriever
 from langchain_weaviate import WeaviateVectorStore
 from weaviate import WeaviateClient
@@ -50,12 +49,6 @@ class VectorDatabaseService:
     def get_retriever(self) -> VectorStoreRetriever:
         """获取检索器"""
         return self.vector_store.as_retriever()
-
-    @classmethod
-    def combine_documents(cls, documents: list[Document]) -> str:
-        """将对应的文档列表使用换行符合并"""
-        doc = "\n\n".join([document.page_content for document in documents])
-        return doc
 
     @property
     def collection(self) -> Collection:

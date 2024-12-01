@@ -65,3 +65,4 @@ class RetrievalStrategy(str, Enum):
 class RetrievalSource(str, Enum):
     HIT_TESTING = "hit_testing"
     APP = "app"
+    DEBUG = "debugger"

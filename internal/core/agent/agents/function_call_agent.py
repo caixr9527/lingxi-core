@@ -17,7 +17,8 @@ from langgraph.constants import END
 from langgraph.graph import StateGraph
 from langgraph.graph.state import CompiledGraph
 
-from internal.core.agent.entities.agent_entity import AgentState, AGENT_SYSTEM_PROMPT_TEMPLATE
+from internal.core.agent.entities.agent_entity import AgentState, AGENT_SYSTEM_PROMPT_TEMPLATE, \
+    DATASET_RETRIEVAL_TOOL_NAME
 from internal.core.agent.entities.queue_entity import AgentQueueEvent, QueueEvent
 from internal.exception import FailException
 from .base_agent import BaseAgent
@@ -157,7 +158,7 @@ class FunctionCallAgent(BaseAgent):
             ))
             event = (
                 QueueEvent.AGENT_ACTION
-                if tool_call["name"] != "dataset_retrieval"
+                if tool_call["name"] != DATASET_RETRIEVAL_TOOL_NAME
                 else QueueEvent.DATASET_RETRIEVAL
             )
             self.agent_queue_manager.publish(AgentQueueEvent(

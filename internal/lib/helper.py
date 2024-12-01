@@ -10,6 +10,8 @@ from datetime import datetime
 from hashlib import sha3_256
 from typing import Any
 
+from langchain_core.documents import Document
+
 
 def dynamic_import(module_name: str, symbol_name: str) -> Any:
     module = importlib.import_module(module_name)
@@ -33,3 +35,9 @@ def datetime_to_timestamp(dt: datetime) -> int:
     if dt is None:
         return 0
     return int(dt.timestamp())
+
+
+def combine_documents(documents: list[Document]) -> str:
+    """将对应的文档列表使用换行符合并"""
+    doc = "\n\n".join([document.page_content for document in documents])
+    return doc
