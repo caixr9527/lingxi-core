@@ -5,24 +5,27 @@
 @Author : rxccai@gmail.com
 @File   : app_service.py
 """
+import json
 import uuid
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any
+from typing import Any, Generator
 from uuid import UUID
 
 from flask import request, current_app
 from injector import inject
 from langchain_openai import ChatOpenAI
+from redis import Redis
 from sqlalchemy import func, desc
 
-from internal.core.agent.agents import FunctionCallAgent
+from internal.core.agent.agents import FunctionCallAgent, AgentQueueManager
 from internal.core.agent.entities.agent_entity import AgentConfig
 from internal.core.memory import TokenBufferMemory
 from internal.core.tools.api_tools.entites import ToolEntity
 from internal.core.tools.api_tools.providers.api_provider_manager import ApiProviderManager
 from internal.core.tools.builtin_tools.providers import BuiltinProviderManager
 from internal.entity.app_entity import AppStatus, AppConfigType, DEFAULT_APP_CONFIG
+from internal.entity.conversation_entity import InvokeFrom
 from internal.entity.dataset_entity import RetrievalSource
 from internal.exception import NotFoundException, UnauthorizedException, ValidateException, FailException
 from internal.lib.helper import datetime_to_timestamp
@@ -42,6 +45,7 @@ class AppService(BaseService):
     builtin_provider_manager: BuiltinProviderManager
     api_provider_manager: ApiProviderManager
     retrieval_service: RetrievalService
+    redis_client: Redis
 
     def create_app(self, req: CreateAppReq, account: Account) -> App:
         with self.db.auto_commit():
@@ -413,14 +417,6 @@ class AppService(BaseService):
         debug_conversation = app.debug_conversation
 
         # 新建一条消息记录
-        message = self.create(
-            Message,
-            app_id=app_id,
-            conversation_id=debug_conversation.id,
-            created_by=account.id,
-            query=query,
-            status=MessageStatus.NORMAL,
-        )
 
         # todo:根据传递的model_config实例化不同的LLM模型，等待多LLM接入后该处会发生变化
         llm = ChatOpenAI(
@@ -483,96 +479,34 @@ class AppService(BaseService):
             tools.append(dataset_retrieval)
 
         # todo:构建Agent智能体，目前暂时使用FunctionCallAgent
+        task_id = uuid.uuid4()
         agent = FunctionCallAgent(
-            llm=llm,
-            agent_config=AgentConfig(
-                user_id=account.id,
-                invoke_from=InvokeFrom.DEBUGGER,
+            AgentConfig(
+                llm=llm,
                 enable_long_term_memory=draft_app_config["long_term_memory"]["enable"],
-                tools=tools,
-                review_config=draft_app_config["review_config"],
+                tools=tools
             ),
+            AgentQueueManager(
+                user_id=account.id,
+                task_id=task_id,
+                invoke_from=InvokeFrom.DEBUGGER,
+                redis_client=self.redis_client
+            )
         )
 
-        agent_thoughts = {}
-        for agent_thought in agent.stream({
-            "messages": [HumanMessage(query)],
-            "history": history,
-            "long_term_memory": debug_conversation.summary,
-        }):
-            # 15.提取thought以及answer
-            event_id = str(agent_thought.id)
-
-            # 17.将数据填充到agent_thought，便于存储到数据库服务中
-            if agent_thought.event != QueueEvent.PING:
-                # 18.除了agent_message数据为叠加，其他均为覆盖
-                if agent_thought.event == QueueEvent.AGENT_MESSAGE:
-                    if event_id not in agent_thoughts:
-                        # 19.初始化智能体消息事件
-                        agent_thoughts[event_id] = {
-                            "id": event_id,
-                            "task_id": str(agent_thought.task_id),
-                            "event": agent_thought.event,
-                            "thought": agent_thought.thought,
-                            "observation": agent_thought.observation,
-                            "tool": agent_thought.tool,
-                            "tool_input": agent_thought.tool_input,
-                            "message": agent_thought.message,
-                            "answer": agent_thought.answer,
-                            "latency": agent_thought.latency,
-                        }
-                    else:
-                        # 20.叠加智能体消息
-                        agent_thoughts[event_id] = {
-                            **agent_thoughts[event_id],
-                            "thought": agent_thoughts[event_id]["thought"] + agent_thought.thought,
-                            "answer": agent_thoughts[event_id]["answer"] + agent_thought.answer,
-                            "latency": agent_thought.latency,
-                        }
-                else:
-                    # 21.处理其他类型事件的消息
-                    agent_thoughts[event_id] = {
-                        "id": event_id,
-                        "task_id": str(agent_thought.task_id),
-                        "event": agent_thought.event,
-                        "thought": agent_thought.thought,
-                        "observation": agent_thought.observation,
-                        "tool": agent_thought.tool,
-                        "tool_input": agent_thought.tool_input,
-                        "message": agent_thought.message,
-                        "answer": agent_thought.answer,
-                        "latency": agent_thought.latency,
-                    }
-
+        for agent_queue_event in agent.run(query, history, debug_conversation.summary):
             data = {
-                "id": event_id,
-                "conversation_id": str(debug_conversation.id),
-                "message_id": str(message.id),
-                "task_id": str(agent_thought.task_id),
-                "event": agent_thought.event,
-                "thought": agent_thought.thought,
-                "observation": agent_thought.observation,
-                "tool": agent_thought.tool,
-                "tool_input": agent_thought.tool_input,
-                "answer": agent_thought.answer,
-                "latency": agent_thought.latency,
+                "id": str(agent_queue_event.id),
+                "task_id": str(agent_queue_event.task_id),
+                "event": agent_queue_event.event,
+                "thought": agent_queue_event.thought,
+                "observation": agent_queue_event.observation,
+                "tool": agent_queue_event.tool,
+                "tool_input": agent_queue_event.tool_input,
+                "answer": agent_queue_event.answer,
+                "latency": agent_queue_event.latency
             }
-            yield f"event: {agent_thought.event}\ndata:{json.dumps(data)}\n\n"
-
-        # 22.将消息以及推理过程添加到数据库
-        thread = Thread(
-            target=self._save_agent_thoughts,
-            kwargs={
-                "flask_app": current_app._get_current_object(),
-                "account_id": account.id,
-                "app_id": app_id,
-                "draft_app_config": draft_app_config,
-                "conversation_id": debug_conversation.id,
-                "message_id": message.id,
-                "agent_thoughts": agent_thoughts,
-            }
-        )
-        thread.start()
+            yield f"event: {agent_queue_event.event}\ndata:{json.dumps(data)}\n\n"
 
     def _validate_draft_app_config(self, draft_app_config: dict[str, Any], account: Account) -> dict[str, Any]:
         """校验传递的应用草稿配置信息，返回校验后的数据"""
