@@ -18,11 +18,12 @@ from internal.schema.app_schema import (
     GetPublishHistoriesWithPageReq,
     GetPublishHistoriesWithPageResp,
     FallbackHistoryToDraftReq,
-    UpdateDebugConversationSummaryReq
+    UpdateDebugConversationSummaryReq,
+    DebugChatReq
 )
 from internal.service import AppService, RetrievalService
 from pkg.paginator import PageModel
-from pkg.response import validate_error_json, success_json, success_message
+from pkg.response import validate_error_json, success_json, success_message, compact_generate_response
 
 
 @inject
@@ -105,6 +106,15 @@ class AppHandler:
 
         self.app_service.delete_debug_conversation(app_id, account=current_user)
         return success_message("删除AI应用长期记忆成功")
+
+    @login_required
+    def debug_chat(self, app_id: uuid.UUID):
+        req = DebugChatReq()
+        if not req.validate():
+            return validate_error_json(req.errors)
+
+        response = self.app_service.debug_chat(app_id, req.query.data, account=current_user)
+        return compact_generate_response(response)
 
     @login_required
     def ping(self):

@@ -64,6 +64,8 @@ class Router:
                         view_func=self.app_handler.update_debug_conversation_summary)
         bp.add_url_rule("/apps/<uuid:app_id>/conversations/delete-debug-conversation", methods=["POST"],
                         view_func=self.app_handler.delete_debug_conversation)
+        bp.add_url_rule("/apps/<uuid:app_id>/completions", methods=["POST"],
+                        view_func=self.app_handler.debug_chat)
 
         # 3.内置插件广场模块
         bp.add_url_rule("/builtin-tools", view_func=self.builtin_tool_handler.get_builtin_tools)
