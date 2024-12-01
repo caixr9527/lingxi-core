@@ -16,7 +16,7 @@ from sqlalchemy import (
     Numeric,
     Float,
     text,
-    PrimaryKeyConstraint,
+    PrimaryKeyConstraint, func,
 )
 from sqlalchemy.dialects.postgresql import JSONB
 
@@ -48,6 +48,13 @@ class Conversation(db.Model):
         server_onupdate=text('CURRENT_TIMESTAMP(0)'),
     )
     created_at = Column(DateTime, nullable=False, server_default=text('CURRENT_TIMESTAMP(0)'))
+
+    @property
+    def is_new(self) -> bool:
+        message_count = db.session.query(func.count(Message.id)).filter(
+            Message.conversation_id == self.id,
+        ).scalar()
+        return False if message_count > 1 else True
 
 
 class Message(db.Model):
