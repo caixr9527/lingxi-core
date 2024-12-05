@@ -105,7 +105,7 @@ class AppHandler:
     def delete_debug_conversation(self, app_id: uuid.UUID):
 
         self.app_service.delete_debug_conversation(app_id, account=current_user)
-        return success_message("删除AI应用长期记忆成功")
+        return success_message("清空应用调试会话记录成功")
 
     @login_required
     def debug_chat(self, app_id: uuid.UUID):
