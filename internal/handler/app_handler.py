@@ -117,5 +117,10 @@ class AppHandler:
         return compact_generate_response(response)
 
     @login_required
+    def stop_debug(self, app_id: uuid.UUID, task_id: uuid.UUID):
+        self.app_service.stop_debug_chat(app_id, task_id, account=current_user)
+        return success_message("停止应用调试会话成功")
+
+    @login_required
     def ping(self):
         pass
