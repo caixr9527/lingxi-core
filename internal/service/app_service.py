@@ -681,13 +681,16 @@ class AppService(BaseService):
                             conversation.summary
                         )
 
-                        new_conversation_name = conversation.name
-                        if conversation.is_new:
-                            new_conversation_name = self.conversation_service.generate_conversation_name(message.query)
+                        self.update(
+                            conversation,
+                            summary=new_summary,
+                        )
+
+                    if conversation.is_new:
+                        new_conversation_name = self.conversation_service.generate_conversation_name(message.query)
                         self.update(
                             conversation,
                             name=new_conversation_name,
-                            summary=new_summary
                         )
 
                 if item["event"] in [QueueEvent.STOP, QueueEvent.ERROR]:

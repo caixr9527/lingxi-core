@@ -21,6 +21,7 @@ from internal.handler import (
     OAuthHandler,
     AccountHandler,
     AuthHandler,
+    AIHandler
 )
 
 
@@ -38,6 +39,7 @@ class Router:
     oauth_handler: OAuthHandler
     account_handler: AccountHandler
     auth_handler: AuthHandler
+    ai_handler: AIHandler
 
     def register_router(self, app: Flask):
         """注册路由"""
@@ -186,6 +188,11 @@ class Router:
         bp.add_url_rule("/account/password", methods=["POST"], view_func=self.account_handler.update_password)
         bp.add_url_rule("/account/name", methods=["POST"], view_func=self.account_handler.update_name)
         bp.add_url_rule("/account/avatar", methods=["POST"], view_func=self.account_handler.update_avatar)
+
+        # ai辅助模块
+        bp.add_url_rule("/ai/optimize-prompt", methods=["POST"], view_func=self.ai_handler.optimize_prompt)
+        bp.add_url_rule("/ai/suggested-questions", methods=["POST"],
+                        view_func=self.ai_handler.generate_suggested_questions)
 
         # 4.应用上注册蓝图
         app.register_blueprint(bp)

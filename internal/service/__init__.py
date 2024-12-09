@@ -6,6 +6,7 @@
 @File   : __init__.py.py
 """
 from .account_service import AccountService
+from .ai_service import AIService
 from .api_tool_service import ApiToolService
 from .app_service import AppService
 from .base_service import BaseService
@@ -47,4 +48,5 @@ __all__ = [
     "JwtService",
     "AccountService",
     "OAuthService",
+    "AIService"
 ]
