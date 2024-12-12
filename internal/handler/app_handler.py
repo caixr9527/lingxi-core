@@ -71,7 +71,7 @@ class AppHandler:
 
     @login_required
     def get_publish_histories_with_page(self, app_id: uuid.UUID):
-        req = GetPublishHistoriesWithPageReq()
+        req = GetPublishHistoriesWithPageReq(request.args)
         if not req.validate():
             return validate_error_json(req.errors)
         app_config_versions, paginator = self.app_service.get_publish_histories_with_page(app_id,
