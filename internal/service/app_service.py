@@ -231,7 +231,7 @@ class AppService(BaseService):
         draft_app_config_record = app.draft_app_config
         self.update(
             draft_app_config_record,
-            update_at=datetime.now(),
+            updated_at=datetime.now(),
             **draft_app_config,
         )
         return draft_app_config_record
