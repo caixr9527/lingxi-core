@@ -6,7 +6,6 @@
 @File   : app.py
 """
 
-from internal.entity.app_entity import AppConfigType, DEFAULT_APP_CONFIG
 from sqlalchemy import (
     Column,
     UUID,
@@ -19,6 +18,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.dialects.postgresql import JSONB
 
+from internal.entity.app_entity import AppConfigType, DEFAULT_APP_CONFIG
 from internal.entity.conversation_entity import InvokeFrom
 from internal.extension.database_extension import db
 from .conversation import Conversation
@@ -47,6 +47,13 @@ class App(db.Model):
         server_onupdate=text("CURRENT_TIMESTAMP(0)"),
     )
     created_at = Column(DateTime, nullable=False, server_default=text("CURRENT_TIMESTAMP(0)"))
+
+    @property
+    def app_config(self) -> "AppConfig":
+        """只读属性，返回当前应用的运行配置"""
+        if not self.app_config_id:
+            return None
+        return db.session.query(AppConfig).get(self.app_config_id)
 
     @property
     def draft_app_config(self) -> "AppConfigVersion":
@@ -121,6 +128,11 @@ class AppConfig(db.Model):
     opening_questions = Column(JSONB, nullable=False, server_default=text("'[]'::jsonb"))  # 开场白建议问题列表
     speech_to_text = Column(JSONB, nullable=False, server_default=text("'{}'::jsonb"))  # 语音转文本配置
     text_to_speech = Column(JSONB, nullable=False, server_default=text("'{}'::jsonb"))  # 文本转语音配置
+    suggested_after_answer = Column(
+        JSONB,
+        nullable=False,
+        server_default=text("'{\"enable\": true}'::jsonb"),
+    )  # 回答后生成建议问题
     review_config = Column(JSONB, nullable=False, server_default=text("'{}'::jsonb"))  # 审核配置
     updated_at = Column(
         DateTime,
@@ -129,6 +141,15 @@ class AppConfig(db.Model):
         server_onupdate=text("CURRENT_TIMESTAMP(0)"),
     )
     created_at = Column(DateTime, nullable=False, server_default=text("CURRENT_TIMESTAMP(0)"))
+
+    @property
+    def app_dataset_joins(self) -> list["AppDatasetJoin"]:
+        """只读属性，获取配置的知识库关联记录"""
+        return (
+            db.session.query(AppDatasetJoin).filter(
+                AppDatasetJoin.app_id == self.app_id
+            ).all()
+        )
 
 
 class AppConfigVersion(db.Model):
@@ -152,6 +173,11 @@ class AppConfigVersion(db.Model):
     opening_questions = Column(JSONB, nullable=False, server_default=text("'[]'::jsonb"))  # 开场白建议问题列表
     speech_to_text = Column(JSONB, nullable=False, server_default=text("'{}'::jsonb"))  # 语音转文本配置
     text_to_speech = Column(JSONB, nullable=False, server_default=text("'{}'::jsonb"))  # 文本转语音配置
+    suggested_after_answer = Column(
+        JSONB,
+        nullable=False,
+        server_default=text("'{\"enable\": true}'::jsonb"),
+    )  # 回答后生成建议问题
     review_config = Column(JSONB, nullable=False, server_default=text("'{}'::jsonb"))  # 审核配置
     version = Column(Integer, nullable=False, server_default=text("0"))  # 发布版本号
     config_type = Column(String(255), nullable=False, server_default=text("''::character varying"))  # 配置类型
