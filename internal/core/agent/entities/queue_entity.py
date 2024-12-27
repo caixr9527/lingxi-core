@@ -32,7 +32,7 @@ class AgentThought(BaseModel):
     task_id: UUID  # 任务id
 
     # 事件的推理与观察
-    event: QueueEvent
+    event: str  # todo ?
     thought: str = ""  # LLM推理内容
     observation: str = ""  # 观察内容
 
