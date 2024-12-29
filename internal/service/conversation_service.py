@@ -112,7 +112,7 @@ class ConversationService(BaseService):
                             flask_app: Flask,
                             account_id: UUID,
                             app_id: UUID,
-                            draft_app_config: dict[str, Any],
+                            app_config: dict[str, Any],
                             conversation_id: UUID,
                             message_id: UUID,
                             agent_thoughts: list[AgentThought],
@@ -158,7 +158,7 @@ class ConversationService(BaseService):
                         answer=agent_thought.answer,
                         latency=latency
                     )
-                    if draft_app_config["long_term_memory"]["enable"]:
+                    if app_config["long_term_memory"]["enable"]:
                         new_summary = self.summary(
                             message.query,
                             agent_thought.answer,

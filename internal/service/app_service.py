@@ -417,7 +417,7 @@ class AppService(BaseService):
                 "flask_app": current_app._get_current_object(),
                 "account_id": account.id,
                 "app_id": app_id,
-                "draft_app_config": draft_app_config,
+                "app_config": draft_app_config,
                 "conversation_id": debug_conversation.id,
                 "message_id": message.id,
                 "agent_thoughts": [agent_thought for agent_thought in agent_thoughts.values()]
