@@ -17,7 +17,7 @@ from langchain_core.runnables import Runnable, RunnableConfig
 from langgraph.graph.state import CompiledStateGraph
 
 from internal.core.agent.entities.agent_entity import AgentConfig, AgentState
-from internal.core.agent.entities.queue_entity import AgentResult, AgentThought
+from internal.core.agent.entities.queue_entity import AgentResult, AgentThought, QueueEvent
 from internal.exception import FailException
 from .agent_queue_manager import AgentQueueManager
 
@@ -48,7 +48,53 @@ class BaseAgent(Serializable, Runnable):
         raise NotImplementedError("_build_agent函数未实现")
 
     def invoke(self, input: AgentState, config: Optional[RunnableConfig] = None) -> AgentResult:
-        pass
+        # 调用stream方法获取流式事件输出数据
+        agent_result = AgentResult(query=input["messages"][0].content)
+        agent_thoughts = {}
+        for agent_thought in self.stream(input, config):
+            # 提取事件id并转换成字符串
+            event_id = str(agent_thought.id)
+
+            # 除了ping事件，其他事件全部记录
+            if agent_thought.event != QueueEvent.PING:
+                # 单独处理agent_message事件，因为该事件为数据叠加
+                if agent_thought.event == QueueEvent.AGENT_MESSAGE:
+                    # 检测是否已存储了事件
+                    if event_id not in agent_thoughts:
+                        # 初始化智能体消息事件
+                        agent_thoughts[event_id] = agent_thought
+                    else:
+                        # 叠加智能体消息事件
+                        agent_thoughts[event_id] = agent_thoughts[event_id].model_copy(update={
+                            "thought": agent_thoughts[event_id].thought + agent_thought.thought,
+                            "answer": agent_thoughts[event_id].answer + agent_thought.answer,
+                            "latency": agent_thought.latency,
+                        })
+                    # 更新智能体消息答案
+                    agent_result.answer += agent_thought.answer
+                else:
+                    # 处理其他类型的智能体事件，类型均为覆盖
+                    agent_thoughts[event_id] = agent_thought
+
+                    # 单独判断是否为异常消息类型，如果是则修改状态并记录错误
+                    if agent_thought.event in [QueueEvent.STOP, QueueEvent.TIMEOUT, QueueEvent.ERROR]:
+                        agent_result.status = agent_thought.event
+                        agent_result.error = agent_thought.observation if agent_thought.event == QueueEvent.ERROR else ""
+
+        # 将推理字典转换成列表并存储
+        agent_result.agent_thoughts = [agent_thought for agent_thought in agent_thoughts.values()]
+
+        # 完善message
+        agent_result.message = next(
+            (agent_thought.message for agent_thought in agent_thoughts.values()
+             if agent_thought.event == QueueEvent.AGENT_MESSAGE),
+            []
+        )
+
+        # 更新总耗时
+        agent_result.latency = sum([agent_thought.latency for agent_thought in agent_thoughts.values()])
+
+        return agent_result
 
     def stream(
             self,
