@@ -7,6 +7,7 @@
 """
 from .account_service import AccountService
 from .ai_service import AIService
+from .api_key_service import ApiKeyService
 from .api_tool_service import ApiToolService
 from .app_service import AppService
 from .base_service import BaseService
@@ -21,6 +22,7 @@ from .jieba_service import JiebaService
 from .jwt_service import JwtService
 from .keyword_table_service import KeywordTableService
 from .oauth_service import OAuthService
+from .openapi_service import OpenAPIService
 from .process_rule_service import ProcessRuleService
 from .retrieval_service import RetrievalService
 from .segment_service import SegmentService
@@ -48,5 +50,7 @@ __all__ = [
     "JwtService",
     "AccountService",
     "OAuthService",
-    "AIService"
+    "AIService",
+    "ApiKeyService",
+    "OpenAPIService"
 ]

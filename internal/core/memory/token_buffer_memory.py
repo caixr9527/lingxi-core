@@ -37,7 +37,7 @@ class TokenBufferMemory:
             Message.conversation_id == self.conversation.id,
             Message.answer != "",
             Message.is_deleted == False,
-            Message.status.in_([MessageStatus.STOP, MessageStatus.NORMAL]),
+            Message.status.in_([MessageStatus.STOP, MessageStatus.NORMAL, MessageStatus.TIMEOUT]),
         ).order_by(desc("created_at")).limit(message_limit).all()
         messages = list(reversed(messages))
 
