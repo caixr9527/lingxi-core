@@ -22,7 +22,8 @@ from internal.handler import (
     AccountHandler,
     AuthHandler,
     AIHandler,
-    ApiKeyHandler
+    ApiKeyHandler,
+    OpenAPIHandler
 )
 
 
@@ -42,11 +43,13 @@ class Router:
     auth_handler: AuthHandler
     ai_handler: AIHandler
     api_key_handler: ApiKeyHandler
+    open_api_handler: OpenAPIHandler
 
     def register_router(self, app: Flask):
         """注册路由"""
         # 1.创建蓝图
         bp = Blueprint("llmops", __name__, url_prefix="")
+        openapi_bp = Blueprint("openapi", __name__, url_prefix="")
         # 2.将url与对应的控制器绑定
         bp.add_url_rule("/ping", view_func=self.app_handler.ping)
         bp.add_url_rule("/apps", methods=["POST"], view_func=self.app_handler.create_app)
@@ -218,5 +221,8 @@ class Router:
             methods=["POST"],
             view_func=self.api_key_handler.delete_api_key,
         )
+        openapi_bp.add_url_rule("/openapi/chat", methods=["POST"],
+                                view_func=self.open_api_handler.chat, )
         # 4.应用上注册蓝图
         app.register_blueprint(bp)
+        app.register_blueprint(openapi_bp)
