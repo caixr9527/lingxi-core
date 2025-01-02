@@ -23,7 +23,8 @@ from internal.handler import (
     AuthHandler,
     AIHandler,
     ApiKeyHandler,
-    OpenAPIHandler
+    OpenAPIHandler,
+    BuiltinAppHandler
 )
 
 
@@ -44,6 +45,7 @@ class Router:
     ai_handler: AIHandler
     api_key_handler: ApiKeyHandler
     open_api_handler: OpenAPIHandler
+    builtin_app_handler: BuiltinAppHandler
 
     def register_router(self, app: Flask):
         """注册路由"""
@@ -57,6 +59,7 @@ class Router:
         bp.add_url_rule("/apps/<uuid:app_id>", view_func=self.app_handler.get_app)
         bp.add_url_rule("/apps/<uuid:app_id>", methods=["POST"], view_func=self.app_handler.update_app)
         bp.add_url_rule("/apps/<uuid:app_id>/delete", methods=["POST"], view_func=self.app_handler.delete_app)
+        bp.add_url_rule("/apps/<uuid:app_id>/copy", methods=["POST"], view_func=self.app_handler.copy_app)
         bp.add_url_rule("/apps/<uuid:app_id>/draft-app-config", view_func=self.app_handler.get_draft_app_config)
         bp.add_url_rule("/apps/<uuid:app_id>/draft-app-config", methods=["POST"],
                         view_func=self.app_handler.update_draft_app_config)
@@ -226,6 +229,15 @@ class Router:
         )
         openapi_bp.add_url_rule("/openapi/chat", methods=["POST"],
                                 view_func=self.open_api_handler.chat, )
+
+        # 内置应用模块
+        bp.add_url_rule("/builtin-apps/categories", view_func=self.builtin_app_handler.get_builtin_app_categories)
+        bp.add_url_rule("/builtin-apps", view_func=self.builtin_app_handler.get_builtin_apps)
+        bp.add_url_rule(
+            "/builtin-apps/add-builtin-app-to-space",
+            methods=["POST"],
+            view_func=self.builtin_app_handler.add_builtin_app_to_space,
+        )
         # 4.应用上注册蓝图
         app.register_blueprint(bp)
         app.register_blueprint(openapi_bp)
