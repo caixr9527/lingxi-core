@@ -7,6 +7,7 @@
 """
 from .base_node import BaseNode
 from .end.end_node import EndNode
+from .llm.llm_node import LLMNode
 from .start.start_node import StartNode
 
-__all__ = ["BaseNode", "StartNode", "EndNode"]
+__all__ = ["BaseNode", "StartNode", "EndNode", "LLMNode"]

@@ -17,11 +17,12 @@ from langgraph.graph.state import CompiledStateGraph
 from .entities.node_entity import NodeType
 from .entities.variable_entity import VARIABLE_TYPE_MAP
 from .entities.workflow_entity import WorkflowConfig, WorkflowState
-from .nodes import StartNode, EndNode
+from .nodes import StartNode, EndNode, LLMNode
 
 NodeClasses = {
     NodeType.START: StartNode,
-    NodeType.END: EndNode
+    NodeType.END: EndNode,
+    NodeType.LLM: LLMNode,
 }
 
 
@@ -73,14 +74,20 @@ class Workflow(BaseTool):
         edges = self._workflow_config.edges
         # 遍历nodes节点信息添加节点
         for node in nodes:
+            node_flag = f"{node.get('node_type')}_{node.get('id')}"
             if node.get("node_type") == NodeType.START:
                 graph.add_node(
-                    f"{NodeType.START.value}_{node.get('id')}",
+                    node_flag,
                     NodeClasses[NodeType.START](node_data=node),
+                )
+            elif node.get("node_type") == NodeType.LLM:
+                graph.add_node(
+                    node_flag,
+                    NodeClasses[NodeType.LLM](node_data=node),
                 )
             elif node.get("node_type") == NodeType.END:
                 graph.add_node(
-                    f"{NodeType.END.value}_{node.get('id')}",
+                    node_flag,
                     NodeClasses[NodeType.END](node_data=node),
                 )
 
