@@ -7,14 +7,22 @@
 """
 from typing import Any, Optional, Iterator
 
-from langchain_core.pydantic_v1 import PrivateAttr
+from langchain_core.pydantic_v1 import PrivateAttr, BaseModel, Field, create_model
 from langchain_core.runnables import RunnableConfig
 from langchain_core.runnables.utils import Input, Output
 from langchain_core.tools import BaseTool
 from langgraph.graph import StateGraph
 from langgraph.graph.state import CompiledStateGraph
 
+from .entities.node_entity import NodeType
+from .entities.variable_entity import VARIABLE_TYPE_MAP
 from .entities.workflow_entity import WorkflowConfig, WorkflowState
+from .nodes import StartNode, EndNode
+
+NodeClasses = {
+    NodeType.START: StartNode,
+    NodeType.END: EndNode
+}
 
 
 class Workflow(BaseTool):
@@ -26,15 +34,68 @@ class Workflow(BaseTool):
         super().__init__(
             name=workflow_config.name,
             description=workflow_config.description,
-            **kwargs)
+            args_schema=self._build_args_schema(workflow_config),
+            **kwargs
+        )
+
         self._workflow_config = workflow_config
         self._workflow = self._build_workflow()
+
+    @classmethod
+    def _build_args_schema(cls, workflow_config: WorkflowConfig) -> type[BaseModel]:
+        """构建输入参数结构体"""
+        # 1.提取开始节点的输入参数信息
+        fields = {}
+        inputs = next(
+            (node.get("inputs", []) for node in workflow_config.nodes if node.get("node_type") == NodeType.START),
+            []
+        )
+
+        # 2.循环遍历所有输入信息并创建字段映射
+        for input in inputs:
+            field_name = input.name
+            field_type = VARIABLE_TYPE_MAP.get(input.type, str)
+            field_required = input.required
+            field_description = input.description
+
+            fields[field_name] = (
+                field_type if field_required else Optional[field_type],
+                Field(description=field_description),
+            )
+
+        # 3.调用create_model创建一个BaseModel类，并使用上述分析好的字段
+        return create_model("DynamicModel", **fields)
 
     def _build_workflow(self) -> CompiledStateGraph:
         graph = StateGraph(WorkflowState)
         # 提取nodes和edge信息
+        nodes = self._workflow_config.nodes
+        edges = self._workflow_config.edges
         # 遍历nodes节点信息添加节点
+        for node in nodes:
+            if node.get("node_type") == NodeType.START:
+                graph.add_node(
+                    f"{NodeType.START.value}_{node.get('id')}",
+                    NodeClasses[NodeType.START](node_data=node),
+                )
+            elif node.get("node_type") == NodeType.END:
+                graph.add_node(
+                    f"{NodeType.END.value}_{node.get('id')}",
+                    NodeClasses[NodeType.END](node_data=node),
+                )
+
         # 遍历edges节点信息添加边
+        for edge in edges:
+            # 添加边映射
+            graph.add_edge(
+                f"{edge.get('source_type')}_{edge.get('source')}",
+                f"{edge.get('target_type')}_{edge.get('target')}",
+            )
+            # 检测特殊节点（开始、结束）
+            if edge.get("source_type") == NodeType.START:
+                graph.set_entry_point(f"{edge.get('source_type')}_{edge.get('source')}")
+            elif edge.get("target_type") == NodeType.END:
+                graph.set_finish_point(f"{edge.get('target_type')}_{edge.get('target')}")
         # 构建并编译
         return graph.compile()
 
