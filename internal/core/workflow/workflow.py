@@ -28,7 +28,7 @@ NodeClasses = {
 
 class Workflow(BaseTool):
     """工作流工具类"""
-    _workflow_config: WorkflowConfig = PrivateAttr(None), WorkflowState
+    _workflow_config: WorkflowConfig = PrivateAttr(None)
     _workflow: CompiledStateGraph = PrivateAttr(None)
 
     def __init__(self, workflow_config: WorkflowConfig, **kwargs: Any):
