@@ -7,6 +7,7 @@
 """
 from typing import Any, Optional, Iterator
 
+from flask import current_app
 from langchain_core.pydantic_v1 import PrivateAttr, BaseModel, Field, create_model
 from langchain_core.runnables import RunnableConfig
 from langchain_core.runnables.utils import Input, Output
@@ -17,13 +18,14 @@ from langgraph.graph.state import CompiledStateGraph
 from .entities.node_entity import NodeType
 from .entities.variable_entity import VARIABLE_TYPE_MAP
 from .entities.workflow_entity import WorkflowConfig, WorkflowState
-from .nodes import StartNode, EndNode, LLMNode, TemplateTransformNode
+from .nodes import StartNode, EndNode, LLMNode, TemplateTransformNode, DatasetRetrievalNode
 
 NodeClasses = {
     NodeType.START: StartNode,
     NodeType.END: EndNode,
     NodeType.LLM: LLMNode,
-    NodeType.TEMPLATE_TRANSFORM: TemplateTransformNode
+    NodeType.TEMPLATE_TRANSFORM: TemplateTransformNode,
+    NodeType.DATASET_RETRIEVAL: DatasetRetrievalNode
 }
 
 
@@ -90,6 +92,15 @@ class Workflow(BaseTool):
                 graph.add_node(
                     node_flag,
                     NodeClasses[NodeType.TEMPLATE_TRANSFORM](node_data=node),
+                )
+            elif node.get("node_type") == NodeType.DATASET_RETRIEVAL:
+                graph.add_node(
+                    node_flag,
+                    NodeClasses[NodeType.DATASET_RETRIEVAL](
+                        flask_app=current_app._get_current_object(),
+                        account_id=self._workflow_config.account_id,
+                        node_data=node
+                    ),
                 )
             elif node.get("node_type") == NodeType.END:
                 graph.add_node(
