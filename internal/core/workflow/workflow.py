@@ -18,14 +18,15 @@ from langgraph.graph.state import CompiledStateGraph
 from .entities.node_entity import NodeType
 from .entities.variable_entity import VARIABLE_TYPE_MAP
 from .entities.workflow_entity import WorkflowConfig, WorkflowState
-from .nodes import StartNode, EndNode, LLMNode, TemplateTransformNode, DatasetRetrievalNode
+from .nodes import StartNode, EndNode, LLMNode, TemplateTransformNode, DatasetRetrievalNode, CodeNode
 
 NodeClasses = {
     NodeType.START: StartNode,
     NodeType.END: EndNode,
     NodeType.LLM: LLMNode,
     NodeType.TEMPLATE_TRANSFORM: TemplateTransformNode,
-    NodeType.DATASET_RETRIEVAL: DatasetRetrievalNode
+    NodeType.DATASET_RETRIEVAL: DatasetRetrievalNode,
+    NodeType.CODE: CodeNode
 }
 
 
