@@ -6,10 +6,22 @@
 @File   : __init__.py.py
 """
 from .base_node import BaseNode
+from .code.code_node import CodeNode
 from .dataset_retrieval.dataset_retrieval_node import DatasetRetrievalNode
 from .end.end_node import EndNode
+from .http_request.http_request_node import HttpRequestNode
 from .llm.llm_node import LLMNode
 from .start.start_node import StartNode
 from .template_transform.template_transform_node import TemplateTransformNode
+from .tool.tool_node import ToolNode
 
-__all__ = ["BaseNode", "StartNode", "EndNode", "LLMNode", "TemplateTransformNode", "DatasetRetrievalNode"]
+__all__ = ["ToolNode",
+           "BaseNode",
+           "StartNode",
+           "EndNode",
+           "LLMNode",
+           "TemplateTransformNode",
+           "DatasetRetrievalNode",
+           "CodeNode",
+           "HttpRequestNode"
+           ]
