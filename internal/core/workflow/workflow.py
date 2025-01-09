@@ -18,7 +18,16 @@ from langgraph.graph.state import CompiledStateGraph
 from .entities.node_entity import NodeType
 from .entities.variable_entity import VARIABLE_TYPE_MAP
 from .entities.workflow_entity import WorkflowConfig, WorkflowState
-from .nodes import StartNode, EndNode, LLMNode, TemplateTransformNode, DatasetRetrievalNode, CodeNode, ToolNode
+from .nodes import (
+    StartNode,
+    EndNode,
+    LLMNode,
+    TemplateTransformNode,
+    DatasetRetrievalNode,
+    CodeNode,
+    ToolNode,
+    HttpRequestNode
+)
 
 NodeClasses = {
     NodeType.START: StartNode,
@@ -27,7 +36,8 @@ NodeClasses = {
     NodeType.TEMPLATE_TRANSFORM: TemplateTransformNode,
     NodeType.DATASET_RETRIEVAL: DatasetRetrievalNode,
     NodeType.CODE: CodeNode,
-    NodeType.TOOL: ToolNode
+    NodeType.TOOL: ToolNode,
+    NodeType.HTTP_REQUEST: HttpRequestNode
 }
 
 
@@ -113,6 +123,11 @@ class Workflow(BaseTool):
                 graph.add_node(
                     node_flag,
                     NodeClasses[NodeType.TOOL](node_data=node),
+                )
+            elif node.get("node_type") == NodeType.HTTP_REQUEST:
+                graph.add_node(
+                    node_flag,
+                    NodeClasses[NodeType.HTTP_REQUEST](node_data=node),
                 )
             elif node.get("node_type") == NodeType.END:
                 graph.add_node(
