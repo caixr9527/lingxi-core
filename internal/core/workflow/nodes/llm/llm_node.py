@@ -19,7 +19,7 @@ from .llm_entity import LLMNodeData
 
 
 class LLMNode(BaseNode):
-    _node_data_cls = LLMNodeData
+    node_data = LLMNodeData
 
     def invoke(self, state: WorkflowState, config: Optional[RunnableConfig] = None) -> WorkflowState:
         inputs_dict = extract_variables_from_state(self.node_data.inputs, state)

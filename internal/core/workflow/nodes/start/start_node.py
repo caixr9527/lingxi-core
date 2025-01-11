@@ -21,7 +21,7 @@ from .start_entity import StartNodeData
 class StartNode(BaseNode):
     """开始节点"""
 
-    _node_data_cls = StartNodeData
+    node_data: StartNodeData
 
     def invoke(self, state: WorkflowState, config: Optional[RunnableConfig] = None) -> WorkflowState:
         """开始节点执行函数,该函数会提取状态中的输入信息并生成节点信息"""
