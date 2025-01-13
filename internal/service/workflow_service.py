@@ -249,10 +249,10 @@ class WorkflowService(BaseService):
 
     def debug_workflow(self, workflow_id: UUID, inputs: dict[str, Any], account: Account) -> Generator:
         """调试指定的工作流API接口，该接口为流式事件输出"""
-        # 1.根据传递的id获取工作流并校验权限
+        # 根据传递的id获取工作流并校验权限
         workflow = self.get_workflow(workflow_id, account)
 
-        # 2.创建工作流工具
+        # 创建工作流工具
         workflow_tool = WorkflowTool(workflow_config=WorkflowConfig(
             account_id=account.id,
             name=workflow.tool_call_name,
@@ -262,10 +262,10 @@ class WorkflowService(BaseService):
         ))
 
         def handle_stream() -> Generator:
-            # 3.定义变量存储所有节点运行结果
+            # 定义变量存储所有节点运行结果
             node_results = []
 
-            # 4.添加数据库工作流运行结果记录
+            # 添加数据库工作流运行结果记录
             workflow_result = self.create(WorkflowResult, **{
                 "app_id": None,
                 "account_id": account.id,
@@ -276,26 +276,26 @@ class WorkflowService(BaseService):
                 "status": WorkflowResultStatus.RUNNING,
             })
 
-            # 4.调用stream服务获取工具信息
+            # 调用stream服务获取工具信息
             start_at = time.perf_counter()
             try:
                 for chunk in workflow_tool.stream(inputs):
-                    # 5.chunk的格式为:{"node_name": WorkflowState}，所以需要取出节点响应结构的第1个key
+                    # chunk的格式为:{"node_name": WorkflowState}，所以需要取出节点响应结构的第1个key
                     first_key = next(iter(chunk))
 
-                    # 6.取出各个节点的运行结果
+                    # 取出各个节点的运行结果
                     node_result = chunk[first_key]["node_results"][0]
                     node_result_dict = convert_model_to_dict(node_result)
                     node_results.append(node_result_dict)
 
-                    # 7.组装响应数据并流式事件输出
+                    # 组装响应数据并流式事件输出
                     data = {
                         "id": str(uuid.uuid4()),
                         **node_result_dict,
                     }
                     yield f"event: workflow\ndata: {json.dumps(data)}\n\n"
 
-                # 7.流式输出完毕后，将结果存储到数据库中
+                # 流式输出完毕后，将结果存储到数据库中
                 self.update(workflow_result, **{
                     "status": WorkflowResultStatus.SUCCEEDED,
                     "state": node_results,

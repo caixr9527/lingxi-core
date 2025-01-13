@@ -5,6 +5,7 @@
 @Author : rxccai@gmail.com
 @File   : end_node.py
 """
+import time
 from typing import Optional
 
 from langchain_core.runnables import RunnableConfig
@@ -22,16 +23,19 @@ class EndNode(BaseNode):
 
     def invoke(self, state: WorkflowState, config: Optional[RunnableConfig] = None) -> WorkflowState:
         # 提取数据
+        start_at = time.perf_counter()
         outputs_dict = extract_variables_from_state(self.node_data.outputs, state)
-        # 组装并返回
+
+        # 2.组装状态并返回
         return {
             "outputs": outputs_dict,
             "node_results": [
                 NodeResult(
                     node_data=self.node_data,
-                    state=NodeStatus.SUCCEEDED,
+                    status=NodeStatus.SUCCEEDED,
                     inputs={},
                     outputs=outputs_dict,
+                    latency=(time.perf_counter() - start_at),
                 )
             ]
         }

@@ -5,6 +5,7 @@
 @Author : rxccai@gmail.com
 @File   : llm_node.py
 """
+import time
 from typing import Optional
 
 from jinja2 import Template
@@ -22,20 +23,23 @@ class LLMNode(BaseNode):
     node_data = LLMNodeData
 
     def invoke(self, state: WorkflowState, config: Optional[RunnableConfig] = None) -> WorkflowState:
+        start_at = time.perf_counter()
         inputs_dict = extract_variables_from_state(self.node_data.inputs, state)
 
-        # 使用jinja2格式化模板信息
+        # 使用jinja2格式模板信息
         template = Template(self.node_data.prompt)
         prompt_value = template.render(**inputs_dict)
 
-        # todo:3.根据配置创建LLM实例，等待多LLM接入时需要完善
+        # todo:根据配置创建LLM实例，等待多LLM接入时需要完善
         llm = ChatOpenAI(
             model=self.node_data.language_model_config.get("model", "gpt-4o-mini"),
             **self.node_data.language_model_config.get("parameters", {}),
         )
 
         # 使用stream来代替invoke，避免接口长时间未响应超时
-        content = llm.invoke(prompt_value).content
+        content = ""
+        for chunk in llm.stream(prompt_value):
+            content += chunk.content
 
         # 提取并构建输出数据结构
         outputs = {}
@@ -52,6 +56,7 @@ class LLMNode(BaseNode):
                     status=NodeStatus.SUCCEEDED,
                     inputs=inputs_dict,
                     outputs=outputs,
+                    latency=(time.perf_counter() - start_at),
                 )
             ]
         }
