@@ -168,7 +168,7 @@ class AppService(BaseService):
         paginator = Paginator(db=self.db, req=req)
 
         # 构建筛选条件
-        filters = []
+        filters = [App.account_id == account.id]
         if req.search_word.data:
             filters.append(App.name.ilike(f"%{req.search_word.data}%"))
 
