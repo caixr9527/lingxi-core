@@ -135,13 +135,13 @@ class WorkflowService(BaseService):
 
     def update_draft_graph(self, workflow_id: UUID, draft_graph: dict[str, Any], account: Account) -> Workflow:
         """根据传递的工作流id+草稿图配置+账号更新工作流的草稿图"""
-        # 1.根据传递的id获取工作流并校验权限
+        # 根据传递的id获取工作流并校验权限
         workflow = self.get_workflow(workflow_id, account)
 
-        # 2.校验传递的草稿图配置，因为有可能边有可能还未建立，所以需要校验关联的数据
+        # 校验传递的草稿图配置，因为有可能边有可能还未建立，所以需要校验关联的数据
         validate_draft_graph = self._validate_graph(draft_graph, account)
 
-        # 3.更新工作流草稿图配置，每次修改都将is_debug_passed的值重置为False，该处可以优化对比字典里除position的其他属性
+        # 更新工作流草稿图配置，每次修改都将is_debug_passed的值重置为False，该处可以优化对比字典里除position的其他属性
         self.update(workflow, **{
             "draft_graph": validate_draft_graph,
             "is_debug_passed": False,
