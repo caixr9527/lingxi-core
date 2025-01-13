@@ -24,7 +24,8 @@ from internal.handler import (
     AIHandler,
     ApiKeyHandler,
     OpenAPIHandler,
-    BuiltinAppHandler
+    BuiltinAppHandler,
+    WorkflowHandler
 )
 
 
@@ -46,6 +47,7 @@ class Router:
     api_key_handler: ApiKeyHandler
     open_api_handler: OpenAPIHandler
     builtin_app_handler: BuiltinAppHandler
+    workflow_handler: WorkflowHandler
 
     def register_router(self, app: Flask):
         """注册路由"""
@@ -238,6 +240,46 @@ class Router:
             methods=["POST"],
             view_func=self.builtin_app_handler.add_builtin_app_to_space,
         )
+
+        # 工作流模块
+        bp.add_url_rule("/workflows", view_func=self.workflow_handler.get_workflows_with_page)
+        bp.add_url_rule("/workflows", methods=["POST"], view_func=self.workflow_handler.create_workflow)
+        bp.add_url_rule("/workflows/<uuid:workflow_id>", view_func=self.workflow_handler.get_workflow)
+        bp.add_url_rule(
+            "/workflows/<uuid:workflow_id>",
+            methods=["POST"],
+            view_func=self.workflow_handler.update_workflow,
+        )
+        bp.add_url_rule(
+            "/workflows/<uuid:workflow_id>/delete",
+            methods=["POST"],
+            view_func=self.workflow_handler.delete_workflow,
+        )
+        bp.add_url_rule(
+            "/workflows/<uuid:workflow_id>/draft-graph",
+            methods=["POST"],
+            view_func=self.workflow_handler.update_draft_graph,
+        )
+        bp.add_url_rule(
+            "/workflows/<uuid:workflow_id>/draft-graph",
+            view_func=self.workflow_handler.get_draft_graph,
+        )
+        bp.add_url_rule(
+            "/workflows/<uuid:workflow_id>/debug",
+            methods=["POST"],
+            view_func=self.workflow_handler.debug_workflow,
+        )
+        bp.add_url_rule(
+            "/workflows/<uuid:workflow_id>/publish",
+            methods=["POST"],
+            view_func=self.workflow_handler.publish_workflow,
+        )
+        bp.add_url_rule(
+            "/workflows/<uuid:workflow_id>/cancel-publish",
+            methods=["POST"],
+            view_func=self.workflow_handler.cancel_publish_workflow,
+        )
+
         # 4.应用上注册蓝图
         app.register_blueprint(bp)
         app.register_blueprint(openapi_bp)
