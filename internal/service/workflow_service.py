@@ -151,29 +151,28 @@ class WorkflowService(BaseService):
 
     def get_draft_graph(self, workflow_id: UUID, account: Account) -> dict[str, Any]:
         """根据传递的工作流id+账号信息，获取指定工作流的草稿配置信息"""
-        # 1.根据传递的id获取工作流并校验权限
         workflow = self.get_workflow(workflow_id, account)
 
-        # 2.提取草稿图结构信息并校验(不更新校验后的数据到数据库)
+        # 提取草稿图结构信息并校验(不更新校验后的数据到数据库)
         draft_graph = workflow.draft_graph
         validate_draft_graph = self._validate_graph(draft_graph, account)
 
-        # 3.循环遍历节点信息，为工具节点/知识库节点附加元数据
+        # 循环遍历节点信息，为工具节点/知识库节点附加元数据
         for node in validate_draft_graph["nodes"]:
             if node.get("node_type") == NodeType.TOOL:
-                # 4.判断工具的类型执行不同的操作
+                # 判断工具的类型执行不同的操作
                 if node.get("tool_type") == "builtin_tool":
-                    # 5.节点类型为工具，则附加工具的名称、图标、参数等额外信息
+                    # 节点类型为工具，则附加工具的名称、图标、参数等额外信息
                     provider = self.builtin_provider_manager.get_provider(node.get("provider_id"))
                     if not provider:
                         continue
 
-                    # 6.获取提供者下的工具实体，并检测是否存在
+                    # 获取提供者下的工具实体，并检测是否存在
                     tool_entity = provider.get_tool_entity(node.get("tool_id"))
                     if not tool_entity:
                         continue
 
-                    # 7.判断工具的params和草稿中的params是否一致，如果不一致则全部重置为默认值（或者考虑删除这个工具的引用）
+                    # 判断工具的params和草稿中的params是否一致，如果不一致则全部重置为默认值（或者考虑删除这个工具的引用）
                     param_keys = set([param.name for param in tool_entity.params])
                     params = node.get("params")
                     if set(params.keys()) - param_keys:
@@ -183,7 +182,7 @@ class WorkflowService(BaseService):
                             if param.default is not None
                         }
 
-                    # 8.数据校验成功附加展示信息
+                    # 数据校验成功附加展示信息
                     provider_entity = provider.provider_entity
                     node["meta"] = {
                         "type": "builtin_tool",
@@ -203,7 +202,7 @@ class WorkflowService(BaseService):
                         }
                     }
                 else:
-                    # 9.查询数据库获取对应的工具记录，并检测是否存在
+                    # 查询数据库获取对应的工具记录，并检测是否存在
                     tool_record = self.db.session.query(ApiTool).filter(
                         ApiTool.provider_id == node.get("provider_id"),
                         ApiTool.name == node.get("tool_id"),
@@ -212,7 +211,7 @@ class WorkflowService(BaseService):
                     if not tool_record:
                         continue
 
-                    # 10.组装api工具展示信息
+                    # 组装api工具展示信息
                     provider = tool_record.provider
                     node["meta"] = {
                         "type": "api_tool",
@@ -232,7 +231,7 @@ class WorkflowService(BaseService):
                         },
                     }
             elif node.get("node_type") == NodeType.DATASET_RETRIEVAL:
-                # 5.节点类型为知识库检索，需要附加知识库的名称、图标等信息
+                # 节点类型为知识库检索，需要附加知识库的名称、图标等信息
                 datasets = self.db.session.query(Dataset).filter(
                     Dataset.id.in_(node.get("dataset_ids", [])),
                     Dataset.account_id == account.id,
