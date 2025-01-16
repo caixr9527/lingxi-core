@@ -28,11 +28,16 @@ class DatasetRetrievalNodeData(BaseNodeData):
     retrieval_config: RetrievalConfig = RetrievalConfig()  # 检索配置
     inputs: list[VariableEntity] = Field(default_factory=list)  # 输入变量信息
     outputs: list[VariableEntity] = Field(
-        exclude=True,
         default_factory=lambda: [
             VariableEntity(name="combine_documents", value={"type": VariableValueType.GENERATED})
         ]
     )
+
+    @validator("outputs", pre=True)
+    def validate_outputs(cls, value: list[VariableEntity]):
+        return [
+            VariableEntity(name="combine_documents", value={"type": VariableValueType.GENERATED})
+        ]
 
     @validator("inputs")
     def validate_inputs(cls, value: list[VariableEntity]):
