@@ -6,6 +6,7 @@
 @File   : workflow_service.py
 """
 import json
+import logging
 import time
 import uuid
 from dataclasses import dataclass
@@ -201,7 +202,7 @@ class WorkflowService(BaseService):
                             "params": params,
                         }
                     }
-                else:
+                elif node.get("tool_type") == "api_tool":
                     # 查询数据库获取对应的工具记录，并检测是否存在
                     tool_record = self.db.session.query(ApiTool).filter(
                         ApiTool.provider_id == node.get("provider_id"),
@@ -227,6 +228,24 @@ class WorkflowService(BaseService):
                             "name": tool_record.name,
                             "label": tool_record.name,
                             "description": tool_record.description,
+                            "params": {},
+                        },
+                    }
+                else:
+                    node["meta"] = {
+                        "type": "api_tool",
+                        "provider": {
+                            "id": "",
+                            "name": "",
+                            "label": "",
+                            "icon": "",
+                            "description": "",
+                        },
+                        "tool": {
+                            "id": "",
+                            "name": "",
+                            "label": "",
+                            "description": "",
                             "params": {},
                         },
                     }
@@ -320,8 +339,6 @@ class WorkflowService(BaseService):
         # 校验工作流是否调试通过
         if workflow.is_debug_passed is False:
             raise FailException("该工作流未调试通过，请调试通过后发布")
-        if workflow.status == WorkflowStatus.PUBLISHED:
-            raise FailException("该工作流已发布，无需重复发布")
 
         # 使用WorkflowConfig二次校验，如果校验失败则不发布
         try:
@@ -425,25 +442,11 @@ class WorkflowService(BaseService):
                         Dataset.account_id == account.id,
                     ).all()
                     node_data.dataset_ids = [dataset.id for dataset in datasets]
-                elif node_data.node_type == NodeType.TOOL:
-                    # 11.判断工具的类型执行不同的操作
-                    if node_data.tool_type == "builtin_tool":
-                        tool = self.builtin_provider_manager.get_tool(node_data.provider_id, node_data.tool_id)
-                        if not tool:
-                            raise ValidateException("工具节点绑定的内置工具不存在")
-                    else:
-                        # 12.API工具，查询当前工具是否属于当前账号
-                        tool_record = self.db.session.query(ApiTool).filter(
-                            ApiTool.provider_id == node_data.provider_id,
-                            ApiTool.name == node_data.tool_id,
-                            ApiTool.account_id == account.id,
-                        ).one_or_none()
-                        if not tool_record:
-                            raise ValidateException("工具节点绑定的API工具不存在")
 
                 # 13.将数据添加到node_data_dict中
                 node_data_dict[node_data.id] = node_data
-            except Exception:
+            except Exception as e:
+                logging.exception(str(e))
                 continue
 
         # 14.循环校验edges中各个节点对应的数据
