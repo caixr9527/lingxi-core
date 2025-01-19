@@ -347,7 +347,8 @@ class WorkflowConfig(BaseModel):
             """使用广度搜索优先算法遍历所有的前置节点"""
             if node_id not in visited:
                 visited.add(node_id)
-                predecessors.append(node_id)
+                if node_id != target_node_id:
+                    predecessors.append(node_id)
                 for neighbor in reverse_adj_list[node_id]:
                     dfs(neighbor)
 
