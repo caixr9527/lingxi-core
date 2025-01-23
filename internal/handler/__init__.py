@@ -16,6 +16,7 @@ from .builtin_app_handler import BuiltinAppHandler
 from .builtin_tool_handler import BuiltinToolHandler
 from .dataset_handler import DatasetHandler
 from .document_handler import DocumentHandler
+from .language_model_handler import LanguageModelHandler
 from .oauth_handler import OAuthHandler
 from .openapi_handler import OpenAPIHandler
 from .segment_handler import SegmentHandler
@@ -37,5 +38,6 @@ __all__ = [
     "ApiKeyHandler",
     "OpenAPIHandler",
     "BuiltinAppHandler",
-    "WorkflowHandler"
+    "WorkflowHandler",
+    "LanguageModelHandler"
 ]
