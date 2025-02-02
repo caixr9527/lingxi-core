@@ -1,6 +1,7 @@
 # llmops-api
 
 llmops-api
+
 celery：celery -A app.http.app.celery worker --loglevel INFO --pool solo
 
 db downgrade：flask --app app.http.app db downgrade
