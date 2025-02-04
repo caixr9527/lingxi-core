@@ -12,6 +12,7 @@ from flask import request
 from flask_login import login_required, current_user
 from injector import inject
 
+from internal.core.language_model import LanguageModelManager
 from internal.schema.app_schema import (
     CreateAppReq,
     GetAppResp,
@@ -33,6 +34,7 @@ from pkg.response import validate_error_json, success_json, success_message, com
 class AppHandler:
     app_service: AppService
     retrieval_service: RetrievalService
+    language_model_manager: LanguageModelManager
 
     @login_required
     def create_app(self):
@@ -178,12 +180,16 @@ class AppHandler:
 
     # @login_required
     def ping(self):
-        from internal.core.workflow import Workflow
-        from internal.core.workflow.entities.workflow_entity import WorkflowConfig
-
-        workflow = Workflow(workflow_config=WorkflowConfig(
-            name="workflow",
-            description="工作流组件"
-        ))
-
-        return success_json(workflow.invoke({"query": "你好，你是？", "username": "caixr"}))
+        provider = self.language_model_manager.get_provider("ollama")
+        model_entity = provider.get_model_entity("qwen2.5-7b")
+        model_class = provider.get_model_class(model_entity.model_type)
+        llm = model_class(**{
+            **model_entity.attributes,
+            "features": model_entity.features,
+            "metadata": model_entity.metadata,
+        })
+        return success_json({
+            "content": llm.invoke("你好，你是").content,
+            "features": llm.features,
+            "metadata": llm.metadata,
+        })

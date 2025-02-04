@@ -46,7 +46,7 @@ class Provider(BaseModel):
             # 将类型的第一个字符转换成大写，其他不变，并构建类映射
             symbol_name = model_type[0].upper() + model_type[1:]
             provider["model_class_map"][model_type] = dynamic_import(
-                f"internal.core.language_model.providers.{provider_entity.name}.{model_type}",
+                f"internal.core.language_model.providers.{provider_entity.name}.{model_type.value}",
                 symbol_name
             )
 

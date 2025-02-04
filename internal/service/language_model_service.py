@@ -17,6 +17,7 @@ from internal.core.language_model import LanguageModelManager
 from internal.exception import NotFoundException
 from pkg.sqlalchemy import SQLAlchemy
 from .base_service import BaseService
+from ..lib.helper import convert_model_to_dict
 
 
 @inject
@@ -47,28 +48,7 @@ class LanguageModelService(BaseService):
                 "description": provider_entity.description,
                 "background": provider_entity.background,
                 "support_model_types": provider_entity.supported_model_types,
-                "models": [{
-                    "model": model_entity.model_name,
-                    "label": model_entity.label,
-                    "model_type": model_entity.model_type,
-                    "context_window": model_entity.context_window,
-                    "max_output_tokens": model_entity.max_output_tokens,
-                    "features": model_entity.features,
-                    "attributes": model_entity.attributes,
-                    "metadata": model_entity.metadata,
-                    "parameters": [{
-                        "name": parameter.name,
-                        "label": parameter.label,
-                        "type": parameter.type.value,
-                        "help": parameter.help,
-                        "required": parameter.required,
-                        "default": parameter.default,
-                        "min": parameter.min,
-                        "max": parameter.max,
-                        "precision": parameter.precision,
-                        "options": [{"label": option.label, "value": option.value} for option in parameter.options],
-                    } for parameter in model_entity.parameters],
-                } for model_entity in model_entities]
+                "models": convert_model_to_dict(model_entities),
             }
             language_models.append(language_model)
 
@@ -86,31 +66,7 @@ class LanguageModelService(BaseService):
         if not model_entity:
             raise NotFoundException("该模型不存在")
 
-        # 构建数据并响应
-        language_model = {
-            "model": model_entity.model_name,
-            "label": model_entity.label,
-            "model_type": model_entity.model_type,
-            "context_window": model_entity.context_window,
-            "max_output_tokens": model_entity.max_output_tokens,
-            "features": model_entity.features,
-            "attributes": model_entity.attributes,
-            "metadata": model_entity.metadata,
-            "parameters": [{
-                "name": parameter.name,
-                "label": parameter.label,
-                "type": parameter.type.value,
-                "help": parameter.help,
-                "required": parameter.required,
-                "default": parameter.default,
-                "min": parameter.min,
-                "max": parameter.max,
-                "precision": parameter.precision,
-                "options": [{"label": option.label, "value": option.value} for option in parameter.options],
-            } for parameter in model_entity.parameters],
-        }
-
-        return language_model
+        return convert_model_to_dict(model_entity)
 
     def get_language_model_icon(self, provider_name: str) -> tuple[bytes, str]:
         """根据传递的提供者名字获取提供商对应的图标信息"""
