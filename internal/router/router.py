@@ -25,7 +25,8 @@ from internal.handler import (
     ApiKeyHandler,
     OpenAPIHandler,
     BuiltinAppHandler,
-    WorkflowHandler
+    WorkflowHandler,
+    LanguageModelHandler
 )
 
 
@@ -48,6 +49,7 @@ class Router:
     open_api_handler: OpenAPIHandler
     builtin_app_handler: BuiltinAppHandler
     workflow_handler: WorkflowHandler
+    language_model_handler: LanguageModelHandler
 
     def register_router(self, app: Flask):
         """注册路由"""
@@ -280,6 +282,16 @@ class Router:
             view_func=self.workflow_handler.cancel_publish_workflow,
         )
 
+        # 语言模型模块
+        bp.add_url_rule("/language-models", view_func=self.language_model_handler.get_language_models)
+        bp.add_url_rule(
+            "/language-models/<string:provider_name>/icon",
+            view_func=self.language_model_handler.get_language_model_icon,
+        )
+        bp.add_url_rule(
+            "/language-models/<string:provider_name>/<string:model_name>",
+            view_func=self.language_model_handler.get_language_model,
+        )
         # 4.应用上注册蓝图
         app.register_blueprint(bp)
         app.register_blueprint(openapi_bp)
