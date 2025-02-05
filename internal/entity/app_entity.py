@@ -7,6 +7,15 @@
 """
 from enum import Enum
 
+# 生成icon描述提示词模板
+GENERATE_ICON_PROMPT_TEMPLATE = """你是一个拥有10年经验的AI绘画工程师，可以将用户传递的`应用名称`和`应用描述`转换为对应应用的icon描述。
+该描述主要用于DallE AI绘画，并且该描述是英文，用户传递的数据如下:
+
+应用名称: {name}。
+应用描述: {description}。
+
+并且除了icon描述提示词外，其他什么都不要生成"""
+
 
 class AppStatus(str, Enum):
     """应用状态枚举类"""

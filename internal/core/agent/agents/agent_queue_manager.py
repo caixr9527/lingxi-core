@@ -100,7 +100,8 @@ class AgentQueueManager:
         # 从队列字典中获取对应的任务队列信息
         q = self._queues.get(str(task_id))
         if not q:
-            user_prefix = "account" if self.invoke_from in [InvokeFrom.WEB_APP, InvokeFrom.DEBUGGER] else "end-user"
+            user_prefix = "account" if self.invoke_from in [InvokeFrom.WEB_APP, InvokeFrom.DEBUGGER,
+                                                            InvokeFrom.ASSISTANT_AGENT] else "end-user"
 
             self.redis_client.setex(
                 self.generate_task_belong_cache_key(task_id),
@@ -125,7 +126,8 @@ class AgentQueueManager:
             return
 
         # 计算对应缓存键的结果
-        user_prefix = "account" if invoke_from in [InvokeFrom.WEB_APP, InvokeFrom.DEBUGGER] else "end-user"
+        user_prefix = "account" if invoke_from in [InvokeFrom.WEB_APP, InvokeFrom.DEBUGGER,
+                                                   InvokeFrom.ASSISTANT_AGENT] else "end-user"
         if result.decode("utf-8") != f"{user_prefix}-{str(user_id)}":
             return
 
