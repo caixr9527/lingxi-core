@@ -16,6 +16,6 @@ parameters:
   - name: presence_penalty
     use_template: presence_penalty
   - name: max_tokens
-    use_template: max_completion_tokens
+    use_template: max_tokens
     default: 4096
     max: 8196

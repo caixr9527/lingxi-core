@@ -30,6 +30,8 @@ from werkzeug.datastructures import FileStorage
 from internal.core.agent.agents import FunctionCallAgent, AgentQueueManager
 from internal.core.agent.entities.agent_entity import AgentConfig
 from internal.core.agent.entities.queue_entity import QueueEvent
+from internal.core.language_model import LanguageModelManager
+from internal.core.language_model.entities.model_entity import ModelParameterType
 from internal.core.memory import TokenBufferMemory
 from internal.core.tools.api_tools.providers.api_provider_manager import ApiProviderManager
 from internal.core.tools.builtin_tools.providers import BuiltinProviderManager
@@ -39,6 +41,7 @@ from internal.entity.app_entity import GENERATE_ICON_PROMPT_TEMPLATE
 from internal.entity.conversation_entity import InvokeFrom, MessageStatus
 from internal.entity.dataset_entity import RetrievalSource
 from internal.exception import NotFoundException, UnauthorizedException, ValidateException, FailException
+from internal.lib.helper import remove_fields, get_value_type
 from internal.model import (
     App,
     Account,
@@ -62,7 +65,6 @@ from .conversation_service import ConversationService
 from .cos_service import CosService
 from .language_model_service import LanguageModelService
 from .retrieval_service import RetrievalService
-from ..lib.helper import remove_fields
 
 
 @inject
@@ -78,6 +80,7 @@ class AppService(BaseService):
     conversation_service: ConversationService
     app_config_service: AppConfigService
     language_model_service: LanguageModelService
+    language_model_manager: LanguageModelManager
 
     def auto_create_app(self, name: str, description: str, account_id: UUID) -> None:
         """根据传递的应用名称、描述、账号id利用AI创建一个Agent智能体"""
@@ -525,6 +528,7 @@ class AppService(BaseService):
             agent_config=AgentConfig(
                 user_id=account.id,
                 invoke_from=InvokeFrom.DEBUGGER,
+                preset_prompt=draft_app_config["preset_prompt"],
                 enable_long_term_memory=draft_app_config["long_term_memory"]["enable"],
                 tools=tools,
                 review_config=draft_app_config["review_config"]
@@ -639,7 +643,71 @@ class AppService(BaseService):
         ):
             raise ValidateException("草稿配置字段出错，请核实后重试")
 
-        # todo:3.校验model_config字段，等待多LLM接入时完成该步骤校验
+        # 3.校验model_config字段，provider/model使用严格校验(出错的时候直接抛出)，parameters使用宽松校验，出错时使用默认值
+        if "model_config" in draft_app_config:
+            # 3.1 获取模型配置并判断数据是否为字典
+            model_config = draft_app_config["model_config"]
+            if not isinstance(model_config, dict):
+                raise ValidateException("模型配置格式错误，请核实后重试")
+
+            # 3.2 判断model_config键信息是否正确
+            if set(model_config.keys()) != {"provider", "model", "parameters"}:
+                raise ValidateException("模型键配置格式错误，请核实后重试")
+
+            # 3.3 判断模型提供者信息是否正确
+            if not model_config["provider"] or not isinstance(model_config["provider"], str):
+                raise ValidateException("模型服务提供商类型必须为字符串")
+            provider = self.language_model_manager.get_provider(model_config["provider"])
+            if not provider:
+                raise ValidateException("该模型服务提供商不存在，请核实后重试")
+
+            # 3.4 判断模型信息是否正确
+            if not model_config["model"] or not isinstance(model_config["model"], str):
+                raise ValidateException("模型名字必须是否字符串")
+            model_entity = provider.get_model_entity(model_config["model"])
+            if not model_entity:
+                raise ValidateException("该服务提供商下不存在该模型，请核实后重试")
+
+            # 3.5 判断传递的parameters是否正确，如果不正确则设置默认值，并剔除多余字段，补全未传递的字段
+            parameters = {}
+            for parameter in model_entity.parameters:
+                # 3.6 从model_config中获取参数值，如果不存在则设置为默认值
+                parameter_value = model_config["parameters"].get(parameter.name, parameter.default)
+
+                # 3.7 判断参数是否必填
+                if parameter.required:
+                    # 3.8 参数必填，则值不允许为None，如果为None则设置默认值
+                    if parameter_value is None:
+                        parameter_value = parameter.default
+                    else:
+                        # 3.9 值非空则校验数据类型是否正确，不正确则设置默认值
+                        if get_value_type(parameter_value) != parameter.type.value:
+                            parameter_value = parameter.default
+                else:
+                    # 3.10 参数非必填，数据非空的情况下需要校验
+                    if parameter_value is not None:
+                        if get_value_type(parameter_value) != parameter.type.value:
+                            parameter_value = parameter.default
+
+                # 3.11 判断参数是否存在options，如果存在则数值必须在options中选择
+                if parameter.options and parameter_value not in parameter.options:
+                    parameter_value = parameter.default
+
+                # 3.12 参数类型为int/float，如果存在min/max时候需要校验
+                if parameter.type in [ModelParameterType.INT,
+                                      ModelParameterType.FLOAT] and parameter_value is not None:
+                    # 3.13 校验数值的min/max
+                    if (
+                            (parameter.min and parameter_value < parameter.min)
+                            or (parameter.max and parameter_value > parameter.max)
+                    ):
+                        parameter_value = parameter.default
+
+                parameters[parameter.name] = parameter_value
+
+            # 3.13 覆盖Agent配置中的模型配置
+            model_config["parameters"] = parameters
+            draft_app_config["model_config"] = model_config
 
         # 4.校验dialog_round上下文轮数，校验数据类型以及范围
         if "dialog_round" in draft_app_config:
