@@ -19,7 +19,7 @@ class DefaultModelParameterName(str, Enum):
     TOP_P = "top_p"  # 核采样率
     PRESENCE_PENALTY = "presence_penalty"  # 存在惩罚
     FREQUENCY_PENALTY = "frequency_penalty"  # 频率惩罚
-    MAX_COMPLETION_TOKENS = "max_completion_tokens"  # 要生成的内容的最大tokens数
+    MAX_TOKENS = "max_tokens"  # 要生成的内容的最大tokens数
 
 
 class ModelType(str, Enum):
