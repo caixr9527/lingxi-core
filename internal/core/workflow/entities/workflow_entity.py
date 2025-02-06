@@ -300,7 +300,7 @@ class WorkflowConfig(BaseModel):
 
                         # 10.判断引用变量列表中是否存在该引用名字
                         if not any(
-                                [ref_variable.name == variable.value.content.ref_var_name]
+                                ref_variable.name == variable.value.content.ref_var_name
                                 for ref_variable in ref_variables
                         ):
                             raise ValidateException(

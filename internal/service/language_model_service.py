@@ -12,8 +12,10 @@ from typing import Any
 
 from flask import current_app
 from injector import inject
+from langchain_openai import ChatOpenAI
 
 from internal.core.language_model import LanguageModelManager
+from internal.core.language_model.entities.model_entity import BaseLanguageModel
 from internal.exception import NotFoundException
 from pkg.sqlalchemy import SQLAlchemy
 from .base_service import BaseService
@@ -99,3 +101,31 @@ class LanguageModelService(BaseService):
         with open(icon_path, "rb") as f:
             byte_data = f.read()
             return byte_data, mimetype
+
+    def load_language_model(self, model_config: dict[str, Any]) -> BaseLanguageModel:
+        """根据配置加载大模型"""
+        try:
+            # 从model_config中提取出provider、model、parameters
+            provider_name = model_config.get("provider", "")
+            model_name = model_config.get("model", "")
+            parameters = model_config.get("parameters", {})
+
+            # 从模型管理器获取提供者、模型实体、模型类
+            provider = self.language_model_manager.get_provider(provider_name)
+            model_entity = provider.get_model_entity(model_name)
+            model_class = provider.get_model_class(model_entity.model_type)
+
+            # 实例化模型后并返回
+            return model_class(
+                **model_entity.attributes,
+                **parameters,
+                features=model_entity.features,
+                metadata=model_entity.metadata,
+            )
+        except Exception as _:
+            return self.load_default_language_model()
+
+    @classmethod
+    def load_default_language_model(cls) -> BaseLanguageModel:
+        """加载默认的大语言模型，在模型管理器中获取不到模型或者出错时使用默认模型进行兜底"""
+        return ChatOpenAI(model="gpt-4o-mini", temperature=1, max_tokens=8192)
