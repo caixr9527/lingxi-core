@@ -26,6 +26,7 @@ from internal.core.agent.entities.agent_entity import (
 from internal.core.agent.entities.queue_entity import AgentThought, QueueEvent
 from internal.exception import FailException
 from .base_agent import BaseAgent
+from ...language_model.entities.model_entity import ModelFeature
 
 
 class FunctionCallAgent(BaseAgent):
@@ -140,7 +141,12 @@ class FunctionCallAgent(BaseAgent):
         llm = self.llm
 
         # 检测大语言模型实例是否有bind_tools方法，如果没有则不绑定，如果有还需要检测tools是否为空，不为空则绑定
-        if hasattr(llm, "bind_tools") and callable(getattr(llm, "bind_tools")) and len(self.agent_config.tools) > 0:
+        if (
+                ModelFeature.TOOL_CALL in llm.features
+                and hasattr(llm, "bind_tools")
+                and callable(getattr(llm, "bind_tools"))
+                and len(self.agent_config.tools) > 0
+        ):
             llm = llm.bind_tools(self.agent_config.tools)
 
         # 流式调用LLM输出对应内容

@@ -27,11 +27,11 @@ from redis import Redis
 from sqlalchemy import func, desc
 from werkzeug.datastructures import FileStorage
 
-from internal.core.agent.agents import FunctionCallAgent, AgentQueueManager
+from internal.core.agent.agents import FunctionCallAgent, AgentQueueManager, ReACTAgent
 from internal.core.agent.entities.agent_entity import AgentConfig
 from internal.core.agent.entities.queue_entity import QueueEvent
 from internal.core.language_model import LanguageModelManager
-from internal.core.language_model.entities.model_entity import ModelParameterType
+from internal.core.language_model.entities.model_entity import ModelParameterType, ModelFeature
 from internal.core.memory import TokenBufferMemory
 from internal.core.tools.api_tools.providers.api_provider_manager import ApiProviderManager
 from internal.core.tools.builtin_tools.providers import BuiltinProviderManager
@@ -522,8 +522,9 @@ class AppService(BaseService):
             )
             tools.append(dataset_retrieval)
 
-        # todo:构建Agent智能体，目前暂时使用FunctionCallAgent
-        agent = FunctionCallAgent(
+        # 根据LLM是否支持tool_call决定使用不同的Agent
+        agent_class = FunctionCallAgent if ModelFeature.TOOL_CALL in llm.features else ReACTAgent
+        agent = agent_class(
             llm=llm,
             agent_config=AgentConfig(
                 user_id=account.id,

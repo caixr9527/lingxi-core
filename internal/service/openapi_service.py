@@ -14,7 +14,7 @@ from flask import current_app
 from injector import inject
 from langchain_core.messages import HumanMessage
 
-from internal.core.agent.agents import FunctionCallAgent
+from internal.core.agent.agents import FunctionCallAgent, ReACTAgent
 from internal.core.agent.entities.agent_entity import AgentConfig
 from internal.core.agent.entities.queue_entity import QueueEvent
 from internal.core.memory import TokenBufferMemory
@@ -32,6 +32,7 @@ from .base_service import BaseService
 from .conversation_service import ConversationService
 from .language_model_service import LanguageModelService
 from .retrieval_service import RetrievalService
+from ..core.language_model.entities.model_entity import ModelFeature
 
 
 @inject
@@ -126,8 +127,9 @@ class OpenAPIService(BaseService):
             )
             tools.append(dataset_retrieval)
 
-        # todo:构建Agent智能体，目前暂时使用FunctionCallAgent
-        agent = FunctionCallAgent(
+        # 根据LLM是否支持tool_call决定使用不同的Agent
+        agent_class = FunctionCallAgent if ModelFeature.TOOL_CALL in llm.features else ReACTAgent
+        agent = agent_class(
             llm=llm,
             agent_config=AgentConfig(
                 user_id=account.id,
