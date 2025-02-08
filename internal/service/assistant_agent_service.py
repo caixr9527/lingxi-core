@@ -17,12 +17,13 @@ from injector import inject
 from langchain_core.messages import HumanMessage
 from langchain_core.pydantic_v1 import BaseModel, Field
 from langchain_core.tools import BaseTool, tool
-from langchain_openai import ChatOpenAI
 from sqlalchemy import desc
 
 from internal.core.agent.agents import AgentQueueManager, FunctionCallAgent
 from internal.core.agent.entities.agent_entity import AgentConfig
 from internal.core.agent.entities.queue_entity import QueueEvent
+from internal.core.language_model.entities.model_entity import ModelFeature
+from internal.core.language_model.providers.openai.chat import Chat
 from internal.core.memory import TokenBufferMemory
 from internal.entity.conversation_entity import InvokeFrom, MessageStatus
 from internal.model import Account, Message
@@ -63,13 +64,13 @@ class AssistantAgentService(BaseService):
         )
 
         # 使用GPT模型作为辅助Agent的LLM大脑
-        # llm = Chat(
-        #     model="gpt-4o-mini",
-        #     temperature=0.8,
-        #     features=[ModelFeature.TOOL_CALL, ModelFeature.AGENT_THOUGHT],
-        #     metadata={},
-        # )
-        llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.8)
+        llm = Chat(
+            model="gpt-4o-mini",
+            temperature=0.8,
+            features=[ModelFeature.TOOL_CALL, ModelFeature.AGENT_THOUGHT],
+            metadata={},
+        )
+        # llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.8)
 
         # 实例化TokenBufferMemory用于提取短期记忆
         token_buffer_memory = TokenBufferMemory(
