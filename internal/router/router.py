@@ -27,7 +27,8 @@ from internal.handler import (
     BuiltinAppHandler,
     WorkflowHandler,
     LanguageModelHandler,
-    AssistantAgentHandler
+    AssistantAgentHandler,
+    AnalysisHandler
 )
 
 
@@ -52,6 +53,7 @@ class Router:
     workflow_handler: WorkflowHandler
     language_model_handler: LanguageModelHandler
     assistant_agent_handler: AssistantAgentHandler
+    analysis_handler: AnalysisHandler
 
     def register_router(self, app: Flask):
         """注册路由"""
@@ -315,7 +317,13 @@ class Router:
             methods=["POST"],
             view_func=self.assistant_agent_handler.delete_assistant_agent_conversation,
         )
-        
+
+        # 应用统计模块
+        bp.add_url_rule(
+            "/analysis/<uuid:app_id>",
+            view_func=self.analysis_handler.get_app_analysis,
+        )
+
         # 应用上注册蓝图
         app.register_blueprint(bp)
         app.register_blueprint(openapi_bp)
