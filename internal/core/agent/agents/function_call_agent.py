@@ -16,7 +16,7 @@ from langchain_core.messages import HumanMessage, SystemMessage, RemoveMessage, 
 from langchain_core.messages import messages_to_dict
 from langgraph.constants import END
 from langgraph.graph import StateGraph
-from langgraph.graph.state import CompiledGraph
+from langgraph.graph.state import CompiledStateGraph
 
 from internal.core.agent.entities.agent_entity import (
     AgentState,
@@ -32,7 +32,7 @@ from ...language_model.entities.model_entity import ModelFeature
 class FunctionCallAgent(BaseAgent):
     """基于函数调用/工具调用的智能体"""
 
-    def _build_agent(self) -> CompiledGraph:
+    def _build_agent(self) -> CompiledStateGraph:
         graph = StateGraph(AgentState)
         # 添加节点
         graph.add_node("preset_operation", self._preset_operation_node)
@@ -191,6 +191,17 @@ class FunctionCallAgent(BaseAgent):
             self.agent_queue_manager.publish_error(state["task_id"], f"LLM节点发生错误, 错误信息: {str(e)}")
             raise e
 
+        # 计算输入、输出token数
+        input_token_count = self.llm.get_num_tokens_from_messages(state["messages"])
+        output_token_count = self.llm.get_num_tokens_from_messages([gathered])
+
+        # 获取输入/输出价格和单位
+        input_price, output_price, unit = self.llm.get_pricing()
+
+        # 计算总token+总成本
+        total_token_count = input_token_count + output_token_count
+        total_price = (input_token_count * input_price + output_token_count * output_price) * unit
+
         # 如果类型为推理则添加智能体推理事件
         if generation_type == "thought":
             self.agent_queue_manager.publish(state["task_id"], AgentThought(
@@ -199,10 +210,36 @@ class FunctionCallAgent(BaseAgent):
                 event=QueueEvent.AGENT_THOUGHT,
                 thought=json.dumps(gathered.tool_calls),
                 message=messages_to_dict(state["messages"]),
+                message_token_count=input_token_count,
+                message_unit_price=input_price,
+                message_price_unit=unit,
+                answer="",
+                answer_token_count=output_token_count,
+                answer_unit_price=output_price,
+                answer_price_unit=unit,
+                total_token_count=total_token_count,
+                total_price=total_price,
                 latency=(time.perf_counter() - start_at),
             ))
         elif generation_type == "message":
-            # 7.如果LLM直接生成answer则表示已经拿到了最终答案，则停止监听
+            # 如果LLM直接生成answer则表示已经拿到了最终答案，推送一条空消息用于计算总token+总成本并停止监听
+            self.agent_queue_manager.publish(state["task_id"], AgentThought(
+                id=id,
+                task_id=state["task_id"],
+                event=QueueEvent.AGENT_MESSAGE,
+                thought="",
+                message=messages_to_dict(state["messages"]),
+                message_token_count=input_token_count,
+                message_unit_price=input_price,
+                message_price_unit=unit,
+                answer="",
+                answer_token_count=output_token_count,
+                answer_unit_price=output_price,
+                answer_price_unit=unit,
+                total_token_count=total_token_count,
+                total_price=total_price,
+                latency=(time.perf_counter() - start_at),
+            ))
             self.agent_queue_manager.publish(state["task_id"], AgentThought(
                 id=uuid.uuid4(),
                 task_id=state["task_id"],
