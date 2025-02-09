@@ -65,7 +65,7 @@ class AssistantAgentService(BaseService):
 
         # 使用GPT模型作为辅助Agent的LLM大脑
         llm = Chat(
-            model="gpt-4o-mini",
+            model="gpt-4o",
             temperature=0.8,
             features=[ModelFeature.TOOL_CALL, ModelFeature.AGENT_THOUGHT],
             metadata={},
