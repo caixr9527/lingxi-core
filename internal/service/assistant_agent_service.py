@@ -117,7 +117,16 @@ class AssistantAgentService(BaseService):
                         # 叠加智能体消息
                         agent_thoughts[event_id] = agent_thoughts[event_id].model_copy(update={
                             "thought": agent_thoughts[event_id].thought + agent_thought.thought,
+                            "message": agent_thought.message,
+                            "message_token_count": agent_thought.message_token_count,
+                            "message_unit_price": agent_thought.message_unit_price,
+                            "message_price_unit": agent_thought.message_price_unit,
                             "answer": agent_thoughts[event_id].answer + agent_thought.answer,
+                            "answer_token_count": agent_thought.answer_token_count,
+                            "answer_unit_price": agent_thought.answer_unit_price,
+                            "answer_price_unit": agent_thought.answer_price_unit,
+                            "total_token_count": agent_thought.total_token_count,
+                            "total_price": agent_thought.total_price,
                             "latency": agent_thought.latency,
                         })
                 else:
@@ -125,7 +134,7 @@ class AssistantAgentService(BaseService):
                     agent_thoughts[event_id] = agent_thought
             data = {
                 **agent_thought.model_dump(include={
-                    "event", "thought", "observation", "tool", "tool_input", "answer", "latency",
+                    "event", "thought", "observation", "tool", "tool_input", "answer", "latency", "total_token_count"
                 }),
                 "id": event_id,
                 "conversation_id": str(conversation.id),

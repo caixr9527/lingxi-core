@@ -16,7 +16,7 @@ from langchain_core.messages import HumanMessage, SystemMessage, RemoveMessage, 
 from langchain_core.messages import messages_to_dict
 from langgraph.constants import END
 from langgraph.graph import StateGraph
-from langgraph.graph.state import CompiledGraph
+from langgraph.graph.state import CompiledStateGraph
 
 from internal.core.agent.entities.agent_entity import (
     AgentState,
@@ -32,7 +32,7 @@ from ...language_model.entities.model_entity import ModelFeature
 class FunctionCallAgent(BaseAgent):
     """基于函数调用/工具调用的智能体"""
 
-    def _build_agent(self) -> CompiledGraph:
+    def _build_agent(self) -> CompiledStateGraph:
         graph = StateGraph(AgentState)
         # 添加节点
         graph.add_node("preset_operation", self._preset_operation_node)
