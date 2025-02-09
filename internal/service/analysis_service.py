@@ -211,7 +211,7 @@ class AnalysisService(BaseService):
 
             # 计算费用消耗趋势
             cost_consumption_trend_y_axis = sum(
-                message.total_price for message in messages
+                float(message.total_price) for message in messages
                 if trend_start_at <= message.created_at < trend_end_at
             )
             cost_consumption_trend["x_axis"].append(int(trend_start_at.timestamp()))
