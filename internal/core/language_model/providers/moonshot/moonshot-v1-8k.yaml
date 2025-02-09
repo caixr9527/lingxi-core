@@ -23,3 +23,9 @@ parameters:
   - name: max_tokens
     use_template: max_tokens
     default: 4096
+metadata:
+  pricing:
+    input: 0.0120
+    output: 0.0120
+    unit: 0.001
+    currency: RMB
