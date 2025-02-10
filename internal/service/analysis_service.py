@@ -142,7 +142,7 @@ class AnalysisService(BaseService):
         # 初始化环比字典
         pop = {}
 
-        # 2.定义需要计算环比的字段
+        # 定义需要计算环比的字段
         fields = [
             "total_messages", "active_accounts", "avg_of_conversation_messages",
             "token_output_rate", "cost_consumption",
