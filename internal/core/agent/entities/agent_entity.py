@@ -78,8 +78,8 @@ REACT_AGENT_SYSTEM_PROMPT_TEMPLATE = """你是一个高度定制的智能体应�
       - ```json\\n{{"name": "current_time", "args": {{}}}}\\n```
       - ```json\\n{{"name": "dalle", "args": {{"query": "一幅老爷爷爬山的图片", "size": "1024x1024"}}}}\\n```
     - 错误示例:
-      - 错误原因(在最前的```json前生成了内容): 好的，我将调用工具进行搜索。\\n```json\\n{{"name": "google_serper", "args": {{"query": "慕课网 AI课程"}}}}\\n```
-      - 错误原因(在最后的```后生成了内容): ```json\\n{{"name": "google_serper", "args": {{"query": "慕课网 AI课程"}}}}\\n```，我将准备调用工具，请稍等。
+      - 错误原因(在最前的```json前生成了内容): 好的，我将调用工具进行搜索。\\n```json\\n{{"name": "google_serper", "args": {{"query": "AI课程"}}}}\\n```
+      - 错误原因(在最后的```后生成了内容): ```json\\n{{"name": "google_serper", "args": {{"query": "AI课程"}}}}\\n```，我将准备调用工具，请稍等。
       - 错误原因(生成了json，但是不包含在"```json"和"```"内): {{"name": "current_time", "args": {{}}}}
       - 错误原因(将描述参数的内容填充到生成参数中): ```json\\n{{"name": "google_serper", "args": {{"query": {{'title': 'Query', 'description': '需要检索查询的语句.', 'type': 'string'}}}}\n```
 
