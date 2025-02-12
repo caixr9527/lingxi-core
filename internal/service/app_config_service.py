@@ -64,7 +64,7 @@ class AppConfigService(BaseService):
 
         # 校验工作流列表对应的数据
         workflows, validate_workflows = self._process_and_validate_workflows(draft_app_config.workflows)
-        if set(workflows) != set(validate_workflows):
+        if set(validate_workflows) != set(draft_app_config.workflows):
             self.update(draft_app_config, workflows=validate_workflows)
 
         # 将数据转换成字典后返回
