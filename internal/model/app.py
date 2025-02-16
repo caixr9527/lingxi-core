@@ -18,10 +18,11 @@ from sqlalchemy import (
 )
 from sqlalchemy.dialects.postgresql import JSONB
 
-from internal.entity.app_entity import AppConfigType, DEFAULT_APP_CONFIG
+from internal.entity.app_entity import AppConfigType, DEFAULT_APP_CONFIG, AppStatus
 from internal.entity.conversation_entity import InvokeFrom
 from internal.extension.database_extension import db
 from .conversation import Conversation
+from ..lib.helper import generate_random_string
 
 
 class App(db.Model):
@@ -39,6 +40,7 @@ class App(db.Model):
     name = Column(String(255), nullable=False, server_default=text("''::character varying"))  # 应用名字
     icon = Column(String(255), nullable=False, server_default=text("''::character varying"))  # 应用图标
     description = Column(Text, nullable=False, server_default=text("''::text"))  # 应用描述
+    token = Column(String(255), nullable=False, server_default=text("''::character varying"))  # 应用token
     status = Column(String(255), nullable=False, server_default=text("''::character varying"))  # 应用状态
     updated_at = Column(
         DateTime,
@@ -80,7 +82,7 @@ class App(db.Model):
     @property
     def debug_conversation(self) -> "Conversation":
         """获取应用的调试会话记录"""
-        # 1.根据debug_conversation_id获取调试会话记录
+        # 根据debug_conversation_id获取调试会话记录
         debug_conversation = None
         if self.debug_conversation_id is not None:
             debug_conversation = db.session.query(Conversation).filter(
@@ -88,11 +90,11 @@ class App(db.Model):
                 Conversation.invoke_from == InvokeFrom.DEBUGGER,
             ).one_or_none()
 
-        # 2.检测数据是否存在，如果不存在则创建
+        # 检测数据是否存在，如果不存在则创建
         if not self.debug_conversation_id or not debug_conversation:
-            # 3.开启数据库自动提交上下文
+            # 开启数据库自动提交上下文
             with db.auto_commit():
-                # 4.创建应用调试会话记录并刷新获取会话id
+                # 创建应用调试会话记录并刷新获取会话id
                 debug_conversation = Conversation(
                     app_id=self.id,
                     name="New Conversation",
@@ -102,10 +104,23 @@ class App(db.Model):
                 db.session.add(debug_conversation)
                 db.session.flush()
 
-                # 5.更新当前记录的debug_conversation_id
+                # 更新当前记录的debug_conversation_id
                 self.debug_conversation_id = debug_conversation.id
 
         return debug_conversation
+
+    @property
+    def token_with_default(self) -> str:
+        if self.status != AppStatus.PUBLISHED:
+            if self.token is not None or self.token != "":
+                self.token = None
+                db.session.commit()
+            return ""
+
+        if self.token is None or self.token == "":
+            self.token = generate_random_string()
+            db.session.commit()
+        return self.token
 
 
 class AppConfig(db.Model):

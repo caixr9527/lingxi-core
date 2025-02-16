@@ -41,7 +41,7 @@ from internal.entity.app_entity import GENERATE_ICON_PROMPT_TEMPLATE
 from internal.entity.conversation_entity import InvokeFrom, MessageStatus
 from internal.entity.dataset_entity import RetrievalSource
 from internal.exception import NotFoundException, UnauthorizedException, ValidateException, FailException
-from internal.lib.helper import remove_fields, get_value_type
+from internal.lib.helper import remove_fields, get_value_type, generate_random_string
 from internal.model import (
     App,
     Account,
@@ -521,7 +521,7 @@ class AppService(BaseService):
                 **draft_app_config["retrieval_config"],
             )
             tools.append(dataset_retrieval)
-            
+
         # 检测是否关联工作流，如果关联了工作流则将工作流构建成工具添加到tools中
         if draft_app_config["workflows"]:
             workflow_tools = self.app_config_service.get_langchain_tools_by_workflow_ids(
@@ -642,6 +642,30 @@ class AppService(BaseService):
 
         # 2.调用智能体队列管理器停止特定任务
         AgentQueueManager.set_stop_flag(task_id, InvokeFrom.DEBUGGER, account.id)
+
+    def get_published_config(self, app_id: UUID, account: Account) -> dict[str, Any]:
+        """根据传递的应用id+账号，获取应用的发布配置"""
+        app = self.get_app(app_id, account)
+
+        return {
+            "web_app": {
+                "token": app.token_with_default,
+                "status": app.status,
+            }
+        }
+
+    def regenerate_web_app_token(self, app_id: UUID, account: Account) -> str:
+        """根据传递的应用id+账号，重新生成WebApp凭证标识"""
+        app = self.get_app(app_id, account)
+
+        if app.status != AppStatus.PUBLISHED:
+            raise FailException("应用未发布，无法生成WebApp凭证标识")
+
+        # 重新生成token并更新数据
+        token = generate_random_string(16)
+        self.update(app, token=token)
+
+        return token
 
     def _validate_draft_app_config(self, draft_app_config: dict[str, Any], account: Account) -> dict[str, Any]:
         """校验传递的应用草稿配置信息，返回校验后的数据"""

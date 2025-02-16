@@ -57,10 +57,10 @@ class Router:
 
     def register_router(self, app: Flask):
         """注册路由"""
-        # 1.创建蓝图
+        # 创建蓝图
         bp = Blueprint("llmops", __name__, url_prefix="")
         openapi_bp = Blueprint("openapi", __name__, url_prefix="")
-        # 2.将url与对应的控制器绑定
+        # 将url与对应的控制器绑定
         bp.add_url_rule("/ping", view_func=self.app_handler.ping)
         bp.add_url_rule("/apps", view_func=self.app_handler.get_apps_with_page)
         bp.add_url_rule("/apps", methods=["POST"], view_func=self.app_handler.create_app)
@@ -92,7 +92,17 @@ class Router:
         bp.add_url_rule("/apps/<uuid:app_id>/conversations/messages",
                         view_func=self.app_handler.get_debug_conversation_messages_with_page)
 
-        # 3.内置插件广场模块
+        bp.add_url_rule(
+            "/apps/<uuid:app_id>/published-config",
+            view_func=self.app_handler.get_published_config,
+        )
+        bp.add_url_rule(
+            "/apps/<uuid:app_id>/published-config/regenerate-web-app-token",
+            methods=["POST"],
+            view_func=self.app_handler.regenerate_web_app_token,
+        )
+
+        # 内置插件广场模块
         bp.add_url_rule("/builtin-tools", view_func=self.builtin_tool_handler.get_builtin_tools)
         bp.add_url_rule("/builtin-tools/<string:provider_name>/tools/<string:tool_name>",
                         view_func=self.builtin_tool_handler.get_provider_tool)
