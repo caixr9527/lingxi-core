@@ -28,7 +28,8 @@ from internal.handler import (
     WorkflowHandler,
     LanguageModelHandler,
     AssistantAgentHandler,
-    AnalysisHandler
+    AnalysisHandler,
+    WebAppHandler
 )
 
 
@@ -54,6 +55,7 @@ class Router:
     language_model_handler: LanguageModelHandler
     assistant_agent_handler: AssistantAgentHandler
     analysis_handler: AnalysisHandler
+    web_app_handler: WebAppHandler
 
     def register_router(self, app: Flask):
         """注册路由"""
@@ -333,6 +335,20 @@ class Router:
             "/analysis/<uuid:app_id>",
             view_func=self.analysis_handler.get_app_analysis,
         )
+
+        # WebApp模块
+        bp.add_url_rule("/web-apps/<string:token>", view_func=self.web_app_handler.get_web_app)
+        bp.add_url_rule(
+            "/web-apps/<string:token>/chat",
+            methods=["POST"],
+            view_func=self.web_app_handler.web_app_chat,
+        )
+        bp.add_url_rule(
+            "/web-apps/<string:token>/chat/<uuid:task_id>/stop",
+            methods=["POST"],
+            view_func=self.web_app_handler.stop_web_app_chat,
+        )
+        bp.add_url_rule("/web-apps/<string:token>/conversations", view_func=self.web_app_handler.get_conversations)
 
         # 应用上注册蓝图
         app.register_blueprint(bp)
