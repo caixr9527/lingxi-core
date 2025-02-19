@@ -155,7 +155,7 @@ class AnalysisService(BaseService):
 
             # 确保上一时期的数据不为0，避免/0错误
             if previous_value != 0:
-                pop[field] = (current_value - previous_value) / previous_value
+                pop[field] = float((current_value - previous_value) / previous_value)
             else:
                 # 如果前一期数据为0，则直接设置环比为0
                 pop[field] = 0
@@ -207,7 +207,7 @@ class AnalysisService(BaseService):
             if conversation_count != 0:
                 avg_of_conversation_messages_trend_y_axis = total_messages_trend_y_axis / conversation_count
             avg_of_conversation_messages_trend["x_axis"].append(int(trend_start_at.timestamp()))
-            avg_of_conversation_messages_trend["y_axis"].append(avg_of_conversation_messages_trend_y_axis)
+            avg_of_conversation_messages_trend["y_axis"].append(float(avg_of_conversation_messages_trend_y_axis))
 
             # 计算费用消耗趋势
             cost_consumption_trend_y_axis = sum(
@@ -215,7 +215,7 @@ class AnalysisService(BaseService):
                 if trend_start_at <= message.created_at < trend_end_at
             )
             cost_consumption_trend["x_axis"].append(int(trend_start_at.timestamp()))
-            cost_consumption_trend["y_axis"].append(cost_consumption_trend_y_axis)
+            cost_consumption_trend["y_axis"].append(float(cost_consumption_trend_y_axis))
 
         return {
             "total_messages_trend": total_messages_trend,
