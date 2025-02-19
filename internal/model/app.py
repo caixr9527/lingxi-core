@@ -113,12 +113,12 @@ class App(db.Model):
     def token_with_default(self) -> str:
         if self.status != AppStatus.PUBLISHED:
             if self.token is not None or self.token != "":
-                self.token = None
+                self.token = ''
                 db.session.commit()
             return ""
 
         if self.token is None or self.token == "":
-            self.token = generate_random_string()
+            self.token = generate_random_string(16)
             db.session.commit()
         return self.token
 
