@@ -105,7 +105,7 @@ class WebAppService(BaseService):
             conversation=conversation,
             model_instance=llm,
         )
-        history = token_buffer_memory.get_history_prompt_messages(
+        history = token_buffer_memory.get_history_prompt_message(
             message_limit=app_config["dialog_round"],
         )
 
