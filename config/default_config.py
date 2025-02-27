@@ -22,6 +22,12 @@ DEFAULT_CONFIG = {
     "REDIS_DB": "0",
     "REDIS_USE_SSL": "False",
 
+    # weaviate向量数据库配置
+    "WEAVIATE_HTTP_HOST": "127.0.0.1",
+    "WEAVIATE_HTTP_PORT": 8080,
+    "WEAVIATE_GRPC_HOST": "127.0.0.1",
+    "WEAVIATE_GRPC_PORT": 50051,
+
     # celery默认配置
     "CELERY_BROKER_DB": 1,
     "CELERY_RESULT_BACKEND_DB": 1,
