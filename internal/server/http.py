@@ -65,7 +65,7 @@ class Http(Flask):
 
     def _register_error_handler(self, error: Exception):
         # 日志记录异常信息
-        logging.error("An error occurred: %s", error, exc_info=True)
+        logging.error("An error occurred: %(error)s", {"error": error}, exc_info=True)
         # 判断是否自定义异常
         if isinstance(error, CustomException):
             return json(Response(

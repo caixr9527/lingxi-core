@@ -54,7 +54,8 @@ class DocumentService(BaseService):
                         upload_file.extension.lower() in ALL_DOCUMENT_EXTENSION]
         if len(upload_files) == 0:
             logging.warning(
-                f"上传文档列表未解析到合法文件, account_id: {account.id}, dataset_id: {dataset_id}, upload_file_ids: {upload_file_ids}")
+                "上传文档列表未解析到合法文件, account_id: %(account_id)s, dataset_id: %(dataset_id)s, upload_file_ids: %(upload_file_ids)s",
+                {"account_id": account.id, "dataset_id": dataset_id, "upload_file_ids": upload_file_ids})
             raise FailException("暂未解析到合法文件，请重新上传")
         batch = time.strftime("%Y%m%d%H%M%S") + str(random.randint(100000, 999999))
         process_rule = self.create(

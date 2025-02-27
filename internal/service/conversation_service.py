@@ -160,7 +160,8 @@ class ConversationService(BaseService):
             if conversation_info and hasattr(conversation_info, "subject"):
                 name = conversation_info.subject
         except Exception as e:
-            logging.exception(f"提取会话名称出错, conversation_info: {conversation_info}, 错误信息: {str(e)}")
+            logging.exception("提取会话名称出错, conversation_info: %(conversation_info)s, 错误信息: %(error)s",
+                              {"conversation_info": conversation_info, "error": e})
 
         if len(name) > 75:
             name = name[:75] + "..."
@@ -186,7 +187,8 @@ class ConversationService(BaseService):
             if suggested_questions and hasattr(suggested_questions, "questions"):
                 questions = suggested_questions.questions
         except Exception as e:
-            logging.exception(f"生成建议问题出错, suggested_questions: {suggested_questions}, 错误信息: {str(e)}")
+            logging.exception("生成建议问题出错, suggested_questions: %(suggested_questions)s, 错误信息: %(e)s",
+                              {"suggested_questions": suggested_questions, "error": e})
 
         if len(questions) > 3:
             questions = questions[:3]
