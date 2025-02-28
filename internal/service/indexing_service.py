@@ -71,7 +71,7 @@ class IndexingService(BaseService):
                 # 存储操作
                 self._completed(document, lc_segments)
             except Exception as e:
-                logging.exception(f"构建文档 {document.id}, 发生错误信息: {str(e)}")
+                logging.exception("构建文档发生错误信息，错误信息：%(error)s", {"error": e})
                 self.update(
                     document,
                     status=DocumentStatus.ERROR,
@@ -83,7 +83,7 @@ class IndexingService(BaseService):
         cache_key = LOCK_DOCUMENT_UPDATE_ENABLED.format(document_id=document_id)
         document = self.get(Document, document_id)
         if document is None:
-            logging.exception(f"当前文档: {document_id} 不存在")
+            logging.exception("当前文档不存在, 文档id: %(document_id)s", {"document_id": document_id})
             raise NotFoundException("该文档不存在")
 
         segments = self.db.session.query(Segment).with_entities(Segment.id, Segment.node_id, Segment.enabled).filter(
@@ -124,7 +124,8 @@ class IndexingService(BaseService):
                 self.keyword_table_service.delete_keyword_table_from_ids(document.dataset_id, segment_ids)
 
         except Exception as e:
-            logging.exception(f"修改向量数据库文档启用状态失败，文档ID：{document_id}, 错误信息：{str(e)}")
+            logging.exception("修改向量数据库文档启用状态失败，文档ID：%(document_id)s, 错误信息: %(error)s",
+                              {"document_id": document_id, "error": e})
             origin_enabled = not document.enabled
             self.update(
                 document,
@@ -179,7 +180,7 @@ class IndexingService(BaseService):
                             "enabled": True,
                         })
                 except Exception as e:
-                    logging.exception(f"构建文档片段索引发生异常，错误信息： {str(e)}")
+                    logging.exception("构建文档片段索引发生异常，错误信息： %(error)s", {"error", e})
                     with self.db.auto_commit():
                         self.db.session.query(Segment).filter(
                             Segment.node_id.in_(ids)
@@ -346,4 +347,7 @@ class IndexingService(BaseService):
                 where=Filter.by_property("dataset_id").equal(str(dataset_id))
             )
         except Exception as e:
-            logging.exception(f"异步删除知识库关联内容出错, dataset_id: {dataset_id}, 错误信息: {str(e)}")
+            logging.exception(
+                "异步删除知识库关联内容出错, dataset_id: %(dataset_id)s, 错误信息: %(error)s",
+                {"dataset_id": dataset_id, "error": e},
+            )
