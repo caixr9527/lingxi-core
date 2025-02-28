@@ -5,6 +5,8 @@
 @Author : rxccai@gmail.com
 @File   : dataset.py
 """
+from datetime import datetime
+
 from sqlalchemy import (
     Column,
     UUID,
@@ -13,9 +15,10 @@ from sqlalchemy import (
     Integer,
     Boolean,
     DateTime,
-    PrimaryKeyConstraint,
     text,
     func,
+    PrimaryKeyConstraint,
+    Index,
 )
 from sqlalchemy.dialects.postgresql import JSONB
 
@@ -29,6 +32,7 @@ class Dataset(db.Model):
     __tablename__ = "dataset"
     __table_args__ = (
         PrimaryKeyConstraint("id", name="pk_dataset_id"),
+        Index("dataset_account_id_name_idx", "account_id", "name"),
     )
 
     id = Column(UUID, nullable=False, server_default=text("uuid_generate_v4()"))
@@ -40,7 +44,7 @@ class Dataset(db.Model):
         DateTime,
         nullable=False,
         server_default=text('CURRENT_TIMESTAMP(0)'),
-        server_onupdate=text('CURRENT_TIMESTAMP(0)'),
+        onupdate=datetime.now,
     )
     created_at = Column(DateTime, nullable=False, server_default=text('CURRENT_TIMESTAMP(0)'))
 
@@ -90,6 +94,9 @@ class Document(db.Model):
     __tablename__ = "document"
     __table_args__ = (
         PrimaryKeyConstraint("id", name="pk_document_id"),
+        Index("document_account_id_idx", "account_id"),
+        Index("document_dataset_id_idx", "dataset_id"),
+        Index("document_batch_idx", "batch"),
     )
 
     id = Column(UUID, nullable=False, server_default=text("uuid_generate_v4()"))
@@ -116,7 +123,7 @@ class Document(db.Model):
         DateTime,
         nullable=False,
         server_default=text('CURRENT_TIMESTAMP(0)'),
-        server_onupdate=text('CURRENT_TIMESTAMP(0)'),
+        onupdate=datetime.now,
     )
     created_at = Column(DateTime, nullable=False, server_default=text('CURRENT_TIMESTAMP(0)'))
 
@@ -150,6 +157,9 @@ class Segment(db.Model):
     __tablename__ = "segment"
     __table_args__ = (
         PrimaryKeyConstraint("id", name="pk_segment_id"),
+        Index("segment_account_id_idx", "account_id"),
+        Index("segment_dataset_id_idx", "dataset_id"),
+        Index("segment_document_id_idx", "document_id"),
     )
 
     id = Column(UUID, nullable=False, server_default=text("uuid_generate_v4()"))
@@ -176,7 +186,7 @@ class Segment(db.Model):
         DateTime,
         nullable=False,
         server_default=text('CURRENT_TIMESTAMP(0)'),
-        server_onupdate=text('CURRENT_TIMESTAMP(0)'),
+        onupdate=datetime.now,
     )
     created_at = Column(DateTime, nullable=False, server_default=text('CURRENT_TIMESTAMP(0)'))
 
@@ -190,6 +200,7 @@ class KeywordTable(db.Model):
     __tablename__ = "keyword_table"
     __table_args__ = (
         PrimaryKeyConstraint("id", name="pk_keyword_table_id"),
+        Index("keyword_table_dataset_id_idx", "dataset_id"),
     )
 
     id = Column(UUID, nullable=False, server_default=text("uuid_generate_v4()"))
@@ -199,7 +210,7 @@ class KeywordTable(db.Model):
         DateTime,
         nullable=False,
         server_default=text('CURRENT_TIMESTAMP(0)'),
-        server_onupdate=text('CURRENT_TIMESTAMP(0)'),
+        onupdate=datetime.now,
     )
     created_at = Column(DateTime, nullable=False, server_default=text('CURRENT_TIMESTAMP(0)'))
 
@@ -209,6 +220,9 @@ class DatasetQuery(db.Model):
     __tablename__ = "dataset_query"
     __table_args__ = (
         PrimaryKeyConstraint("id", name="pk_dataset_query_id"),
+        Index("dataset_query_dataset_id_idx", "dataset_id"),
+        Index("dataset_created_by_idx", "created_by"),
+        Index("dataset_source_app_id_idx", "source_app_id"),
     )
 
     id = Column(UUID, nullable=False, server_default=text("uuid_generate_v4()"))
@@ -221,7 +235,7 @@ class DatasetQuery(db.Model):
         DateTime,
         nullable=False,
         server_default=text('CURRENT_TIMESTAMP(0)'),
-        server_onupdate=text('CURRENT_TIMESTAMP(0)'),
+        onupdate=datetime.now,
     )
     created_at = Column(DateTime, nullable=False, server_default=text('CURRENT_TIMESTAMP(0)'))
 
@@ -231,6 +245,8 @@ class ProcessRule(db.Model):
     __tablename__ = "process_rule"
     __table_args__ = (
         PrimaryKeyConstraint("id", name="pk_process_rule_id"),
+        Index("process_rule_account_id_idx", "account_id"),
+        Index("process_rule_dataset_id_idx", "dataset_id"),
     )
 
     id = Column(UUID, nullable=False, server_default=text("uuid_generate_v4()"))
@@ -242,6 +258,6 @@ class ProcessRule(db.Model):
         DateTime,
         nullable=False,
         server_default=text('CURRENT_TIMESTAMP(0)'),
-        server_onupdate=text('CURRENT_TIMESTAMP(0)'),
+        onupdate=datetime.now,
     )
     created_at = Column(DateTime, nullable=False, server_default=text('CURRENT_TIMESTAMP(0)'))
