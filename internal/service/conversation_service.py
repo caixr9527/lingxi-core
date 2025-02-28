@@ -17,6 +17,7 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
 from sqlalchemy import desc
+from sqlalchemy.orm import joinedload
 
 from internal.core.agent.entities.queue_entity import AgentThought
 from internal.core.agent.entities.queue_entity import QueueEvent
@@ -84,7 +85,7 @@ class ConversationService(BaseService):
             filters.append(Message.created_at <= created_at_datetime)
 
         messages = paginator.paginate(
-            self.db.session.query(Message).filter(
+            self.db.session.query(Message).options(joinedload(Message.agent_thoughts)).filter(
                 Message.conversation_id == conversation.id,
                 Message.status.in_([MessageStatus.STOP, MessageStatus.NORMAL]),
                 Message.answer != "",

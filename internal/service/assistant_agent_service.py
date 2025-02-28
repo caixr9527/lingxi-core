@@ -18,6 +18,7 @@ from langchain_core.messages import HumanMessage
 from langchain_core.pydantic_v1 import BaseModel, Field
 from langchain_core.tools import BaseTool, tool
 from sqlalchemy import desc
+from sqlalchemy.orm import joinedload
 
 from internal.core.agent.agents import AgentQueueManager, FunctionCallAgent
 from internal.core.agent.entities.agent_entity import AgentConfig
@@ -182,7 +183,7 @@ class AssistantAgentService(BaseService):
 
         # 执行分页并查询数据
         messages = paginator.paginate(
-            self.db.session.query(Message).filter(
+            self.db.session.query(Message).options(joinedload(Message.agent_thoughts)).filter(
                 Message.conversation_id == conversation.id,
                 Message.status.in_([MessageStatus.STOP, MessageStatus.NORMAL]),
                 Message.answer != "",
