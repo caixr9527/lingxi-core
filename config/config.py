@@ -38,6 +38,7 @@ class Config:
         self.WEAVIATE_HTTP_PORT = _get_env("WEAVIATE_HTTP_PORT")
         self.WEAVIATE_GRPC_HOST = _get_env("WEAVIATE_GRPC_HOST")
         self.WEAVIATE_GRPC_PORT = _get_env("WEAVIATE_GRPC_PORT")
+        self.WEAVIATE_API_KEY = _get_env("WEAVIATE_API_KEY")
 
         # Redis配置
         self.REDIS_HOST = _get_env("REDIS_HOST")
@@ -49,8 +50,8 @@ class Config:
 
         # Celery配置
         self.CELERY = {
-            "broker_url": f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}/{int(_get_env('CELERY_BROKER_DB'))}",
-            "result_backend": f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}/{int(_get_env('CELERY_RESULT_BACKEND_DB'))}",
+            "broker_url": f"redis://{self.REDIS_USERNAME}:{self.REDIS_PASSWORD}@{self.REDIS_HOST}:{self.REDIS_PORT}/{int(_get_env('CELERY_BROKER_DB'))}",
+            "result_backend": f"redis://{self.REDIS_USERNAME}:{self.REDIS_PASSWORD}@{self.REDIS_HOST}:{self.REDIS_PORT}/{int(_get_env('CELERY_RESULT_BACKEND_DB'))}",
             "task_ignore_result": _get_bool_env("CELERY_TASK_IGNORE_RESULT"),
             "result_expires": int(_get_env("CELERY_RESULT_EXPIRES")),
             "broker_connection_retry_on_startup": _get_bool_env("CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP"),
