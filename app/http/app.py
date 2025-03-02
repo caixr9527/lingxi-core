@@ -6,16 +6,6 @@
 @File   : app.py
 """
 
-import os
-
-if os.environ.get("FLASK_DEBUG") == "0" or os.environ.get("FLASK_ENV") == "production":
-    from gevent import monkey
-
-    monkey.patch_all()
-    import grpc.experimental.gevent
-
-    grpc.experimental.gevent.init_gevent()
-
 import dotenv
 from flask_login import LoginManager
 from flask_migrate import Migrate
