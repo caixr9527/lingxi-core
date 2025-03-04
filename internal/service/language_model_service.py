@@ -12,7 +12,6 @@ from typing import Any
 
 from flask import current_app
 from injector import inject
-from langchain_openai import ChatOpenAI
 
 from internal.core.language_model import LanguageModelManager
 from internal.core.language_model.entities.model_entity import BaseLanguageModel
@@ -125,7 +124,17 @@ class LanguageModelService(BaseService):
         except Exception as _:
             return self.load_default_language_model()
 
-    @classmethod
-    def load_default_language_model(cls) -> BaseLanguageModel:
+    def load_default_language_model(self) -> BaseLanguageModel:
         """加载默认的大语言模型，在模型管理器中获取不到模型或者出错时使用默认模型进行兜底"""
-        return ChatOpenAI(model="gpt-4o-mini", temperature=1, max_tokens=8192)
+        # 获取openai服务提供者与模型类
+        provider = self.language_model_manager.get_provider("openai")
+        model_entity = provider.get_model_entity("gpt-4o-mini")
+        model_class = provider.get_model_class(model_entity.model_type)
+
+        return model_class(
+            **model_entity.attributes,
+            temperature=1,
+            max_tokens=8192,
+            features=model_entity.features,
+            metadata=model_entity.metadata,
+        )

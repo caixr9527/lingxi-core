@@ -11,12 +11,12 @@ from uuid import UUID
 from flask import request
 from flask_login import login_required, current_user
 from injector import inject
+
 from internal.schema.assistant_agent_schema import (
     AssistantAgentChat,
     GetAssistantAgentMessagesWithPageReq,
     GetAssistantAgentMessagesWithPageResp,
 )
-
 from internal.service import AssistantAgentService
 from pkg.paginator import PageModel
 from pkg.response import validate_error_json, compact_generate_response, success_json, success_message
@@ -37,7 +37,7 @@ class AssistantAgentHandler:
             return validate_error_json(req.errors)
 
         # 调用服务创建会话响应
-        response = self.assistant_agent_service.chat(req.query.data, current_user)
+        response = self.assistant_agent_service.chat(req, current_user)
 
         return compact_generate_response(response)
 

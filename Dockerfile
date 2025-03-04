@@ -1,5 +1,5 @@
 # 使用Debian 12的Python 3.10版本作为基础镜像
-FROM python:3.10-slim-bookworm AS base
+FROM python:3.12-slim-bookworm AS base
 
 # 将requirements.txt拷贝到根目录下
 COPY requirements.txt .

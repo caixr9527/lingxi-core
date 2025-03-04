@@ -87,6 +87,7 @@ class Message(db.Model):
 
     # 消息关联的原始问题
     query = Column(Text, nullable=False, server_default=text("''::text"))  # 用户提问的原始query
+    image_urls = Column(JSONB, nullable=False, server_default=text("'[]'::jsonb"))  # 图片url
     message = Column(JSONB, nullable=False, server_default=text("'[]'::jsonb"))  # 产生answer的消息列表
     message_token_count = Column(Integer, nullable=False, server_default=text("0"))  # 消息列表的token总数
     message_unit_price = Column(Numeric(10, 7), nullable=False, server_default=text("0.0"))  # 消息的单价
