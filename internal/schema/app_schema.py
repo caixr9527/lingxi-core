@@ -5,6 +5,7 @@
 @Author : rxccai@gmail.com
 @File   : app_schema.py
 """
+from urllib.parse import urlparse
 from uuid import UUID
 
 from flask_wtf import FlaskForm
@@ -15,6 +16,7 @@ from wtforms.validators import DataRequired, Length, URL, ValidationError, Optio
 from internal.entity.app_entity import AppStatus
 from internal.lib.helper import datetime_to_timestamp
 from internal.model import App, AppConfigVersion, Message
+from internal.schema import ListField
 from pkg.paginator import PaginatorReq
 
 
@@ -152,9 +154,26 @@ class UpdateDebugConversationSummaryReq(FlaskForm):
 
 class DebugChatReq(FlaskForm):
     """应用调试会话请求结构体"""
+    image_urls = ListField("image_urls", default=[])
     query = StringField("query", validators=[
         DataRequired("用户提问query不能为空"),
     ])
+
+    def validate_image_urls(self, field: ListField) -> None:
+        """校验传递的图片URL链接列表"""
+        # 校验数据类型如果为None则设置默认值空列表
+        if not isinstance(field.data, list):
+            return []
+
+        # 校验数据的长度，最多不能超过5条URL记录
+        if len(field.data) > 5:
+            raise ValidationError("上传的图片数量不能超过5，请核实后重试")
+
+        # 循环校验image_url是否为URL
+        for image_url in field.data:
+            result = urlparse(image_url)
+            if not all([result.scheme, result.netloc]):
+                raise ValidationError("上传的图片URL地址格式错误，请核实后重试")
 
 
 class GetDebugConversationMessagesWithPageReq(PaginatorReq):
@@ -170,6 +189,7 @@ class GetDebugConversationMessagesWithPageResp(Schema):
     id = fields.UUID(dump_default="")
     conversation_id = fields.UUID(dump_default="")
     query = fields.String(dump_default="")
+    image_urls = fields.List(fields.String, dump_default=[])
     answer = fields.String(dump_default="")
     total_token_count = fields.Integer(dump_default=0)
     latency = fields.Float(dump_default=0)
@@ -182,6 +202,7 @@ class GetDebugConversationMessagesWithPageResp(Schema):
             "id": data.id,
             "conversation_id": data.conversation_id,
             "query": data.query,
+            "image_urls": data.image_urls,
             "answer": data.answer,
             "total_token_count": data.total_token_count,
             "latency": data.latency,

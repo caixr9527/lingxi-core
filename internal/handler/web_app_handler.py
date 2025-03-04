@@ -13,7 +13,6 @@ from flask_login import login_required, current_user
 from injector import inject
 
 from internal.schema.web_app_schema import (
-    GetWebAppResp,
     WebAppChatReq,
     GetConversationsReq,
     GetConversationsResp,
@@ -31,11 +30,9 @@ class WebAppHandler:
     @login_required
     def get_web_app(self, token: str):
         """根据传递的token凭证标识获取WebApp基础信息"""
-        app = self.web_app_service.get_web_app(token)
+        resp = self.web_app_service.get_web_app_info(token)
 
-        resp = GetWebAppResp()
-
-        return success_json(resp.dump(app))
+        return success_json(resp)
 
     @login_required
     def web_app_chat(self, token: str):
