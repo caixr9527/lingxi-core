@@ -67,7 +67,7 @@ class AssistantAgentService(BaseService):
         llm = Chat(
             model="gpt-4o",
             temperature=0.8,
-            features=[ModelFeature.TOOL_CALL, ModelFeature.AGENT_THOUGHT],
+            features=[ModelFeature.TOOL_CALL, ModelFeature.AGENT_THOUGHT, ModelFeature.IMAGE_INPUT],
             metadata={},
         )
         # llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.8)
