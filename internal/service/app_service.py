@@ -37,8 +37,10 @@ from internal.core.tools.builtin_tools.providers import BuiltinProviderManager
 from internal.entity.ai_entity import OPTIMIZE_PROMPT_TEMPLATE
 from internal.entity.app_entity import AppStatus, AppConfigType, DEFAULT_APP_CONFIG
 from internal.entity.app_entity import GENERATE_ICON_PROMPT_TEMPLATE
+from internal.entity.audio_entity import ALLOWED_AUDIO_VOICES
 from internal.entity.conversation_entity import InvokeFrom, MessageStatus
 from internal.entity.dataset_entity import RetrievalSource
+from internal.entity.workflow_entity import WorkflowStatus
 from internal.exception import NotFoundException, UnauthorizedException, ValidateException, FailException
 from internal.lib.helper import remove_fields, get_value_type, generate_random_string
 from internal.model import (
@@ -64,7 +66,6 @@ from .conversation_service import ConversationService
 from .cos_service import CosService
 from .language_model_service import LanguageModelService
 from .retrieval_service import RetrievalService
-from ..entity.workflow_entity import WorkflowStatus
 
 
 @inject
@@ -944,8 +945,7 @@ class AppService(BaseService):
             if (
                     set(text_to_speech.keys()) != {"enable", "voice", "auto_play"}
                     or not isinstance(text_to_speech["enable"], bool)
-                    # todo:等待多模态Agent实现时添加音色
-                    or text_to_speech["voice"] not in ["echo"]
+                    or text_to_speech["voice"] not in ALLOWED_AUDIO_VOICES
                     or not isinstance(text_to_speech["auto_play"], bool)
             ):
                 raise ValidateException("文本转语音设置格式错误")
