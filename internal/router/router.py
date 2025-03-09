@@ -30,7 +30,8 @@ from internal.handler import (
     AssistantAgentHandler,
     AnalysisHandler,
     WebAppHandler,
-    ConversationHandler
+    ConversationHandler,
+    AudioHandler
 )
 
 
@@ -58,6 +59,7 @@ class Router:
     analysis_handler: AnalysisHandler
     web_app_handler: WebAppHandler
     conversation_handler: ConversationHandler
+    audio_handler: AudioHandler
 
     def register_router(self, app: Flask):
         """注册路由"""
@@ -380,6 +382,18 @@ class Router:
             "/conversations/<uuid:conversation_id>/is-pinned",
             methods=["POST"],
             view_func=self.conversation_handler.update_conversation_is_pinned,
+        )
+
+        # 语音转换模块
+        bp.add_url_rule(
+            "/audio/audio-to-text",
+            methods=["POST"],
+            view_func=self.audio_handler.audio_to_text,
+        )
+        bp.add_url_rule(
+            "/audio/message-to-audio",
+            methods=["POST"],
+            view_func=self.audio_handler.message_to_audio,
         )
 
         # 应用上注册蓝图

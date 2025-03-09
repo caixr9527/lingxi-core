@@ -127,6 +127,11 @@ class Message(db.Model):
         primaryjoin="MessageAgentThought.message_id == Message.id",
     )
 
+    @property
+    def conversation(self) -> Conversation:
+        """只读属性，返回该消息对应的会话记录"""
+        return db.session.query(Conversation).get(self.conversation_id)
+
 
 class MessageAgentThought(db.Model):
     """智能体消息推理模型，用于记录Agent生成最终消息答案时"""
