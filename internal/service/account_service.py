@@ -6,12 +6,16 @@
 @File   : account_service.py
 """
 import base64
+import os
 import secrets
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import Any
 from uuid import UUID
 
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import padding
 from flask import request
 from injector import inject
 
@@ -48,6 +52,18 @@ class AccountService(BaseService):
 
     def update_password(self, password: str, account: Account) -> Account:
         """更新当前账号密码信息"""
+        with open("private.pem", "rb") as key_file:
+            private_key = serialization.load_pem_private_key(
+                key_file.read(),
+                password=os.getenv('PRIVATE_KEY_PASSWORD').encode(),
+                backend=default_backend()
+            )
+        encrypted_bytes = base64.b64decode(password)
+        decrypted_bytes = private_key.decrypt(
+            encrypted_bytes,
+            padding.PKCS1v15()
+        )
+        password = decrypted_bytes.decode('utf-8')
         salt = secrets.token_bytes(16)
         base64_salt = base64.b64encode(salt).decode()
         password_hashed = hash_password(password, salt)
@@ -66,6 +82,19 @@ class AccountService(BaseService):
         account = self.get_account_by_email(email)
         if not account:
             raise FailException("账号或者密码错误，请核实后重试")
+
+        with open("private.pem", "rb") as key_file:
+            private_key = serialization.load_pem_private_key(
+                key_file.read(),
+                password=os.getenv('PRIVATE_KEY_PASSWORD').encode(),
+                backend=default_backend()
+            )
+        encrypted_bytes = base64.b64decode(password)
+        decrypted_bytes = private_key.decrypt(
+            encrypted_bytes,
+            padding.PKCS1v15()
+        )
+        password = decrypted_bytes.decode('utf-8')
 
         # 校验账号密码是否正确
         if not account.is_password_set or not compare_password(
