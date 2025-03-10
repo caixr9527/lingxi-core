@@ -1,6 +1,6 @@
-# llmops-api
+# bdjw-ai-ops
 
-llmops-api
+bdjw-ai-ops
 
 celery：celery -A app.http.app.celery worker --loglevel INFO --pool solo
 
