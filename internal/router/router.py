@@ -31,7 +31,9 @@ from internal.handler import (
     AnalysisHandler,
     WebAppHandler,
     ConversationHandler,
-    AudioHandler
+    AudioHandler,
+    PlatformHandler,
+    WechatHandler
 )
 
 
@@ -60,6 +62,8 @@ class Router:
     web_app_handler: WebAppHandler
     conversation_handler: ConversationHandler
     audio_handler: AudioHandler
+    platform_handler: PlatformHandler
+    wechat_handler: WechatHandler
 
     def register_router(self, app: Flask):
         """注册路由"""
@@ -394,6 +398,22 @@ class Router:
             "/audio/message-to-audio",
             methods=["POST"],
             view_func=self.audio_handler.message_to_audio,
+        )
+
+        # 第三方平台配置模块
+        bp.add_url_rule(
+            "/platform/<uuid:app_id>/wechat-config",
+            view_func=self.platform_handler.get_wechat_config,
+        )
+        bp.add_url_rule(
+            "/platform/<uuid:app_id>/wechat-config",
+            methods=["POST"],
+            view_func=self.platform_handler.update_wechat_config,
+        )
+        bp.add_url_rule(
+            "/wechat/<uuid:app_id>",
+            methods=["GET", "POST"],
+            view_func=self.wechat_handler.wechat,
         )
 
         # 应用上注册蓝图

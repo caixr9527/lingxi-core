@@ -22,9 +22,11 @@ from sqlalchemy.dialects.postgresql import JSONB
 
 from internal.entity.app_entity import AppConfigType, DEFAULT_APP_CONFIG, AppStatus
 from internal.entity.conversation_entity import InvokeFrom
+from internal.entity.platform_entity import WechatConfigStatus
 from internal.extension.database_extension import db
 from internal.lib.helper import generate_random_string
 from .conversation import Conversation
+from .platform import WechatConfig
 
 
 class App(db.Model):
@@ -64,13 +66,13 @@ class App(db.Model):
     @property
     def draft_app_config(self) -> "AppConfigVersion":
         """只读属性，返回当前应用的草稿配置"""
-        # 1.获取当前应用的草稿配置
+        # 获取当前应用的草稿配置
         app_config_version = db.session.query(AppConfigVersion).filter(
             AppConfigVersion.app_id == self.id,
             AppConfigVersion.config_type == AppConfigType.DRAFT,
         ).one_or_none()
 
-        # 2.检测配置是否存在，如果不存在则创建一个默认值
+        # 检测配置是否存在，如果不存在则创建一个默认值
         if not app_config_version:
             app_config_version = AppConfigVersion(
                 app_id=self.id,
@@ -125,6 +127,41 @@ class App(db.Model):
             self.token = generate_random_string(16)
             db.session.commit()
         return self.token
+
+    @property
+    def wechat_config(self) -> "WechatConfig":
+        """获取应用的微信发布配置信息"""
+        # 获取当前应用的微信配置信息
+        config = db.session.query(WechatConfig).filter(
+            WechatConfig.app_id == self.id,
+        ).one_or_none()
+
+        # 检测配置是否存在，不存在则创建
+        if not config:
+            config = WechatConfig(app_id=self.id, status=WechatConfigStatus.UNCONFIGURED)
+            db.session.add(config)
+            db.session.commit()
+
+        # 检查wechat_config只要app_id、app_secret和token有一个没填写则更新配置状态
+        if config.status == WechatConfigStatus.CONFIGURED:
+            if not config.wechat_app_id or not config.wechat_app_secret or not config.wechat_token:
+                config.status = WechatConfigStatus.UNCONFIGURED
+                db.session.commit()
+
+        # 检测应用发布状态与配置信息是否匹配，不匹配则更新
+        if self.status == AppStatus.DRAFT:
+            # 草稿配置，检查WechatConfig是否设置为已发布，是的话则更新
+            if config.status == WechatConfigStatus.CONFIGURED:
+                config.status = WechatConfigStatus.UNCONFIGURED
+                db.session.commit()
+        elif self.status == AppStatus.PUBLISHED:
+            # 已发布配置，检测WechatConfig如果填写了app_id、app_secret与token，则更新配置信息
+            if config.status == WechatConfigStatus.UNCONFIGURED:
+                if config.wechat_app_id and config.wechat_app_secret and config.wechat_token:
+                    config.status = WechatConfigStatus.CONFIGURED
+                    db.session.commit()
+
+        return config
 
 
 class AppConfig(db.Model):
