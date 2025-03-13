@@ -60,7 +60,7 @@ class WechatService(BaseService):
     language_model_service: LanguageModelService
 
     def wechat(self, app_id: UUID):
-        """微信公众号(订阅号/服务号)校验与消息推送, 运行逻辑参考`Agent对接微信公众号思路.drawio`"""
+        """微信公众号(订阅号/服务号)校验与消息推送"""
         # 根据传递的app_id获取应用信息，并校验应用是否已发布
         app = self.get(App, app_id)
         msg = parse_message(request.data)

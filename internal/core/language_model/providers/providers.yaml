@@ -20,6 +20,13 @@
   background: "#FFFFFF"
   supported_model_types:
     - chat
+- name: deepseek
+  label: 深度求索
+  description: 幻方量化提供的LLM大语言模型，涵盖deepseek-chat和deepseek-reasoner等。
+  icon: icon.svg
+  background: "#FFFFF"
+  supported_model_types:
+    - chat
 #- name: wenxin
 #  label: 文心一言
 #  description: 百度文心一言提供的模型，例如ERNIE-3.5、ERNIE-4等。
