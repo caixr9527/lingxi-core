@@ -18,6 +18,7 @@
 @Author : rxccai@gmail.com
 @File   : language_model_service.py.py
 """
+import logging
 import mimetypes
 import os
 from dataclasses import dataclass
@@ -134,7 +135,8 @@ class LanguageModelService(BaseService):
                 features=model_entity.features,
                 metadata=model_entity.metadata,
             )
-        except Exception as _:
+        except Exception as error:
+            logging.error("获取模型失败, 错误信息: %(error)s", {"error": error}, exc_info=True)
             return self.load_default_language_model()
 
     def load_default_language_model(self) -> BaseLanguageModel:
