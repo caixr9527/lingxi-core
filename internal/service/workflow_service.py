@@ -26,7 +26,6 @@ from dataclasses import dataclass
 from typing import Any, Generator
 from uuid import UUID
 
-from flask import request
 from injector import inject
 from sqlalchemy import desc
 
@@ -204,7 +203,7 @@ class WorkflowService(BaseService):
                             "id": provider_entity.name,
                             "name": provider_entity.name,
                             "label": provider_entity.label,
-                            "icon": f"{request.scheme}://{request.host}/builtin-tools/{provider_entity.name}/icon",
+                            "icon": f"builtin-tools/{provider_entity.name}/icon",
                             "description": provider_entity.description,
                         },
                         "tool": {

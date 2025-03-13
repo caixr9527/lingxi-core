@@ -22,7 +22,6 @@ from dataclasses import dataclass
 from typing import Any, Union
 from uuid import UUID
 
-from flask import request
 from injector import inject
 from langchain_core.tools import BaseTool
 
@@ -259,7 +258,7 @@ class AppConfigService(BaseService):
                         "id": provider_entity.name,
                         "name": provider_entity.name,
                         "label": provider_entity.label,
-                        "icon": f"{request.scheme}://{request.host}/builtin-tools/{provider_entity.name}/icon",
+                        "icon": f"builtin-tools/{provider_entity.name}/icon",
                         "description": provider_entity.description,
                     },
                     "tool": {
