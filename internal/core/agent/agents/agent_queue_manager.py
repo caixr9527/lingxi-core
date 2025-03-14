@@ -50,7 +50,7 @@ class AgentQueueManager:
         self.redis_client = injector.get(Redis)
 
     def listen(self, task_id: UUID) -> Generator:
-        listen_timeout = 600
+        listen_timeout = 60 * 3
         start_time = time.time()
         last_ping_time = 0
 
