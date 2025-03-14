@@ -50,15 +50,18 @@ class AgentQueueManager:
         self.redis_client = injector.get(Redis)
 
     def listen(self, task_id: UUID) -> Generator:
-        listen_timeout = 60 * 3
+        listen_timeout = 60 * 2.5
         start_time = time.time()
         last_ping_time = 0
+        first_ping_time = 0
 
         while True:
             try:
                 item = self.queue(task_id).get(timeout=1)
                 if item is None:
                     break
+                if item.event not in [QueueEvent.PING]:
+                    first_ping_time = 0
                 yield item
             except queue.Empty:
                 continue
@@ -71,13 +74,16 @@ class AgentQueueManager:
                         event=QueueEvent.PING
                     ))
                     last_ping_time = elapsed_time // 10
+                    if first_ping_time == 0:
+                        first_ping_time = time.time()
 
-                if elapsed_time >= listen_timeout:
+                if first_ping_time != 0 and time.time() - first_ping_time >= listen_timeout:
                     self.publish(task_id, AgentThought(
                         id=uuid.uuid4(),
                         task_id=task_id,
                         event=QueueEvent.TIMEOUT
                     ))
+                    first_ping_time = 0
                 if self._is_stopped(task_id):
                     self.publish(task_id, AgentThought(
                         id=uuid.uuid4(),
