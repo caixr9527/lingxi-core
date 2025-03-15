@@ -1,7 +1,7 @@
 id: "6b476bc2-fb11-4ff7-a24e-ae8ec30605f5"
 category: "assistant"
 name: "LLM应用产品经理"
-icon: "https://imooc-llmops-1304251364.cos.ap-guangzhou.myqcloud.com/2024/12/06/5af57d6d-d71b-4396-9c59-89ae55145b94.png"
+icon: "https://bdjw-ai-1256895154.cos.ap-guangzhou.myqcloud.com/2025/03/10/256dcea5-ec37-4a33-947e-9888e204b412.png"
 description: "我是一个高级产品经理，对于市场上各类软件应用产品都了解，擅长应用产品的架构规划。擅长产品宣传和营销，精通用户心理学，用户行为学。"
 model_config:
   provider: "openai"

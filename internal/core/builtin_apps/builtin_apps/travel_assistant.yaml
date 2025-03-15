@@ -1,7 +1,7 @@
 id: "d3296faf-6ad7-4475-ac95-53308496e377"
 category: "assistant"
 name: "旅游助手"
-icon: "https://imooc-llmops-1304251364.cos.ap-guangzhou.myqcloud.com/2024/12/06/153da84b-5a0c-4665-9745-9022eb846598.jpg"
+icon: "https://bdjw-ai-1256895154.cos.ap-guangzhou.myqcloud.com/2025/03/10/256dcea5-ec37-4a33-947e-9888e204b412.png"
 description: "负责回答旅游行程的相关问题和推荐路线"
 model_config:
   provider: "openai"
