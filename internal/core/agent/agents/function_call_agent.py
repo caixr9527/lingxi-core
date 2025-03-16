@@ -209,6 +209,10 @@ class FunctionCallAgent(BaseAgent):
             self.agent_queue_manager.publish_error(state["task_id"], f"LLM节点发生错误, 错误信息: {str(e)}")
             raise e
 
+        # 移除错误工具调用信息
+        if hasattr(gathered, "tool_calls") and len(gathered.tool_calls) > 0:
+            gathered.tool_calls = [tool for tool in gathered.tool_calls if tool['id'] is not None]
+
         # 计算输入、输出token数
         input_token_count = self.llm.get_num_tokens_from_messages(state["messages"])
         output_token_count = self.llm.get_num_tokens_from_messages([gathered])
