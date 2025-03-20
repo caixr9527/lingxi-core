@@ -71,11 +71,11 @@ class ConversationInfo(BaseModel):
     }
 
     示例3:
-    用户输入: www.imooc.com讲了什么
+    用户输入: www.zhihu.com讲了什么
     {
         "language_type": "用户输入是中英文混合",
         "reasoning": "英文部分是URL，主要意图还是使用中文表达的，所以输出语言必须是中文",
-        "subject": "询问网站www.imooc.com"
+        "subject": "询问网站www.zhihu.com"
     }
 
     示例4:

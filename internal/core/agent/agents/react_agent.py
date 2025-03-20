@@ -212,7 +212,7 @@ class ReACTAgent(FunctionCallAgent):
                     id=id,
                     task_id=state["task_id"],
                     event=QueueEvent.AGENT_THOUGHT,
-                    thought=json.dumps(tool_calls),
+                    thought=json.dumps(gathered.content),
                     message=messages_to_dict(state["messages"]),
                     message_token_count=input_token_count,
                     message_unit_price=input_price,
@@ -267,3 +267,28 @@ class ReACTAgent(FunctionCallAgent):
             ))
 
         return {"messages": [gathered], "iteration_count": state["iteration_count"] + 1}
+
+    def _tools_node(self, state: AgentState) -> AgentState:
+        """重写工具节点，处理工具节点的`AI工具调用参数消息`与`工具消息转人类消息`"""
+        # 调用父类的工具节点执行并获取结果
+        super_agent_state = super()._tools_node(state)
+
+        # 移除原始的AI工具调用参数消息，并创建新的ai消息
+        tool_call_message = state["messages"][-1]
+        remove_tool_call_message = RemoveMessage(id=tool_call_message.id)
+
+        # 提取工具调用的第1条消息还原原始AI消息(ReACTAgent一次最多只有一个工具调用)
+        tool_call_json = [{
+            "name": tool_call_message.tool_calls[0].get("name", ""),
+            "args": tool_call_message.tool_calls[0].get("args", {}),
+        }]
+        ai_message = AIMessage(content=f"```json\n{json.dumps(tool_call_json)}\n```")
+
+        # 将ToolMessage转换成HumanMessage，提升LLM的兼容性
+        tool_messages = super_agent_state["messages"]
+        content = ""
+        for tool_message in tool_messages:
+            content += f"工具: {tool_message.name}\n执行结果: {tool_message.content}\n==========\n\n"
+        human_message = HumanMessage(content=content)
+
+        return {"messages": [remove_tool_call_message, ai_message, human_message]}
