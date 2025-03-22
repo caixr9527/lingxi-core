@@ -19,9 +19,13 @@
 @File   : code_node.py.py
 """
 import ast
+import json
+import logging
+import os
 import time
 from typing import Optional
 
+import requests
 from langchain_core.runnables import RunnableConfig
 
 from internal.core.workflow.entities.node_entity import NodeResult, NodeStatus
@@ -43,11 +47,28 @@ class CodeNode(BaseNode):
         start_at = time.perf_counter()
         inputs_dict = extract_variables_from_state(self.node_data.inputs, state)
 
-        # todo:执行Python代码，该方法目前可以执行任意的Python代码，所以非常危险，后期需要单独将这部分功能迁移到沙箱中或者指定容器中运行和项目分离
-        result = self._execute_function(self.node_data.code, params=inputs_dict)
+        # result = self._execute_function(self.node_data.code, params=inputs_dict)
+
+        data = {
+            "code": self.node_data.code,
+            "func_name": "main",
+            "args": [inputs_dict]
+        }
+        result = requests.post(
+            url=os.getenv("FUNCTION_CALL_URL"),
+            json=data
+        )
+
+        if result.status_code != 200:
+            logging.error("云函数返回异常: %(reason)s", {"reason": result.reason})
+            raise FailException("云函数返回异常")
+
+        result = result.text
+        result = json.loads(result)["result"]
 
         # 检测函数的返回值是否为字典
         if not isinstance(result, dict):
+            logging.error("main函数的返回值必须是一个字典: %(result)s", {"result": result})
             raise FailException("main函数的返回值必须是一个字典")
 
         # 提取输出数据

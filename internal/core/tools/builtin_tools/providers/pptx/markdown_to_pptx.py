@@ -206,7 +206,7 @@ class PPTRenderer(mistune.HTMLRenderer):
                 # 更新内容距离顶部的高度
                 self.content_top += pic.height + Inches(0.5)
         except Exception as error:
-            logging.error("PPTRenderer图片处理失败, 错误信息: ${error}s", {"error": error}, exc_info=True)
+            logging.error("PPTRenderer图片处理失败, 错误信息: %(error)s", {"error": error}, exc_info=True)
 
         return ""
 
@@ -320,7 +320,7 @@ class MarkdownToPPTXTool(BaseTool):
                 # 返回对应的地址
                 return cos_service.get_file_url(key)
         except Exception as error:
-            logging.error("markdown_to_pptx出错: {error}s", {"error": error}, exc_info=True)
+            logging.error("markdown_to_pptx出错: %(error)s", {"error": error}, exc_info=True)
             return f"生成PPT演示文稿失败，错误原因: {str(error)}"
 
 
