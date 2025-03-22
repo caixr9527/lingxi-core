@@ -19,6 +19,12 @@
 @File   : app.py
 """
 
+from internal.core.langchain_fix.langchain_core_utils__merge import merge_lists
+from langchain_core.utils import _merge
+
+# langchain补丁包
+_merge.merge_lists = merge_lists
+
 import dotenv
 from flask_login import LoginManager
 from flask_migrate import Migrate
@@ -36,14 +42,16 @@ dotenv.load_dotenv()
 
 conf = Config()
 
-app = Http(__name__,
-           conf=conf,
-           db=injector.get(SQLAlchemy),
-           weaviate=injector.get(FlaskWeaviate),
-           migrate=injector.get(Migrate),
-           login_manager=injector.get(LoginManager),
-           middleware=injector.get(Middleware),
-           router=injector.get(Router))
+app = Http(
+    __name__,
+    conf=conf,
+    db=injector.get(SQLAlchemy),
+    weaviate=injector.get(FlaskWeaviate),
+    migrate=injector.get(Migrate),
+    login_manager=injector.get(LoginManager),
+    middleware=injector.get(Middleware),
+    router=injector.get(Router),
+)
 
 celery = app.extensions["celery"]
 if __name__ == "__main__":
