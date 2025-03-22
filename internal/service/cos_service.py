@@ -48,8 +48,8 @@ class CosService:
         elif only_image and extension not in ALLOW_IMAGE_EXTENSION:
             raise FailException(f"该.{extension}扩展的文件不允许上传,请上传正确的图片")
 
-        client = self._get_client()
-        bucket = self._get_bucket()
+        client = self.get_client()
+        bucket = self.get_bucket()
         random_filename = str(uuid.uuid4()) + "." + extension
         now = datetime.now()
         upload_filename = f"{now.year}/{now.month:02d}/{now.day:02d}/{random_filename}"
@@ -69,8 +69,8 @@ class CosService:
         )
 
     def download_file(self, key: str, target_file_path: str):
-        client = self._get_client()
-        bucket = self._get_bucket()
+        client = self.get_client()
+        bucket = self.get_bucket()
         client.download_file(bucket, key, target_file_path)
 
     @classmethod
@@ -84,7 +84,7 @@ class CosService:
         return f"{cos_domain}/{key}"
 
     @classmethod
-    def _get_client(cls) -> CosS3Client:
+    def get_client(cls) -> CosS3Client:
         conf = CosConfig(
             Region=os.getenv("COS_REGION"),
             SecretId=os.getenv("COS_SECRET_ID"),
@@ -95,5 +95,5 @@ class CosService:
         return CosS3Client(conf)
 
     @classmethod
-    def _get_bucket(cls) -> str:
+    def get_bucket(cls) -> str:
         return os.getenv("COS_BUCKET")

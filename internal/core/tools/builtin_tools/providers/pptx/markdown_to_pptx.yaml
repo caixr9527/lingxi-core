@@ -1,0 +1,4 @@
+name: markdown_to_pptx
+label: Markdown转PPT
+description: 这是一款能将Markdown文档内容转换成本地PPT文件的工具。
+params: [ ]
