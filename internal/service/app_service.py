@@ -732,13 +732,18 @@ class AppService(BaseService):
                         parameter_value = parameter.default
                     else:
                         # 3.9 值非空则校验数据类型是否正确，不正确则设置默认值
-                        if get_value_type(parameter_value) != parameter.type.value:
-                            parameter_value = parameter.default
+                        value_type = get_value_type(parameter_value)
+                        if value_type != parameter.type.value:
+                            if parameter.type.value == ModelParameterType.FLOAT.value:
+                                parameter_value = float(parameter_value)
+
                 else:
                     # 3.10 参数非必填，数据非空的情况下需要校验
                     if parameter_value is not None:
-                        if get_value_type(parameter_value) != parameter.type.value:
-                            parameter_value = parameter.default
+                        value_type = get_value_type(parameter_value)
+                        if value_type != parameter.type.value:
+                            if parameter.type.value == ModelParameterType.FLOAT.value:
+                                parameter_value = float(parameter_value)
 
                 # 3.11 判断参数是否存在options，如果存在则数值必须在options中选择
                 if parameter.options and parameter_value not in parameter.options:
