@@ -736,6 +736,8 @@ class AppService(BaseService):
                         if value_type != parameter.type.value:
                             if parameter.type.value == ModelParameterType.FLOAT.value:
                                 parameter_value = float(parameter_value)
+                            else:
+                                parameter_value = parameter.default
 
                 else:
                     # 3.10 参数非必填，数据非空的情况下需要校验
@@ -744,6 +746,8 @@ class AppService(BaseService):
                         if value_type != parameter.type.value:
                             if parameter.type.value == ModelParameterType.FLOAT.value:
                                 parameter_value = float(parameter_value)
+                            else:
+                                parameter_value = parameter.default
 
                 # 3.11 判断参数是否存在options，如果存在则数值必须在options中选择
                 if parameter.options and parameter_value not in parameter.options:
