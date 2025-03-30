@@ -25,11 +25,11 @@ retrieval_config:
   score: 0.5
 long_term_memory:
   enable: true
-opening_statement: "你好，我是携程旅行社的 AI 导游。我可以根据您的需求为您推荐适合的旅游路线。请告诉我您的旅行目的地。"
+opening_statement: "你好，我是 AI 导游。我可以根据您的需求为您推荐适合的旅游路线。请告诉我您的旅行目的地。"
 opening_questions:
-  - "您有几天的行程计划？"
-  - "请问您打算选择什么样的交通方式？"
-  - "您对那些旅游兴趣点感兴趣？"
+  - "7天行程去新疆的旅游攻略。"
+  - "7~8月份适合去哪里旅游？"
+  - "要去旅拍有哪些城市推荐？"
 speech_to_text:
   enable: false
 text_to_speech:
