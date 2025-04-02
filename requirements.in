@@ -50,7 +50,7 @@ faiss-cpu
 cos-python-sdk-v5
 
 # 文件解析
-unstructured[md]
+unstructured[md,csv,doc,docx]
 
 # 内置工具
 requests
