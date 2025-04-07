@@ -61,7 +61,7 @@ class AIService(BaseService):
         ])
 
         # 构建LLM
-        llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.5)
+        llm = ChatOpenAI(model="gpt-4o", temperature=0.5)
 
         # 组装优化链
         optimize_chain = prompt_template | llm | StrOutputParser()
