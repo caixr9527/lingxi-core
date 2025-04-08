@@ -155,7 +155,7 @@ class ConversationService(BaseService):
             ("human", "{query}")
         ])
         # 构建llm设置温度降低幻觉概率
-        llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
+        llm = ChatOpenAI(model="gpt-4o", temperature=0)
 
         structured_llm = llm.with_structured_output(ConversationInfo)
 
@@ -185,12 +185,12 @@ class ConversationService(BaseService):
             ("human", "{histories}")
         ])
         # 构建llm设置温度降低幻觉概率
-        llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
+        llm = ChatOpenAI(model="gpt-4o", temperature=0)
 
         structured_llm = llm.with_structured_output(SuggestedQuestions)
 
         chain = prompt | structured_llm
-
+        # todo 优化生成建议提示词
         suggested_questions = chain.invoke({"histories": histories})
         questions = []
         try:
@@ -302,14 +302,16 @@ class ConversationService(BaseService):
 
                 # 处理生成新会话名称
                 if conversation.is_new:
-                    Thread(
-                        target=self._generate_conversation_name_and_update,
-                        kwargs={
-                            "flask_app": current_app._get_current_object(),
-                            "conversation_id": conversation.id,
-                            "query": message.query,
-                        }
-                    ).start()
+                    # Thread(
+                    #     target=self._generate_conversation_name_and_update,
+                    #     kwargs={
+                    #         "flask_app": current_app._get_current_object(),
+                    #         "conversation_id": conversation.id,
+                    #         "query": message.query,
+                    #     }
+                    # ).start()
+                    self._generate_conversation_name_and_update(flask_app=current_app._get_current_object(),
+                                                                conversation_id=conversation.id, query=message.query)
 
             # 判断是否为停止或者错误，如果是则需要更新消息状态
             if agent_thought.event in [QueueEvent.TIMEOUT, QueueEvent.STOP, QueueEvent.ERROR]:
