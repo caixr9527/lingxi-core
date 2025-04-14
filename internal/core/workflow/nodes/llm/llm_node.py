@@ -50,6 +50,13 @@ class LLMNode(BaseNode):
         # 使用stream来代替invoke，避免接口长时间未响应超时
         content = ""
         for chunk in llm.stream(prompt_value):
+            # 修复第三方api中转导致数据为None
+            chunk.usage_metadata['input_tokens'] = 0 if chunk.usage_metadata.get(
+                "input_tokens") is None else chunk.usage_metadata.get("input_tokens")
+            chunk.usage_metadata['output_tokens'] = 0 if chunk.usage_metadata.get(
+                "output_tokens") is None else chunk.usage_metadata.get("output_tokens")
+            chunk.usage_metadata['total_tokens'] = 0 if chunk.usage_metadata.get(
+                "total_tokens") is None else chunk.usage_metadata.get("total_tokens")
             content += chunk.content
 
         # 提取并构建输出数据结构
