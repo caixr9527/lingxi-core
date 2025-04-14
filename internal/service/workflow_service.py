@@ -42,7 +42,7 @@ from internal.core.workflow.nodes import (
     LLMNodeData,
     StartNodeData,
     TemplateTransformNodeData,
-    ToolNodeData,
+    ToolNodeData, QuestionClassifierNodeData,
 )
 from internal.entity.workflow_entity import WorkflowStatus, DEFAULT_WORKFLOW_CONFIG, WorkflowResultStatus
 from internal.exception import ValidateException, NotFoundException, ForbiddenException, FailException
@@ -313,6 +313,9 @@ class WorkflowService(BaseService):
                 for chunk in workflow_tool.stream(inputs):
                     # chunk的格式为:{"node_name": WorkflowState}，所以需要取出节点响应结构的第1个key
                     first_key = next(iter(chunk))
+                    # 因为存在虚拟节点，所以需要判断是否执行当前循环
+                    if len(chunk[first_key]["node_results"]) == 0:
+                        continue
 
                     # 取出各个节点的运行结果
                     node_result = chunk[first_key]["node_results"][0]
@@ -335,7 +338,8 @@ class WorkflowService(BaseService):
                 self.update(workflow, **{
                     "is_debug_passed": True,
                 })
-            except Exception:
+            except Exception as e:
+                logging.exception("执行工作流发生错误, 错误信息: %(error)s", {"error": e})
                 self.update(workflow_result, **{
                     "status": WorkflowResultStatus.FAILED,
                     "state": node_results,
@@ -395,11 +399,11 @@ class WorkflowService(BaseService):
 
     def _validate_graph(self, graph: dict[str, Any], account: Account) -> dict[str, Any]:
         """校验传递的graph信息，涵盖nodes和edges对应的数据，该函数使用相对宽松的校验方式，并且因为是草稿，不需要校验节点与边的关系"""
-        # 1.提取nodes和edges数据
+        # 提取nodes和edges数据
         nodes = graph.get("nodes", [])
         edges = graph.get("edges", [])
 
-        # 2.构建节点类型与节点数据类映射
+        # 构建节点类型与节点数据类映射
         node_data_classes = {
             NodeType.START: StartNodeData,
             NodeType.END: EndNodeData,
@@ -409,36 +413,37 @@ class WorkflowService(BaseService):
             NodeType.CODE: CodeNodeData,
             NodeType.TOOL: ToolNodeData,
             NodeType.HTTP_REQUEST: HttpRequestNodeData,
+            NodeType.QUESTION_CLASSIFIER: QuestionClassifierNodeData,
         }
 
-        # 3.循环校验nodes中各个节点对应的数据
+        # 循环校验nodes中各个节点对应的数据
         node_data_dict: dict[UUID, BaseNodeData] = {}
         start_nodes = 0
         end_nodes = 0
         for node in nodes:
             try:
-                # 4.校验传递的node数据是不是字典，如果不是则跳过当前数据
+                # 校验传递的node数据是不是字典，如果不是则跳过当前数据
                 if not isinstance(node, dict):
                     raise ValidateException("工作流节点数据类型出错，请核实后重试")
 
-                # 5.提取节点的node_type类型，并判断类型是否正确
+                # 提取节点的node_type类型，并判断类型是否正确
                 node_type = node.get("node_type", "")
                 node_data_cls = node_data_classes.get(node_type, None)
                 if node_data_cls is None:
                     raise ValidateException("工作流节点类型出错，请核实后重试")
 
-                # 6.实例化节点数据类型，如果出错则跳过当前数据
+                # 实例化节点数据类型，如果出错则跳过当前数据
                 node_data = node_data_cls(**node)
 
-                # 7.判断节点id是否唯一，如果不唯一，则将当前节点清除
+                # 判断节点id是否唯一，如果不唯一，则将当前节点清除
                 if node_data.id in node_data_dict:
                     raise ValidateException("工作流节点id必须唯一，请核实后重试")
 
-                # 8.判断节点title是否唯一，如果不唯一，则将当前节点清除
+                # 判断节点title是否唯一，如果不唯一，则将当前节点清除
                 if any(item.title.strip() == node_data.title.strip() for item in node_data_dict.values()):
                     raise ValidateException("工作流节点title必须唯一，请核实后重试")
 
-                # 9.对特殊节点进行判断，涵盖开始/结束/知识库检索/工具
+                # 对特殊节点进行判断，涵盖开始/结束/知识库检索/工具
                 if node_data.node_type == NodeType.START:
                     if start_nodes >= 1:
                         raise ValidateException("工作流中只允许有1个开始节点")
@@ -448,33 +453,33 @@ class WorkflowService(BaseService):
                         raise ValidateException("工作流中只允许有1个结束节点")
                     end_nodes += 1
                 elif node_data.node_type == NodeType.DATASET_RETRIEVAL:
-                    # 10.剔除关联知识库列表中不属于当前账户的数据
+                    # 剔除关联知识库列表中不属于当前账户的数据
                     datasets = self.db.session.query(Dataset).filter(
                         Dataset.id.in_(node_data.dataset_ids[:5]),
                         Dataset.account_id == account.id,
                     ).all()
                     node_data.dataset_ids = [dataset.id for dataset in datasets]
 
-                # 13.将数据添加到node_data_dict中
+                # 将数据添加到node_data_dict中
                 node_data_dict[node_data.id] = node_data
             except Exception as e:
                 logging.exception(str(e))
                 continue
 
-        # 14.循环校验edges中各个节点对应的数据
+        # 循环校验edges中各个节点对应的数据
         edge_data_dict: dict[UUID, BaseEdgeData] = {}
         for edge in edges:
             try:
-                # 15.边类型为非字典则抛出错误，否则转换成BaseEdgeData
+                # 边类型为非字典则抛出错误，否则转换成BaseEdgeData
                 if not isinstance(edge, dict):
                     raise ValidateException("工作流边数据类型出错，请核实后重试")
                 edge_data = BaseEdgeData(**edge)
 
-                # 16.校验边edges的id是否唯一
+                # 校验边edges的id是否唯一
                 if edge_data.id in edge_data_dict:
                     raise ValidateException("工作流边数据id必须唯一，请核实后重试")
 
-                # 17.校验边中的source/target/source_type/target_type必须和nodes对得上
+                # 校验边中的source/target/source_type/target_type必须和nodes对得上
                 if (
                         edge_data.source not in node_data_dict
                         or edge_data.source_type != node_data_dict[edge_data.source].node_type
@@ -483,14 +488,16 @@ class WorkflowService(BaseService):
                 ):
                     raise ValidateException("工作流边起点/终点对应的节点不存在或类型错误，请核实后重试")
 
-                # 18.校验边Edges里的边必须唯一(source+target必须唯一)
+                # 校验边Edges里的边必须唯一(source+target必须唯一)
                 if any(
-                        (item.source == edge_data.source and item.target == edge_data.target)
+                        (item.source == edge_data.source
+                         and item.target == edge_data.target
+                         and item.source_handle_id == edge_data.source_handle_id)
                         for item in edge_data_dict.values()
                 ):
                     raise ValidateException("工作流边数据不能重复添加")
 
-                # 19.基础数据校验通过，将数据添加到edge_data_dict中
+                # 基础数据校验通过，将数据添加到edge_data_dict中
                 edge_data_dict[edge_data.id] = edge_data
             except Exception:
                 continue

@@ -18,6 +18,8 @@
 @Author : rxccai@gmail.com
 @File   : chat.py.py
 """
+import os
+
 from langchain_ollama import ChatOllama
 
 from internal.core.language_model.entities.model_entity import BaseLanguageModel
@@ -25,4 +27,4 @@ from internal.core.language_model.entities.model_entity import BaseLanguageModel
 
 class Chat(ChatOllama, BaseLanguageModel):
     """Ollama聊天模型"""
-    pass
+    base_url = os.getenv("OLLAMA_URL")

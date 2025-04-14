@@ -24,6 +24,7 @@ from .dataset_retrieval.dataset_retrieval_node import DatasetRetrievalNode, Data
 from .end.end_node import EndNode, EndNodeData
 from .http_request.http_request_node import HttpRequestNode, HttpRequestNodeData
 from .llm.llm_node import LLMNode, LLMNodeData
+from .question_classifier import QuestionClassifierNode, QuestionClassifierNodeData
 from .start.start_node import StartNode, StartNodeData
 from .template_transform.template_transform_node import TemplateTransformNode, TemplateTransformNodeData
 from .tool.tool_node import ToolNode, ToolNodeData
@@ -38,4 +39,5 @@ __all__ = [
     "ToolNode", "ToolNodeData",
     "HttpRequestNode", "HttpRequestNodeData",
     "EndNode", "EndNodeData",
+    "QuestionClassifierNode", "QuestionClassifierNodeData",
 ]

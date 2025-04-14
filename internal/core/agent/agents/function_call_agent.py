@@ -170,6 +170,13 @@ class FunctionCallAgent(BaseAgent):
         generation_type = ""
         try:
             for chunk in llm.stream(state["messages"]):
+                # 修复第三方api中转导致数据为None
+                chunk.usage_metadata['input_tokens'] = 0 if chunk.usage_metadata.get(
+                    "input_tokens") is None else chunk.usage_metadata.get("input_tokens")
+                chunk.usage_metadata['output_tokens'] = 0 if chunk.usage_metadata.get(
+                    "output_tokens") is None else chunk.usage_metadata.get("output_tokens")
+                chunk.usage_metadata['total_tokens'] = 0 if chunk.usage_metadata.get(
+                    "total_tokens") is None else chunk.usage_metadata.get("total_tokens")
                 if is_first_chunk:
                     gathered = chunk
                     is_first_chunk = False

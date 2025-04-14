@@ -14,23 +14,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-@Time   : 2025/1/11 10:47
+@Time   : 2025/4/14 20:14
 @Author : rxccai@gmail.com
-@File   : edge_entity.py.py
+@File   : __init__.py.py
 """
-from typing import Optional
-from uuid import UUID
+from .question_classifier_entity import QuestionClassifierNodeData
+from .question_classifier_node import QuestionClassifierNode
 
-from langchain_core.pydantic_v1 import BaseModel
-
-from internal.core.workflow.entities.node_entity import NodeType
-
-
-class BaseEdgeData(BaseModel):
-    """基础边数据"""
-    id: UUID  # 边记录id
-    source: UUID  # 边起点对应的节点id
-    source_type: NodeType  # 边起点类型
-    target: UUID  # 边目标对应的节点id
-    target_type: NodeType  # 边目标类型
-    source_handle_id: Optional[UUID]  # 添加起点句柄id，存在数据时则代表节点存在多个连接句柄
+__all__ = ["QuestionClassifierNodeData", "QuestionClassifierNode"]

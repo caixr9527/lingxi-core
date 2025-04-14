@@ -40,7 +40,8 @@ from .nodes import (
     DatasetRetrievalNode,
     CodeNode,
     ToolNode,
-    HttpRequestNode
+    HttpRequestNode,
+    QuestionClassifierNode, QuestionClassifierNodeData
 )
 
 NodeClasses = {
@@ -51,7 +52,8 @@ NodeClasses = {
     NodeType.DATASET_RETRIEVAL: DatasetRetrievalNode,
     NodeType.CODE: CodeNode,
     NodeType.TOOL: ToolNode,
-    NodeType.HTTP_REQUEST: HttpRequestNode
+    NodeType.HTTP_REQUEST: HttpRequestNode,
+    NodeType.QUESTION_CLASSIFIER: QuestionClassifierNode,
 }
 
 
@@ -152,6 +154,26 @@ class Workflow(BaseTool):
                     node_flag,
                     NodeClasses[NodeType.END](node_data=node),
                 )
+            elif node.node_type == NodeType.QUESTION_CLASSIFIER:
+                # 问题分类节点为条件边对应的节点，可以添加一个虚拟起始节点并返回空字典什么都不处理，让条件边可以快速找到起点
+                graph.add_node(
+                    node_flag,
+                    lambda state: {"node_results": []}
+                )
+
+                # 同步获取意图识别节点的数据，添加虚拟终止节点(每个分类一个节点)并返回空字典什么都不处理，让意图节点实现并行运行
+                assert isinstance(node, QuestionClassifierNodeData)
+                for item in node.classes:
+                    graph.add_node(
+                        f"qc_source_handle_{str(item.source_handle_id)}",
+                        lambda state: {"node_results": []}
+                    )
+
+                # 将虚拟起点和终点使用条件边进行拼接
+                graph.add_conditional_edges(
+                    node_flag,
+                    NodeClasses[NodeType.QUESTION_CLASSIFIER](node_data=node)
+                )
             else:
                 raise ValidateException("工作流节点类型错误，请核实后重试")
 
@@ -159,10 +181,16 @@ class Workflow(BaseTool):
         parallel_edges = {}  # key:终点，value:起点列表
         start_node = ""
         end_node = ""
+        non_parallel_nodes = []  # 用于存储不能并行执行的节点列表信息(主要用来处理意图节点的虚拟起点和终点)
         for edge in edges:
             # 计算并获取并行边
             source_node = f"{edge.source_type.value}_{edge.source}"
             target_node = f"{edge.target_type.value}_{edge.target}"
+            if edge.source_type == NodeType.QUESTION_CLASSIFIER:
+                # 更新意图识别的起点，使用虚拟节点进行拼接
+                source_node = f"qc_source_handle_{str(edge.source_handle_id)}"
+                non_parallel_nodes.extend([source_node, target_node])
+
             if target_node not in parallel_edges:
                 parallel_edges[target_node] = [source_node]
             else:
@@ -180,7 +208,15 @@ class Workflow(BaseTool):
 
         # 循环遍历合并边
         for target_node, source_nodes in parallel_edges.items():
-            graph.add_edge(source_nodes, target_node)
+            # 循环遍历意图识别节点的下一条边并单独添加
+            source_nodes_tmp = [*source_nodes]
+            for item in non_parallel_nodes:
+                if item in source_nodes_tmp:
+                    source_nodes_tmp.remove(item)
+                    graph.add_edge(item, target_node)
+
+            # 正常添加其他边
+            graph.add_edge(source_nodes_tmp, target_node)
 
         # 构建图程序并编译
         return graph.compile()
