@@ -21,7 +21,7 @@
 from langchain_core.pydantic_v1 import Field, validator, BaseModel
 
 from internal.core.workflow.entities.node_entity import BaseNodeData
-from internal.core.workflow.entities.variable_entity import VariableEntity, VariableType
+from internal.core.workflow.entities.variable_entity import VariableEntity
 from internal.exception import FailException
 
 # 问题分类器系统预设prompt
@@ -70,7 +70,7 @@ class QuestionClassifierNodeData(BaseNodeData):
 
         # 判断输入变量类型及字段名称是否出错
         query_input = value[0]
-        if query_input.name != "query" or query_input.type != VariableType.STRING or query_input.required is False:
+        if query_input.name != "query" or query_input.required is False:
             raise FailException("问题分类节点输入变量名字/类型/必填属性出错")
 
         return value
