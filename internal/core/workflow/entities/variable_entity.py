@@ -34,6 +34,10 @@ class VariableType(str, Enum):
     INT = "int"
     FLOAT = "float"
     BOOLEAN = "boolean"
+    LIST_STRING = "list[string]"
+    LIST_INT = "list[int]"
+    LIST_FLOAT = "list[float]"
+    LIST_BOOLEAN = "list[BOOLEAN]"
 
 
 # 变量类型与声明的映射
@@ -42,6 +46,10 @@ VARIABLE_TYPE_MAP = {
     VariableType.INT: int,
     VariableType.FLOAT: float,
     VariableType.BOOLEAN: bool,
+    VariableType.LIST_STRING: list[str],
+    VariableType.LIST_INT: list[int],
+    VariableType.LIST_FLOAT: list[float],
+    VariableType.LIST_BOOLEAN: list[bool],
 }
 
 # 变量类型默认值映射
@@ -50,6 +58,10 @@ VARIABLE_TYPE_DEFAULT_VALUE_MAP = {
     VariableType.INT: 0,
     VariableType.FLOAT: 0,
     VariableType.BOOLEAN: False,
+    VariableType.LIST_STRING: [],
+    VariableType.LIST_INT: [],
+    VariableType.LIST_FLOAT: [],
+    VariableType.LIST_BOOLEAN: [],
 }
 
 # 变量名字正则匹配规则
@@ -80,7 +92,7 @@ class VariableEntity(BaseModel):
                 return ref_node_id if ref_node_id != "" else None
 
         type: VariableValueType = VariableValueType.LITERAL
-        content: Union[Content, str, int, float, bool] = ""
+        content: Union[Content, str, int, float, bool, list[str], list[int], list[float], list[bool], None] = None
 
     name: str = ""  # 变量的名字
     description: str = ""  # 变量的描述信息
