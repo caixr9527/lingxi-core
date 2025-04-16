@@ -98,6 +98,7 @@ class WorkflowConfig(BaseModel):
             TemplateTransformNodeData,
             ToolNodeData,
             QuestionClassifierNodeData,
+            IterationNodeData
         )
         node_data_classes = {
             NodeType.START: StartNodeData,
@@ -109,6 +110,7 @@ class WorkflowConfig(BaseModel):
             NodeType.TOOL: ToolNodeData,
             NodeType.HTTP_REQUEST: HttpRequestNodeData,
             NodeType.QUESTION_CLASSIFIER: QuestionClassifierNodeData,
+            NodeType.ITERATION: IterationNodeData,
         }
 
         # 循环遍历所有节点

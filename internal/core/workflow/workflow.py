@@ -41,7 +41,9 @@ from .nodes import (
     CodeNode,
     ToolNode,
     HttpRequestNode,
-    QuestionClassifierNode, QuestionClassifierNodeData
+    QuestionClassifierNode,
+    QuestionClassifierNodeData,
+    IterationNode
 )
 
 NodeClasses = {
@@ -54,6 +56,7 @@ NodeClasses = {
     NodeType.TOOL: ToolNode,
     NodeType.HTTP_REQUEST: HttpRequestNode,
     NodeType.QUESTION_CLASSIFIER: QuestionClassifierNode,
+    NodeType.ITERATION: IterationNode,
 }
 
 
@@ -173,6 +176,11 @@ class Workflow(BaseTool):
                 graph.add_conditional_edges(
                     node_flag,
                     NodeClasses[NodeType.QUESTION_CLASSIFIER](node_data=node)
+                )
+            elif node.node_type == NodeType.ITERATION:
+                graph.add_node(
+                    node_flag,
+                    NodeClasses[NodeType.ITERATION](node_data=node)
                 )
             else:
                 raise ValidateException("工作流节点类型错误，请核实后重试")

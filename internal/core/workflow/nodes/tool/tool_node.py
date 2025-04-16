@@ -102,7 +102,8 @@ class ToolNode(BaseNode):
 
         # 检测result是否为字符串，如果不是则转换
         if not isinstance(result, str):
-            result = json.dumps(result)
+            # 避免汉字被转义
+            result = json.dumps(result, ensure_ascii=False)
 
         # 提取并构建输出数据结构
         outputs = {}

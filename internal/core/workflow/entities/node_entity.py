@@ -36,6 +36,8 @@ class NodeType(str, Enum):
     TEMPLATE_TRANSFORM = "template_transform"
     # 意图识别分类节点
     QUESTION_CLASSIFIER = "question_classifier"
+    # 迭代节点
+    ITERATION = "iteration"
     END = "end"
 
 
