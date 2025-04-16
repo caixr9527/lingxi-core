@@ -42,7 +42,7 @@ from internal.core.workflow.nodes import (
     LLMNodeData,
     StartNodeData,
     TemplateTransformNodeData,
-    ToolNodeData, QuestionClassifierNodeData,
+    ToolNodeData, QuestionClassifierNodeData, IterationNodeData,
 )
 from internal.entity.workflow_entity import WorkflowStatus, DEFAULT_WORKFLOW_CONFIG, WorkflowResultStatus
 from internal.exception import ValidateException, NotFoundException, ForbiddenException, FailException
@@ -152,7 +152,7 @@ class WorkflowService(BaseService):
         workflow = self.get_workflow(workflow_id, account)
 
         # 校验传递的草稿图配置，因为有可能边有可能还未建立，所以需要校验关联的数据
-        validate_draft_graph = self._validate_graph(draft_graph, account)
+        validate_draft_graph = self._validate_graph(workflow_id, draft_graph, account)
 
         # 更新工作流草稿图配置，每次修改都将is_debug_passed的值重置为False，该处可以优化对比字典里除position的其他属性
         self.update(workflow, **{
@@ -168,7 +168,7 @@ class WorkflowService(BaseService):
 
         # 提取草稿图结构信息并校验(不更新校验后的数据到数据库)
         draft_graph = workflow.draft_graph
-        validate_draft_graph = self._validate_graph(draft_graph, account)
+        validate_draft_graph = self._validate_graph(workflow_id, draft_graph, account)
 
         # 循环遍历节点信息，为工具节点/知识库节点附加元数据
         for node in validate_draft_graph["nodes"]:
@@ -267,6 +267,8 @@ class WorkflowService(BaseService):
                     Dataset.id.in_(node.get("dataset_ids", [])),
                     Dataset.account_id == account.id,
                 ).all()
+                datasets = datasets[:5]
+                node["dataset_ids"] = [str(dataset.id) for dataset in datasets]
                 node["meta"] = {
                     "datasets": [{
                         "id": dataset.id,
@@ -275,7 +277,23 @@ class WorkflowService(BaseService):
                         "description": dataset.description,
                     } for dataset in datasets]
                 }
-
+                # 检查迭代节点工作流配置
+            elif node.get("node_type") == NodeType.ITERATION:
+                workflows = self.db.session.query(Workflow).filter(
+                    Workflow.id.in_(node.get("workflow_ids", [])),
+                    Workflow.account_id == account.id,
+                    Workflow.status == WorkflowStatus.PUBLISHED,
+                ).all()
+                workflows = workflows[:1]
+                node["workflow_ids"] = [str(workflow.id) for workflow in workflows]
+                node["meta"] = {
+                    "workflows": [{
+                        "id": workflow.id,
+                        "name": workflow.name,
+                        "icon": workflow.icon,
+                        "description": workflow.description,
+                    } for workflow in workflows]
+                }
         return validate_draft_graph
 
     def debug_workflow(self, workflow_id: UUID, inputs: dict[str, Any], account: Account) -> Generator:
@@ -397,7 +415,7 @@ class WorkflowService(BaseService):
 
         return workflow
 
-    def _validate_graph(self, graph: dict[str, Any], account: Account) -> dict[str, Any]:
+    def _validate_graph(self, workflow_id: UUID, graph: dict[str, Any], account: Account) -> dict[str, Any]:
         """校验传递的graph信息，涵盖nodes和edges对应的数据，该函数使用相对宽松的校验方式，并且因为是草稿，不需要校验节点与边的关系"""
         # 提取nodes和edges数据
         nodes = graph.get("nodes", [])
@@ -414,6 +432,7 @@ class WorkflowService(BaseService):
             NodeType.TOOL: ToolNodeData,
             NodeType.HTTP_REQUEST: HttpRequestNodeData,
             NodeType.QUESTION_CLASSIFIER: QuestionClassifierNodeData,
+            NodeType.ITERATION: IterationNodeData,
         }
 
         # 循环校验nodes中各个节点对应的数据
@@ -459,7 +478,15 @@ class WorkflowService(BaseService):
                         Dataset.account_id == account.id,
                     ).all()
                     node_data.dataset_ids = [dataset.id for dataset in datasets]
-
+                # 判断类型为迭代节点，剔除不属于当前账户并且未发布的工作流
+                elif node_data.node_type == NodeType.ITERATION:
+                    workflows = self.db.session.query(Workflow).filter(
+                        Workflow.id.in_(node_data.workflow_ids[:1]),
+                        Workflow.account_id == account.id,
+                        Workflow.status == WorkflowStatus.PUBLISHED,
+                    ).all()
+                    # 剔除当前工作流，迭代节点不能内嵌本身（todo 这块还可以继续升级，双方不能内嵌）
+                    node_data.workflow_ids = [workflow.id for workflow in workflows if workflow.id != workflow_id]
                 # 将数据添加到node_data_dict中
                 node_data_dict[node_data.id] = node_data
             except Exception as e:
