@@ -140,12 +140,13 @@ class ReACTAgent(FunctionCallAgent):
         # 流式输出调用LLM，并判断输出内容是否以"```json"为开头，用于区分工具调用和文本生成
         for chunk in llm.stream(state["messages"]):
             # 修复第三方api中转导致数据为None
-            chunk.usage_metadata['input_tokens'] = 0 if chunk.usage_metadata.get(
-                "input_tokens") is None else chunk.usage_metadata.get("input_tokens")
-            chunk.usage_metadata['output_tokens'] = 0 if chunk.usage_metadata.get(
-                "output_tokens") is None else chunk.usage_metadata.get("output_tokens")
-            chunk.usage_metadata['total_tokens'] = 0 if chunk.usage_metadata.get(
-                "total_tokens") is None else chunk.usage_metadata.get("total_tokens")
+            if chunk.usage_metadata is not None:
+                chunk.usage_metadata['input_tokens'] = 0 if chunk.usage_metadata["input_tokens"] is None else \
+                    chunk.usage_metadata["input_tokens"]
+                chunk.usage_metadata['output_tokens'] = 0 if chunk.usage_metadata["output_tokens"] is None else \
+                    chunk.usage_metadata["output_tokens"]
+                chunk.usage_metadata['total_tokens'] = 0 if chunk.usage_metadata["total_tokens"] is None else \
+                    chunk.usage_metadata["total_tokens"]
             # 处理流式输出内容块叠加
             if is_first_chunk:
                 gathered = chunk
