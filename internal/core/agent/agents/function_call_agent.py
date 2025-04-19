@@ -37,9 +37,9 @@ from internal.core.agent.entities.agent_entity import (
     DATASET_RETRIEVAL_TOOL_NAME,
     MAX_ITERATION_RESPONSE)
 from internal.core.agent.entities.queue_entity import AgentThought, QueueEvent
+from internal.core.language_model.entities.model_entity import ModelFeature
 from internal.exception import FailException
 from .base_agent import BaseAgent
-from ...language_model.entities.model_entity import ModelFeature
 
 
 class FunctionCallAgent(BaseAgent):
