@@ -56,26 +56,26 @@ class FileExtractor:
             is_unstructured: bool = True,
     ) -> Union[list[LCDocument], str]:
         """加载传入的upload_file记录，返回LangChain文档列表或者字符串"""
-        # 1.创建一个临时的文件夹
+        # 创建一个临时的文件夹
         with tempfile.TemporaryDirectory() as temp_dir:
-            # 2.构建一个临时文件路径
+            # 构建一个临时文件路径
             file_path = os.path.join(temp_dir, os.path.basename(upload_file.key))
 
-            # 3.将对象存储中的文件下载到本地
+            # 将对象存储中的文件下载到本地
             self.cos_service.download_file(upload_file.key, file_path)
 
-            # 4.从指定的路径中去加载文件
+            # 从指定的路径中去加载文件
             return self.load_from_file(file_path, return_text, is_unstructured)
 
     @classmethod
     def load_from_url(cls, url: str, return_text: bool = False) -> Union[list[LCDocument], str]:
         """从传入的URL中去加载数据，返回LangChain文档列表或者字符串"""
-        # 1.下载远程URL的文件到本地
+        # 下载远程URL的文件到本地
         response = requests.get(url)
 
-        # 2.将文件下载到本地的临时文件夹
+        # 将文件下载到本地的临时文件夹
         with tempfile.TemporaryDirectory() as temp_dir:
-            # 3.获取文件的扩展名，并构建临时存储路径，将远程文件存储到本地
+            # 获取文件的扩展名，并构建临时存储路径，将远程文件存储到本地
             file_path = os.path.join(temp_dir, os.path.basename(url))
             with open(file_path, "wb") as file:
                 file.write(response.content)
@@ -90,11 +90,11 @@ class FileExtractor:
             is_unstructured: bool = True,
     ) -> Union[list[LCDocument], str]:
         """从本地文件中加载数据，返回LangChain文档列表或者字符串"""
-        # 1.获取文件的扩展名
+        # 获取文件的扩展名
         delimiter = "\n\n"
         file_extension = Path(file_path).suffix.lower()
 
-        # 2.根据不同的文件扩展名去加载不同的加载器
+        # 根据不同的文件扩展名去加载不同的加载器
         if file_extension in [".xlsx", ".xls"]:
             loader = UnstructuredExcelLoader(file_path)
         elif file_extension == ".pdf":
@@ -112,5 +112,5 @@ class FileExtractor:
         else:
             loader = UnstructuredFileLoader(file_path) if is_unstructured else TextLoader(file_path)
 
-        # 3.返回加载的文档列表或者文本
+        # 返回加载的文档列表或者文本
         return delimiter.join([document.page_content for document in loader.load()]) if return_text else loader.load()
