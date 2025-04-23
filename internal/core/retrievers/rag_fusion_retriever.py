@@ -40,8 +40,8 @@ class RAGFusionRetriever(MultiQueryRetriever):
     search_kwargs: dict = Field(default_factory=dict)
 
     def __init__(self,
-                 vector_store: WeaviateVectorStore = None,
-                 dataset_ids=None,
+                 vector_store: WeaviateVectorStore,
+                 dataset_ids,
                  search_kwargs: dict = Field(default_factory=dict),
                  **kwargs):
         super().__init__(**kwargs)
