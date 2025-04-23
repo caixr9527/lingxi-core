@@ -68,7 +68,7 @@ class RetrievalService(BaseService):
             raise NotFoundException("当前无知识库可执行检索")
         dataset_ids = [dataset.id for dataset in datasets]
 
-        from internal.core.retrievers import SemanticRetriever, FullTextRetriever
+        from internal.core.retrievers import SemanticRetriever, FullTextRetriever, RAGFusionRetriever
         # 构建不同检索器
         semantic_retriever = SemanticRetriever(
             dataset_ids=dataset_ids,
@@ -91,12 +91,23 @@ class RetrievalService(BaseService):
             weights=[0.5, 0.5]
         )
 
+        rag_fusion_retriever = RAGFusionRetriever(
+            dataset_ids=dataset_ids,
+            vector_store=self.vector_database_service.vector_store,
+            search_kwargs={
+                "k": k,
+                "score_threshold": score,
+            }
+        ).rag_fusion_retriver
+
         # 执行检索
         # 根据不同的检索策略执行检索
         if retrieval_strategy == RetrievalStrategy.SEMANTIC:
             lc_documents = semantic_retriever.invoke(query)[:k]
         elif retrieval_strategy == RetrievalStrategy.FULL_TEXT:
             lc_documents = full_text_retriever.invoke(query)[:k]
+        elif retrieval_strategy == RetrievalStrategy.RAG_FUSION:
+            lc_documents = rag_fusion_retriever.invoke(query)[:k]
         else:
             lc_documents = hybrid_retriever.invoke(query)[:k]
 
