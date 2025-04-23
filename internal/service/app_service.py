@@ -52,7 +52,7 @@ from internal.entity.app_entity import AppStatus, AppConfigType, DEFAULT_APP_CON
 from internal.entity.app_entity import GENERATE_ICON_PROMPT_TEMPLATE
 from internal.entity.audio_entity import ALLOWED_AUDIO_VOICES
 from internal.entity.conversation_entity import InvokeFrom, MessageStatus
-from internal.entity.dataset_entity import RetrievalSource
+from internal.entity.dataset_entity import RetrievalSource, RetrievalStrategy
 from internal.entity.workflow_entity import WorkflowStatus
 from internal.exception import NotFoundException, UnauthorizedException, ValidateException, FailException
 from internal.lib.helper import remove_fields, get_value_type, generate_random_string
@@ -899,7 +899,7 @@ class AppService(BaseService):
             if set(retrieval_config.keys()) != {"retrieval_strategy", "k", "score"}:
                 raise ValidateException("检索配置格式错误")
             # 9.3 校验检索策略是否正确
-            if retrieval_config["retrieval_strategy"] not in ["semantic", "full_text", "hybrid"]:
+            if retrieval_config["retrieval_strategy"] not in [rc.value for rc in RetrievalStrategy]:
                 raise ValidateException("检测策略格式错误")
             # 9.4 校验最大召回数量
             if not isinstance(retrieval_config["k"], int) or not (0 <= retrieval_config["k"] <= 10):

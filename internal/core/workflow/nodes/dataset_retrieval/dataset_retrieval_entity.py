@@ -55,11 +55,11 @@ class DatasetRetrievalNodeData(BaseNodeData):
     @validator("inputs")
     def validate_inputs(cls, value: list[VariableEntity]):
         """校验输入变量信息"""
-        # 1.判断是否只有一个输入变量，如果有多个则抛出错误
+        # 判断是否只有一个输入变量，如果有多个则抛出错误
         if len(value) != 1:
             raise FailException("知识库节点输入变量信息出错")
 
-        # 3.判断输入遍历那个的类型及字段名称是否出错
+        # 判断输入遍历那个的类型及字段名称是否出错
         query_input = value[0]
         if query_input.name != "query" or query_input.type != VariableType.STRING or query_input.required is False:
             raise FailException("知识库节点输入变量名字/变量类型/必填属性出错")

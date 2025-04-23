@@ -73,6 +73,7 @@ class RetrievalStrategy(str, Enum):
     FULL_TEXT = "full_text"
     SEMANTIC = "semantic"
     HYBRID = "hybrid"
+    RAG_FUSION = "rag_fusion"
 
 
 class RetrievalSource(str, Enum):
