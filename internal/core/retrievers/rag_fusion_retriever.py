@@ -69,7 +69,7 @@ class RAGFusionRetriever(MultiQueryRetriever):
                 }
             }
         )
-        return RAGFusionRetriever.from_llm(
+        return self.from_llm(
             retriever=retriever,
             llm=ChatOpenAI(model="gpt-4o", temperature=0),
             include_original=True
