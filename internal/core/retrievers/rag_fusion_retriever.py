@@ -39,6 +39,19 @@ class RAGFusionRetriever(MultiQueryRetriever):
     dataset_ids: list[UUID]
     search_kwargs: dict = Field(default_factory=dict)
 
+    def __init__(self,
+                 vector_store: WeaviateVectorStore = None,
+                 dataset_ids=None,
+                 search_kwargs: dict = Field(default_factory=dict),
+                 **kwargs):
+        super().__init__(**kwargs)
+        self.search_kwargs = search_kwargs
+        if dataset_ids is None:
+            dataset_ids = []
+        self.dataset_ids = dataset_ids
+        self.vector_store = vector_store
+        self.k = self.search_kwargs.pop("k", 4)
+
     @property
     def rag_fusion_retriver(self) -> BaseRetriever:
         self.k = self.search_kwargs.pop("k", 4)
