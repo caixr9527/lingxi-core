@@ -296,6 +296,7 @@ class FunctionCallAgent(BaseAgent):
             except Exception as e:
                 # 添加错误工具信息
                 tool_result = f"工具执行出错: {str(e)}"
+                logging.exception(f"工具执行出错, 错误信息: {str(e)}")
 
             # 将工具消息添加到消息列表中
             messages.append(ToolMessage(
