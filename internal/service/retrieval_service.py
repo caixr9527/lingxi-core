@@ -29,7 +29,6 @@ from langchain_core.pydantic_v1 import BaseModel, Field
 from langchain_core.tools import BaseTool, tool
 from langchain_openai import ChatOpenAI
 from sqlalchemy import update
-from weaviate.classes.query import Filter
 
 from internal.core.agent.entities.agent_entity import DATASET_RETRIEVAL_TOOL_NAME
 from internal.entity.dataset_entity import RetrievalStrategy, RetrievalSource
@@ -95,15 +94,15 @@ class RetrievalService(BaseService):
 
         retriever = self.vector_database_service.vector_store.as_retriever(
             search_type="mmr",
-            search_kwargs={
-                "k": k,
-                "filter": Filter.all_of([
-                    Filter.by_property("dataset_id").contains_any(
-                        [str(dataset_id) for dataset_id in dataset_ids]),
-                    Filter.by_property("document_enabled").equal(True),
-                    Filter.by_property("segment_enabled").equal(True),
-                ])
-            }
+            # search_kwargs={
+            #     "k": k,
+            #     "filter": Filter.all_of([
+            #         Filter.by_property("dataset_id").contains_any(
+            #             [str(dataset_id) for dataset_id in dataset_ids]),
+            #         Filter.by_property("document_enabled").equal(True),
+            #         Filter.by_property("segment_enabled").equal(True),
+            #     ])
+            # }
         )
         rag_fusion_retriever = RAGFusionRetriever.from_llm(
             retriever=retriever,
