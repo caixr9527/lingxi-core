@@ -27,7 +27,9 @@ from langchain.retrievers import EnsembleRetriever
 from langchain_core.documents import Document as LCDocument
 from langchain_core.pydantic_v1 import BaseModel, Field
 from langchain_core.tools import BaseTool, tool
+from langchain_openai import ChatOpenAI
 from sqlalchemy import update
+from weaviate.classes.query import Filter
 
 from internal.core.agent.entities.agent_entity import DATASET_RETRIEVAL_TOOL_NAME
 from internal.entity.dataset_entity import RetrievalStrategy, RetrievalSource
@@ -91,15 +93,34 @@ class RetrievalService(BaseService):
             weights=[0.5, 0.5]
         )
 
-        multi_query_retriever = RAGFusionRetriever(
-            dataset_ids=dataset_ids,
-            vector_store=self.vector_database_service.vector_store,
+        # multi_query_retriever = RAGFusionRetriever(
+        #     dataset_ids=dataset_ids,
+        #     vector_store=self.vector_database_service.vector_store,
+        #     search_kwargs={
+        #         "k": k,
+        #         "score_threshold": score,
+        #     }
+        # )
+        # rag_fusion_retriever = multi_query_retriever.rag_fusion_retriver()
+
+        retriever = self.vector_database_service.vector_store.as_retriever(
+            search_type="mmr",
             search_kwargs={
                 "k": k,
                 "score_threshold": score,
+                "filter": Filter.all_of([
+                    Filter.by_property("dataset_id").contains_any(
+                        [str(dataset_id) for dataset_id in dataset_ids]),
+                    Filter.by_property("document_enabled").equal(True),
+                    Filter.by_property("segment_enabled").equal(True),
+                ])
             }
         )
-        rag_fusion_retriever = multi_query_retriever.rag_fusion_retriver()
+        rag_fusion_retriever = RAGFusionRetriever.from_llm(
+            retriever=retriever,
+            llm=ChatOpenAI(model="gpt-4o", temperature=0),
+            include_original=True
+        )
 
         # 执行检索
         # 根据不同的检索策略执行检索
