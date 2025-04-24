@@ -56,17 +56,15 @@ class RAGFusionRetriever(MultiQueryRetriever):
     def rag_fusion_retriver(self) -> BaseRetriever:
         self.k = self.search_kwargs.pop("k", 4)
         retriever = self.vector_store.as_retriever(
-            **{
-                "search_type": "mmr",
-                "search_kwargs": {
-                    **self.search_kwargs,
-                    "filter": Filter.all_of([
-                        Filter.by_property("dataset_id").contains_any(
-                            [str(dataset_id) for dataset_id in self.dataset_ids]),
-                        Filter.by_property("document_enabled").equal(True),
-                        Filter.by_property("segment_enabled").equal(True),
-                    ])
-                }
+            search_type="mmr",
+            search_kwargs={
+                **self.search_kwargs,
+                "filter": Filter.all_of([
+                    Filter.by_property("dataset_id").contains_any(
+                        [str(dataset_id) for dataset_id in self.dataset_ids]),
+                    Filter.by_property("document_enabled").equal(True),
+                    Filter.by_property("segment_enabled").equal(True),
+                ])
             }
         )
         return self.from_llm(
