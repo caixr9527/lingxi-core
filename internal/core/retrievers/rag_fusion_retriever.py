@@ -39,7 +39,6 @@ class RAGFusionRetriever(MultiQueryRetriever):
     dataset_ids: list[UUID]
     search_kwargs: dict = Field(default_factory=dict)
 
-    @property
     def rag_fusion_retriver(self) -> BaseRetriever:
         self.k = self.search_kwargs.pop("k", 4)
         retriever = self.vector_store.as_retriever(
@@ -54,7 +53,7 @@ class RAGFusionRetriever(MultiQueryRetriever):
                 ])
             }
         )
-        return self.from_llm(
+        return RAGFusionRetriever.from_llm(
             retriever=retriever,
             llm=ChatOpenAI(model="gpt-4o", temperature=0),
             include_original=True

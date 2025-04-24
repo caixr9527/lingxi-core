@@ -91,14 +91,15 @@ class RetrievalService(BaseService):
             weights=[0.5, 0.5]
         )
 
-        rag_fusion_retriever = RAGFusionRetriever(
+        multi_query_retriever = RAGFusionRetriever(
             dataset_ids=dataset_ids,
             vector_store=self.vector_database_service.vector_store,
             search_kwargs={
                 "k": k,
                 "score_threshold": score,
             }
-        ).rag_fusion_retriver
+        )
+        rag_fusion_retriever = multi_query_retriever.rag_fusion_retriver()
 
         # 执行检索
         # 根据不同的检索策略执行检索
