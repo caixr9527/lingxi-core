@@ -26,43 +26,13 @@ from langchain_core.callbacks import CallbackManagerForRetrieverRun
 from langchain_core.documents import Document
 
 
-# from uuid import UUID
-
-
-# from langchain_core.pydantic_v1 import Field
-# from langchain_core.retrievers import BaseRetriever
-# from langchain_openai import ChatOpenAI
-# from langchain_weaviate import WeaviateVectorStore
-# from weaviate.classes.query import Filter
-
-
 class RAGFusionRetriever(MultiQueryRetriever):
     """RAG多查询结果融合检索器"""
+    k: int = 4
 
-    # k: int = 4
-    # vector_store: WeaviateVectorStore
-    # dataset_ids: list[UUID]
-    # search_kwargs: dict = Field(default_factory=dict)
-    #
-    # def rag_fusion_retriver(self) -> BaseRetriever:
-    #     self.k = self.search_kwargs.pop("k", 4)
-    #     retriever = self.vector_store.as_retriever(
-    #         search_type="mmr",
-    #         search_kwargs={
-    #             **self.search_kwargs,
-    #             "filter": Filter.all_of([
-    #                 Filter.by_property("dataset_id").contains_any(
-    #                     [str(dataset_id) for dataset_id in self.dataset_ids]),
-    #                 Filter.by_property("document_enabled").equal(True),
-    #                 Filter.by_property("segment_enabled").equal(True),
-    #             ])
-    #         }
-    #     )
-    #     return RAGFusionRetriever.from_llm(
-    #         retriever=retriever,
-    #         llm=ChatOpenAI(model="gpt-4o", temperature=0),
-    #         include_original=True
-    #     )
+    def __init__(self, k: int = 4, **kwargs):
+        super().__init__(**kwargs)
+        self.k = k
 
     def retrieve_documents(
             self, queries: List[str], run_manager: CallbackManagerForRetrieverRun

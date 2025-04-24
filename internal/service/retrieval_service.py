@@ -93,21 +93,10 @@ class RetrievalService(BaseService):
             weights=[0.5, 0.5]
         )
 
-        # multi_query_retriever = RAGFusionRetriever(
-        #     dataset_ids=dataset_ids,
-        #     vector_store=self.vector_database_service.vector_store,
-        #     search_kwargs={
-        #         "k": k,
-        #         "score_threshold": score,
-        #     }
-        # )
-        # rag_fusion_retriever = multi_query_retriever.rag_fusion_retriver()
-
         retriever = self.vector_database_service.vector_store.as_retriever(
             search_type="mmr",
             search_kwargs={
                 "k": k,
-                "score_threshold": score,
                 "filter": Filter.all_of([
                     Filter.by_property("dataset_id").contains_any(
                         [str(dataset_id) for dataset_id in dataset_ids]),
