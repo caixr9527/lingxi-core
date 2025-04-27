@@ -18,7 +18,9 @@
 @Author : rxccai@gmail.com
 @File   : helper.py
 """
+import base64
 import importlib
+import os
 import random
 import string
 from datetime import datetime
@@ -27,6 +29,9 @@ from hashlib import sha3_256
 from typing import Any
 from uuid import UUID
 
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import padding
 from langchain_core.documents import Document
 from langchain_core.pydantic_v1 import BaseModel
 
@@ -115,3 +120,19 @@ def generate_random_string(length: int = 16) -> str:
     chars = string.ascii_letters + string.digits
     random_str = ''.join(random.choices(chars, k=length))
     return random_str
+
+
+def decode_password(password: str) -> str:
+    with open("private.pem", "rb") as key_file:
+        private_key = serialization.load_pem_private_key(
+            key_file.read(),
+            password=os.getenv('PRIVATE_KEY_PASSWORD').encode(),
+            backend=default_backend()
+        )
+    encrypted_bytes = base64.b64decode(password)
+    decrypted_bytes = private_key.decrypt(
+        encrypted_bytes,
+        padding.PKCS1v15()
+    )
+    password = decrypted_bytes.decode('utf-8')
+    return password

@@ -21,7 +21,7 @@
 from flask_wtf import FlaskForm
 from marshmallow import Schema, fields, pre_dump
 from wtforms import StringField
-from wtforms.validators import DataRequired, Length, URL
+from wtforms.validators import DataRequired, Length, URL, Email
 
 from internal.lib.helper import datetime_to_timestamp
 from internal.model import Account
@@ -70,4 +70,20 @@ class UpdateAvatarReq(FlaskForm):
     avatar = StringField("avatar", validators=[
         DataRequired("账号头像不能为空"),
         URL("账号头像必须是URL图片地址"),
+    ])
+
+
+class RegisterReq(FlaskForm):
+    email = StringField("email", validators=[
+        DataRequired("邮箱不能为空"),
+        Email("邮箱格式不正确"),
+    ])
+    password = StringField("password", validators=[
+        DataRequired("密码不能为空"),
+    ])
+    confirmPassword = StringField("confirmPassword", validators=[
+        DataRequired("确认密码不能为空"),
+    ])
+    verificationCode = StringField("verificationCode", validators=[
+        DataRequired("验证码不能为空"),
     ])
