@@ -46,6 +46,7 @@ from .platform_service import PlatformService
 from .process_rule_service import ProcessRuleService
 from .retrieval_service import RetrievalService
 from .segment_service import SegmentService
+from .sms_service import SmsService
 from .upload_file_service import UploadFileService
 from .vector_database_service import VectorDatabaseService
 from .web_app_service import WebAppService
@@ -85,5 +86,6 @@ __all__ = [
     "WebAppService",
     "AudioService",
     "PlatformService",
-    "WechatService"
+    "WechatService",
+    SmsService
 ]

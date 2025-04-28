@@ -87,3 +87,10 @@ class RegisterReq(FlaskForm):
     verificationCode = StringField("verificationCode", validators=[
         DataRequired("验证码不能为空"),
     ])
+
+
+class SendVerificationCodeReq(FlaskForm):
+    email = StringField("email", validators=[
+        DataRequired("邮箱不能为空"),
+        Email("邮箱格式不正确"),
+    ])

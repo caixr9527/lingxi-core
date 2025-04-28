@@ -28,7 +28,7 @@ from internal.schema.account_schema import (
     UpdatePasswordReq,
     UpdateNameReq,
     UpdateAvatarReq,
-    RegisterReq)
+    RegisterReq, SendVerificationCodeReq)
 from internal.service import AccountService
 from pkg.response import success_json, validate_error_json, success_message
 
@@ -75,3 +75,10 @@ class AccountHandler:
             return validate_error_json(req.errors)
         self.account_service.register(req)
         return success_message("注册成功")
+
+    def sendVerificationCode(self):
+        req = SendVerificationCodeReq()
+        if not req.validate():
+            return validate_error_json(req.errors)
+        self.account_service.sendVerificationCode(req.email.data)
+        return success_message("发送验证码成功")

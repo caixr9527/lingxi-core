@@ -37,6 +37,7 @@ from pkg.password import hash_password, compare_password
 from pkg.sqlalchemy import SQLAlchemy
 from .base_service import BaseService
 from .jwt_service import JwtService
+from .sms_service import SmsService
 
 
 @inject
@@ -45,6 +46,7 @@ class AccountService(BaseService):
     db: SQLAlchemy
     jwt_service: JwtService
     redis_client: Redis
+    sms_service: SmsService
 
     def get_account(self, account_id: UUID) -> Account:
         return self.get(Account, account_id)
@@ -63,6 +65,18 @@ class AccountService(BaseService):
     def create_account(self, **kwargs) -> Account:
         return self.create(Account, **kwargs)
 
+    def sendVerificationCode(self, email: str):
+        key = f"send_verification_code:{email}"
+        if self.redis_client.get(key):
+            raise FailException("发送验证码过于频繁，请稍后重试")
+        code = generate_random_string(6)
+        self.sms_service.send_email(
+            email,
+            f"您正在进行邮箱验证。您的验证码为:{code}\n\n\n验证码 5 分钟内有效，如果不是本人操作，请忽略。",
+            "不懂就问-AI应用开发平台邮箱验证邮件")
+        self.redis_client.setex(key, 60, 1)
+        self.redis_client.setex(f"verification_code:{email}", 60 * 5, code)
+
     def register(self, req: RegisterReq):
         email = req.email.data
         verification_code = req.verificationCode.data
@@ -70,12 +84,14 @@ class AccountService(BaseService):
         account = self.get_account_by_email(email)
         if account:
             raise FailException("邮箱已存在。")
-
-        code = self.redis_client.get(f"verification_code:{email}")
+        key = f"verification_code:{email}"
+        code = self.redis_client.get(key)
         if not code:
             raise FailException("验证码失效，请重试。")
         if code != verification_code:
             raise FailException("验证码错误，请重试。")
+
+        self.redis_client.delete(key)
 
         password = decode_password(req.password.data)
         confirm_password = decode_password(req.confirmPassword.data)
