@@ -76,9 +76,9 @@ class AccountHandler:
         self.account_service.register(req)
         return success_message("注册成功")
 
-    def sendVerificationCode(self):
+    def send_verification_code(self):
         req = SendVerificationCodeReq()
         if not req.validate():
             return validate_error_json(req.errors)
-        self.account_service.sendVerificationCode(req.email.data)
+        self.account_service.send_verification_code(req.email.data)
         return success_message("发送验证码成功")

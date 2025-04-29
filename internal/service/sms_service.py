@@ -35,18 +35,21 @@ from internal.exception import FailException
 class SmsService:
 
     def send_email(self, email: str, content: str, subject: str):
-        msg = MIMEText(content, "plain", "utf-8")
-        msg["To"] = Header(email, "utf-8")
-        msg["Subject"] = Header(subject, "utf-8")
+
         try:
             smtp_server = os.getenv("SMTP_SERVER")
             port = int(os.getenv("SMTP_PORT"))
             sender_email = os.getenv("SENDER_EMAIL")
             password = os.getenv("SMTP_PASSWORD")
 
+            msg = MIMEText(content, "plain", "utf-8")
+            msg["To"] = Header(email, "utf-8")
+            msg["Subject"] = Header(subject, "utf-8")
+
             with smtplib.SMTP_SSL(smtp_server, port) as server:
                 server.login(sender_email, password)
                 server.sendmail(sender_email, [email], msg.as_string())
+                server.close()
         except Exception as e:
             logging.exception("邮件发送失败，错误信息: %(error)s", {"error": e})
             raise FailException("邮件发送失败。")

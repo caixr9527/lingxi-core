@@ -87,5 +87,5 @@ __all__ = [
     "AudioService",
     "PlatformService",
     "WechatService",
-    SmsService
+    "SmsService"
 ]

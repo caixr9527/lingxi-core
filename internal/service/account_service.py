@@ -65,7 +65,7 @@ class AccountService(BaseService):
     def create_account(self, **kwargs) -> Account:
         return self.create(Account, **kwargs)
 
-    def sendVerificationCode(self, email: str):
+    def send_verification_code(self, email: str):
         key = f"send_verification_code:{email}"
         if self.redis_client.get(key):
             raise FailException("发送验证码过于频繁，请稍后重试")
@@ -88,7 +88,7 @@ class AccountService(BaseService):
         code = self.redis_client.get(key)
         if not code:
             raise FailException("验证码失效，请重试。")
-        if code != verification_code:
+        if code.decode() != verification_code:
             raise FailException("验证码错误，请重试。")
 
         self.redis_client.delete(key)
