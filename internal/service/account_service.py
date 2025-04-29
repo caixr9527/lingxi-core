@@ -19,25 +19,25 @@
 @File   : account_service.py
 """
 import base64
-import os
 import secrets
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import Any
 from uuid import UUID
 
-from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives import serialization
-from cryptography.hazmat.primitives.asymmetric import padding
 from flask import request
 from injector import inject
+from redis import Redis
 
 from internal.exception import FailException
+from internal.lib.helper import decode_password, generate_random_string
 from internal.model import Account, AccountOAuth
+from internal.schema.account_schema import RegisterReq
 from pkg.password import hash_password, compare_password
 from pkg.sqlalchemy import SQLAlchemy
 from .base_service import BaseService
 from .jwt_service import JwtService
+from .sms_service import SmsService
 
 
 @inject
@@ -45,6 +45,8 @@ from .jwt_service import JwtService
 class AccountService(BaseService):
     db: SQLAlchemy
     jwt_service: JwtService
+    redis_client: Redis
+    sms_service: SmsService
 
     def get_account(self, account_id: UUID) -> Account:
         return self.get(Account, account_id)
@@ -63,20 +65,55 @@ class AccountService(BaseService):
     def create_account(self, **kwargs) -> Account:
         return self.create(Account, **kwargs)
 
+    def send_verification_code(self, email: str):
+        key = f"send_verification_code:{email}"
+        if self.redis_client.get(key):
+            raise FailException("发送验证码过于频繁，请稍后重试")
+        code = generate_random_string(6)
+        self.sms_service.send_email(
+            email,
+            f"您正在进行邮箱验证。您的验证码为:{code}\n\n\n验证码 5 分钟内有效，如果不是本人操作，请忽略。",
+            "不懂就问-AI应用开发平台邮箱验证邮件")
+        self.redis_client.setex(key, 60, 1)
+        self.redis_client.setex(f"verification_code:{email}", 60 * 5, code)
+
+    def register(self, req: RegisterReq):
+        email = req.email.data
+        verification_code = req.verificationCode.data
+
+        account = self.get_account_by_email(email)
+        if account:
+            raise FailException("邮箱已存在。")
+        key = f"verification_code:{email}"
+        code = self.redis_client.get(key)
+        if not code:
+            raise FailException("验证码失效，请重试。")
+        if code.decode() != verification_code:
+            raise FailException("验证码错误，请重试。")
+
+        self.redis_client.delete(key)
+
+        password = decode_password(req.password.data)
+        confirm_password = decode_password(req.confirmPassword.data)
+        if len(password) < 8 or len(password) > 16:
+            raise FailException("密码长度在8-16位。")
+        if password != confirm_password:
+            raise FailException("两次输入密码不一致。")
+
+        salt = secrets.token_bytes(16)
+        base64_salt = base64.b64encode(salt).decode()
+        password_hashed = hash_password(password, salt)
+        base64_password_hashed = base64.b64encode(password_hashed).decode()
+        self.create_account(
+            name=f"user_{generate_random_string(10)}",
+            email=email,
+            password=base64_password_hashed,
+            password_salt=base64_salt
+        )
+
     def update_password(self, password: str, account: Account) -> Account:
         """更新当前账号密码信息"""
-        with open("private.pem", "rb") as key_file:
-            private_key = serialization.load_pem_private_key(
-                key_file.read(),
-                password=os.getenv('PRIVATE_KEY_PASSWORD').encode(),
-                backend=default_backend()
-            )
-        encrypted_bytes = base64.b64decode(password)
-        decrypted_bytes = private_key.decrypt(
-            encrypted_bytes,
-            padding.PKCS1v15()
-        )
-        password = decrypted_bytes.decode('utf-8')
+        password = decode_password(password)
         salt = secrets.token_bytes(16)
         base64_salt = base64.b64encode(salt).decode()
         password_hashed = hash_password(password, salt)
@@ -96,18 +133,7 @@ class AccountService(BaseService):
         if not account:
             raise FailException("账号或者密码错误，请核实后重试")
 
-        with open("private.pem", "rb") as key_file:
-            private_key = serialization.load_pem_private_key(
-                key_file.read(),
-                password=os.getenv('PRIVATE_KEY_PASSWORD').encode(),
-                backend=default_backend()
-            )
-        encrypted_bytes = base64.b64decode(password)
-        decrypted_bytes = private_key.decrypt(
-            encrypted_bytes,
-            padding.PKCS1v15()
-        )
-        password = decrypted_bytes.decode('utf-8')
+        password = decode_password(password)
 
         # 校验账号密码是否正确
         if not account.is_password_set or not compare_password(

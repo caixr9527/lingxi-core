@@ -23,7 +23,12 @@ from dataclasses import dataclass
 from flask_login import login_required, current_user
 from injector import inject
 
-from internal.schema.account_schema import GetCurrentUserResp, UpdatePasswordReq, UpdateNameReq, UpdateAvatarReq
+from internal.schema.account_schema import (
+    GetCurrentUserResp,
+    UpdatePasswordReq,
+    UpdateNameReq,
+    UpdateAvatarReq,
+    RegisterReq, SendVerificationCodeReq)
 from internal.service import AccountService
 from pkg.response import success_json, validate_error_json, success_message
 
@@ -63,3 +68,17 @@ class AccountHandler:
         self.account_service.update_account(current_user, avatar=req.avatar.data)
 
         return success_message("更新账号头像成功")
+
+    def register(self):
+        req = RegisterReq()
+        if not req.validate():
+            return validate_error_json(req.errors)
+        self.account_service.register(req)
+        return success_message("注册成功")
+
+    def send_verification_code(self):
+        req = SendVerificationCodeReq()
+        if not req.validate():
+            return validate_error_json(req.errors)
+        self.account_service.send_verification_code(req.email.data)
+        return success_message("发送验证码成功")

@@ -59,14 +59,21 @@ class RAGFusionRetriever(MultiQueryRetriever):
                 doc_str = dumps(doc)
                 # 检测该字符串是否存在得分，如果不存在则赋值为0
                 if doc_str not in fused_scores:
-                    fused_scores[doc_str] = 0
+                    fused_scores[doc_str] = {
+                        "score": 0,
+                        "doc": doc,
+                    }
                 # 计算多结果得分，排名越小越靠前，k为控制权重的参数
-                fused_scores[doc_str] += 1 / (rank + 60)
+                fused_scores[doc_str]['score'] += 1 / (rank + 60)
 
         # 提取得分并进行排序
-        reranked_results = [
-            (loads(doc), score)
-            for doc, score in sorted(fused_scores.items(), key=lambda x: x[1], reverse=True)
-        ]
+        reranked_results = []
 
-        return [item[0] for item in reranked_results[:self.k]]
+        sorted_result = sorted(fused_scores.items(), key=lambda x: x[1]['score'], reverse=True)
+        for _, doc_score in sorted_result:
+            doc = doc_score['doc']
+            score = doc_score['score']
+            doc.metadata['score'] = score
+            reranked_results.append(doc)
+
+        return reranked_results

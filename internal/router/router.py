@@ -240,6 +240,8 @@ class Router:
         bp.add_url_rule("/account/password", methods=["POST"], view_func=self.account_handler.update_password)
         bp.add_url_rule("/account/name", methods=["POST"], view_func=self.account_handler.update_name)
         bp.add_url_rule("/account/avatar", methods=["POST"], view_func=self.account_handler.update_avatar)
+        bp.add_url_rule("/account/register", methods=["POST"], view_func=self.account_handler.register)
+        bp.add_url_rule("/account/sendVerificationCode", methods=["POST"], view_func=self.account_handler.send_verification_code)
 
         # ai辅助模块
         bp.add_url_rule("/ai/optimize-prompt", methods=["POST"], view_func=self.ai_handler.optimize_prompt)
