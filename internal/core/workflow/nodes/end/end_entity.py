@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2025/1/5 14:44
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : end_entity.py
 """
 from langchain_core.pydantic_v1 import Field

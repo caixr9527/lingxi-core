@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2024/10/17 22:48
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : embeddings_service.py
 """
 from dataclasses import dataclass

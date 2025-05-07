@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2025/3/11 21:45
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : wechat_service.py
 """
 from dataclasses import dataclass

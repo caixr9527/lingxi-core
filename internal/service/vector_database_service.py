@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2024/8/21 22:12
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : vector_database_service.py
 """
 from dataclasses import dataclass

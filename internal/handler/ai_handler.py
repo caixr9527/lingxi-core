@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2024/12/8 21:49
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : ai_handler.py
 """
 from dataclasses import dataclass

@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2024/11/22 22:40
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : account_service.py
 """
 import base64

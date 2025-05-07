@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2025/1/8 22:00
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : dataset_retrieval_entity.py
 """
 from uuid import UUID

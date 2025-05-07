@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2025/1/23 22:25
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : language_model_service.py.py
 """
 import logging

@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2024/12/9 21:32
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : ai_service.py
 """
 import json

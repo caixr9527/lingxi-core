@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2024/9/19 21:51
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : google_serper.py
 """
 from langchain_community.tools import GoogleSerperRun

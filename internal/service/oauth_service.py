@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2024/11/23 10:52
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : oauth_service.py
 """
 import os

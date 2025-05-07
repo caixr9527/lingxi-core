@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2024/6/29 21:01
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : app_schema.py
 """
 from urllib.parse import urlparse

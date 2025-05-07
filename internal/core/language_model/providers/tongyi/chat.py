@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2025/1/23 21:33
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : chat.py.py
 """
 from langchain_community.chat_models.tongyi import ChatTongyi

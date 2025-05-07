@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2024/10/20 23:16
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File    : jieba_entity.py
 """
 # 结巴停止词集合，在停止词列表中的关键词，不会被统计

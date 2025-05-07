@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2024/11/23 10:31
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : github_oauth.py
 """
 import urllib.parse

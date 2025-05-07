@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2024/11/23 15:25
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : auth_handler.py
 """
 from dataclasses import dataclass

@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2025/4/23 15:41
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : rag_fusion_retriever.py
 """
 from typing import List

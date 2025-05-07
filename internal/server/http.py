@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2024/6/28 20:39
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : http.py
 """
 import logging

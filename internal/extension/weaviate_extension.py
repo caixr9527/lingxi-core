@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2025/2/27 21:48
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : weaviate_extension.py
 """
 from flask_weaviate import FlaskWeaviate

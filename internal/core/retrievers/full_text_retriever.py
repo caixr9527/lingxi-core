@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2024/11/4 23:10
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : full_text_retriever.py
 """
 from collections import Counter

@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2024/7/2 21:07
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : __init__.py.py
 """
 from .sqlalchemy import SQLAlchemy

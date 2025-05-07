@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2025/1/5 10:20
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : node_entity.py.py
 """
 from enum import Enum

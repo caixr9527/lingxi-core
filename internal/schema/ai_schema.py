@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2024/12/8 21:50
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File    : ai_schema.py
 """
 from flask_wtf import FlaskForm

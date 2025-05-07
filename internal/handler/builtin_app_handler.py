@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time    : 2025/01/02 22:30
-@Author  : rxccai@gmail.com
+@Author  : caixiaorong01@outlook.com
 @File    : builtin_app_handler.py
 """
 from dataclasses import dataclass

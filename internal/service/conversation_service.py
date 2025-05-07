@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2024/11/10 20:33
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : conversation_service.py
 """
 import logging

@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2024/10/7 21:38
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : __init__.py.py
 """
 from .paginator import PaginatorReq, Paginator, PageModel

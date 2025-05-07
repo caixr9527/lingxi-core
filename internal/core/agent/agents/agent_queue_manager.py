@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2024/11/13 21:45
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : agent_queue_manager.py
 """
 import queue

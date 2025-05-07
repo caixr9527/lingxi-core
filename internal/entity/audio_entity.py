@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2025/3/8 21:10
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : audio_entity.py
 """
 # 允许的语音音色

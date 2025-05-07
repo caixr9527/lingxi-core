@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2025/1/11 10:47
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : edge_entity.py.py
 """
 from typing import Optional

@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2024/6/28 20:30
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : router.py
 """
 from dataclasses import dataclass
@@ -241,7 +241,8 @@ class Router:
         bp.add_url_rule("/account/name", methods=["POST"], view_func=self.account_handler.update_name)
         bp.add_url_rule("/account/avatar", methods=["POST"], view_func=self.account_handler.update_avatar)
         bp.add_url_rule("/account/register", methods=["POST"], view_func=self.account_handler.register)
-        bp.add_url_rule("/account/sendVerificationCode", methods=["POST"], view_func=self.account_handler.send_verification_code)
+        bp.add_url_rule("/account/sendVerificationCode", methods=["POST"],
+                        view_func=self.account_handler.send_verification_code)
 
         # ai辅助模块
         bp.add_url_rule("/ai/optimize-prompt", methods=["POST"], view_func=self.ai_handler.optimize_prompt)

@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2025/1/5 16:02
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : llm_entity.py
 """
 from typing import Any

@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time    : 2024/9/22 20:51
-@Author  : rxccai@gmail.com
+@Author  : caixiaorong01@outlook.com
 @File    : category_entity.py
 """
 from pydantic import BaseModel, field_validator

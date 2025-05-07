@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time    : 2024/11/23 11:06
-@Author  : rxccai@gmail.com
+@Author  : caixiaorong01@outlook.com
 @File    : oauth_schema.py
 """
 from flask_wtf import FlaskForm

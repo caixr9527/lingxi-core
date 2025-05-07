@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2024/11/12 21:18
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : queue_entity.py
 """
 

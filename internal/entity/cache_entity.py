@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2024/10/29 22:53
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : cache_entity.py
 """
 LOCK_EXPIRE_TIME = 600

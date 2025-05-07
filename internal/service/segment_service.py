@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2024/11/3 17:37
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : segment_service.py
 """
 import logging

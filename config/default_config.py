@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2024/6/30 17:37
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : default_config.py
 """
 # 应用默认配置项

@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2025/1/23 22:24
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : language_model_handler.py.py
 """
 import io

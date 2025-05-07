@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2025/2/19 22:05
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : conversation_schema.py.py
 """
 from flask_wtf import FlaskForm

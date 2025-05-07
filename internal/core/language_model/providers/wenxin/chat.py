@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2025/1/23 21:35
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : chat.py.py
 """
 from langchain_community.chat_models.baidu_qianfan_endpoint import QianfanChatEndpoint

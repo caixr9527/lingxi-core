@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2024/11/12 20:28
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : token_buffer_memory.py
 """
 from dataclasses import dataclass

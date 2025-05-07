@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2024/10/24 23:17
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : process_rule_service.py
 """
 import re

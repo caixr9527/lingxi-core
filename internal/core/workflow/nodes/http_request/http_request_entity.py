@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2025/1/9 22:16
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : http_request_entity.py.py
 """
 from enum import Enum

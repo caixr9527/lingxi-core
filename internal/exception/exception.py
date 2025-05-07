@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2024/6/29 23:07
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : exception.py
 """
 from dataclasses import field

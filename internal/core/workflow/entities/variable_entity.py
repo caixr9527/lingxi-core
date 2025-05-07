@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2025/1/5 11:12
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : variable_entity.py
 """
 import re

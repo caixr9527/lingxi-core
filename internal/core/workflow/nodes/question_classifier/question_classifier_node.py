@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2025/4/14 20:16
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : question_classifier_node.py
 """
 import json

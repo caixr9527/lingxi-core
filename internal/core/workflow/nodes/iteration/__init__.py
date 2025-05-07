@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2025/4/16 20:41
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : __init__.py.py
 """
 from .iteration_entity import IterationNodeData

@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time    : 2024/12/09 22:04
-@Author  : rxccai@gmail.com
+@Author  : caixiaorong01@outlook.com
 @File    : ai_entity.py
 """
 # 一段优化提示词的提示词模板

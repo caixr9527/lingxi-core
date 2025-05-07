@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2025/3/22 10:44
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : langchain_core_utils__merge.py.py
 """
 from typing import List, Optional

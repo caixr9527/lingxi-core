@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time    : 2025/01/02 22:02
-@Author  : rxccai@gmail.com
+@Author  : caixiaorong01@outlook.com
 @File    : builtin_app_service.py
 """
 import uuid

@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2025/1/5 14:47
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : end_node.py
 """
 import time

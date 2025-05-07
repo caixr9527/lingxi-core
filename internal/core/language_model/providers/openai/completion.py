@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2025/1/21 21:49
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : completion.py.py
 """
 from langchain_openai import OpenAI

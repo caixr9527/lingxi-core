@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2024/10/20 23:16
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : jieba_service.py
 """
 from dataclasses import dataclass
