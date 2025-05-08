@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2024/9/20 23:02
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : dalle3.py
 """
 from langchain_community.tools.openai_dalle_image_generation import OpenAIDALLEImageGenerationTool

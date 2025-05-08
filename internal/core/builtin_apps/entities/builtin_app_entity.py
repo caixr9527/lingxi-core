@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time    : 2025/01/02 22:10
-@Author  : rxccai@gmail.com
+@Author  : caixiaorong01@outlook.com
 @File    : builtin_app_entity.py
 """
 from typing import Any

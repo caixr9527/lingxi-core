@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2025/3/8 21:04
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : audio_handler.py
 """
 from dataclasses import dataclass

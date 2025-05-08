@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2025/4/14 20:15
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : question_classifier_entity.py
 """
 from langchain_core.pydantic_v1 import Field, validator, BaseModel

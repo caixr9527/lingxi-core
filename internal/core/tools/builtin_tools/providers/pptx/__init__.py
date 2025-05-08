@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2025/3/22 11:04
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : __init__.py.py
 """
 from .markdown_to_pptx import markdown_to_pptx

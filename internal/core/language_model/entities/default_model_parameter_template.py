@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2025/1/21 21:26
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : default_model_parameter_template.py.py
 """
 from .model_entity import DefaultModelParameterName, ModelParameterType

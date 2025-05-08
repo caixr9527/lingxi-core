@@ -58,6 +58,7 @@ wikipedia
 duckduckgo-search
 python-pptx
 mistune
+pypandoc==1.15
 
 # 服务器部署
 gunicorn

@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time    : 2024/12/29 16:30
-@Author  : rxccai@gmail.com
+@Author  : caixiaorong01@outlook.com
 @File    : app_config_service.py
 """
 from dataclasses import dataclass

@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2024/10/15 21:32
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : upload_file_entity.py
 """
 ALLOW_IMAGE_EXTENSION = ["jpg", "jpeg", "png", "webp", "gif", "svg"]

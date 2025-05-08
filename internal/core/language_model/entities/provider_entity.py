@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2025/1/21 21:29
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : provider_entity.py.py
 """
 import os.path

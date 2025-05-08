@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2024/11/22 21:58
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : jwt_service.py
 """
 import os

@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2024/11/5 22:20
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : retrieval_service.py
 """
 from dataclasses import dataclass

@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2024/10/21 23:20
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : document_schema.py
 """
 import uuid

@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2025/4/14 20:14
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : __init__.py.py
 """
 from .question_classifier_entity import QuestionClassifierNodeData

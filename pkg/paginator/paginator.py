@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2024/10/7 21:39
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : paginator.py
 """
 import math

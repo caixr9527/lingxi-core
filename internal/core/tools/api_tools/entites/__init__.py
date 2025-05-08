@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2024/9/24 23:41
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : __init__.py.py
 """
 from .openapi_schema import OpenAPISchema, ParameterType, ParameterIn, ParameterTypeMap

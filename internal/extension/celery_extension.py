@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2024/10/16 22:12
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : celery_extension.py
 """
 from celery import Task, Celery

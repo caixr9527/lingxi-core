@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2024/7/6 09:45
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : migrate_extension.py
 """
 

@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2024/9/20 22:32
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : duckduckgo_search.py
 """
 from langchain_community.tools import DuckDuckGoSearchRun

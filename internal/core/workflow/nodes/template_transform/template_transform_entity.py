@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2025/1/5 21:50
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : template_transform_entity.py
 """
 from langchain_core.pydantic_v1 import Field, validator

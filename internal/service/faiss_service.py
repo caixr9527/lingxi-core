@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2025/2/5 21:25
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : faiss_service.py.py
 """
 import os

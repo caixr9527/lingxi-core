@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2024/11/4 22:49
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : __init__.py.py
 """
 from .full_text_retriever import FullTextRetriever

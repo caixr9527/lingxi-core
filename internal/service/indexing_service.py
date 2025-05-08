@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2024/10/24 22:21
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : indexing_service.py
 """
 import logging

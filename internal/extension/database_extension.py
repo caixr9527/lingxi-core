@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2024/6/30 17:44
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : database_extension.py
 """
 from pkg.sqlalchemy import SQLAlchemy

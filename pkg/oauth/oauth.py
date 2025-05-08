@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2024/11/23 10:20
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : oauth.py
 """
 from abc import ABC, abstractmethod

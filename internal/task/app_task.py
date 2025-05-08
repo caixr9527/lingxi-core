@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2025/2/5 21:27
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : app_task.py.py
 """
 from uuid import UUID

@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2025/4/28 21:35
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : sms_service.py
 """
 import logging

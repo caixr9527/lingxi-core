@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2024/10/26 09:59
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : keyword_table_service.py
 """
 from dataclasses import dataclass

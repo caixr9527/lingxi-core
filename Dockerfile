@@ -4,6 +4,16 @@ FROM python:3.12-slim-bookworm AS base
 # 将requirements.txt拷贝到根目录下
 COPY requirements.txt .
 
+# 安装 pandoc
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    pandoc \
+    wget \
+    ca-certificates && \
+    # 清理缓存以减小镜像大小
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
 # 构建缓存并使用pip安装严格版本的requirements.txt
 RUN --mount=type=cache,target=/root/.cache/pip \
     pip install --prefix=/pkg -r requirements.txt

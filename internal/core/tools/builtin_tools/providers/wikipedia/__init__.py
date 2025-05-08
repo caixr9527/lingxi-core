@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2024/9/20 23:19
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : __init__.py.py
 """
 from .wikipedia_search import wikipedia_search

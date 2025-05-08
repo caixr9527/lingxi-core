@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2025/3/22 11:07
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : markdown_to_pptx.py.py
 """
 import logging

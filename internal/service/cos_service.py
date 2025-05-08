@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2024/10/15 21:47
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : cos_service.py
 """
 import hashlib

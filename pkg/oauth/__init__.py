@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2024/11/23 09:44
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : __init__.py.py
 """
 from .github_oauth import GithubOAuth

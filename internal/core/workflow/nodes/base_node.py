@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2025/1/5 11:08
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : base_node.py
 """
 from abc import ABC

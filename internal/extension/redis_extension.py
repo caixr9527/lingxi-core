@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2024/10/16 21:12
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : redis_extension.py
 """
 import redis

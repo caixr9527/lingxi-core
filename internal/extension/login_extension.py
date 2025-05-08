@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2024/11/22 22:18
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : login_extension.py
 """
 from flask_login import LoginManager

@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2024/11/10 20:50
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : conversation_entity.py
 """
 from enum import Enum

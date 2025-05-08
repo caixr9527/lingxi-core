@@ -15,7 +15,7 @@
 # limitations under the License.
 """
 @Time   : 2025/3/11 21:39
-@Author : rxccai@gmail.com
+@Author : caixiaorong01@outlook.com
 @File   : platform_schema.py
 """
 import os
