@@ -368,6 +368,8 @@ pygments==2.19.1
     # via rich
 pyjwt==2.10.1
     # via -r requirements.in
+pypandoc==1.15
+    # via -r requirements.in
 pypdf==5.1.0
     # via unstructured-client
 python-dateutil==2.9.0.post0

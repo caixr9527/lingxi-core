@@ -47,6 +47,13 @@
   background: "#FFFFFF"
   category: tool
   created_at: 1742612570
+- name: docx
+  label: WORD工具包
+  description: 这是一个word文档处理工具包，可以将特定内容生成word文档。
+  icon: icon.svg
+  background: "#FFFFFF"
+  category: tool
+  created_at: 1746710242
 - name: bocha
   label: 博查搜索
   description: 从全网搜索任何网页信息和网页链接，结果准确、摘要完整，更适合AI使用。

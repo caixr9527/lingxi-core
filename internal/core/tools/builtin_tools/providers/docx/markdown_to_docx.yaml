@@ -1,0 +1,4 @@
+name: markdown_to_docx
+label: Markdown转WORD
+description: 这是一款能将Markdown文档内容转换成本地Word文件的工具。
+params: [ ]
