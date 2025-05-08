@@ -5,23 +5,9 @@ FROM python:3.12-slim-bookworm AS base
 COPY requirements.txt .
 
 # 安装 pandoc
-RUN sed -i "1ideb https://mirrors.aliyun.com/debian/ bullseye main non-free contrib" /etc/apt/sources.list
-RUN sed -i "2ideb-src https://mirrors.aliyun.com/debian/ bullseye main non-free contrib" /etc/apt/sources.list
-RUN sed -i "3ideb https://mirrors.aliyun.com/debian-security/ bullseye-security main" /etc/apt/sources.list
-RUN sed -i "4ideb-src https://mirrors.aliyun.com/debian-security/ bullseye-security main" /etc/apt/sources.list
-RUN sed -i "5ideb https://mirrors.aliyun.com/debian/ bullseye-updates main non-free contrib" /etc/apt/sources.list
-RUN sed -i "6ideb-src https://mirrors.aliyun.com/debian/ bullseye-updates main non-free contrib" /etc/apt/sources.list
-RUN sed -i "7ideb https://mirrors.aliyun.com/debian/ bullseye-backports main non-free contrib" /etc/apt/sources.list
-RUN sed -i "8ideb-src https://mirrors.aliyun.com/debian/ bullseye-backports main non-free contrib" /etc/apt/sources.list
+COPY deb/pandoc-3.6.4-1-amd64.deb .
 
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    pandoc \
-    wget \
-    ca-certificates && \
-    # 清理缓存以减小镜像大小
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+RUN dpkg -i pandoc-3.6.4-1-amd64.deb
 
 # 构建缓存并使用pip安装严格版本的requirements.txt
 RUN --mount=type=cache,target=/root/.cache/pip \
