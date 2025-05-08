@@ -16,7 +16,7 @@
 """
 @Time   : 2025/5/8 12:41
 @Author : caixiaorong01@outlook.com
-@File   : app.py
+@File   : bocha_web_search.py
 """
 import os
 from typing import Any, Type

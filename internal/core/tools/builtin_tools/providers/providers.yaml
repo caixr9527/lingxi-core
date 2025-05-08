@@ -54,3 +54,10 @@
   background: "#FFFFFF"
   category: search
   created_at: 1746675665
+- name: extract
+  label: 内容提取
+  description: 内容提取工具。
+  icon: icon.svg
+  background: "#FFFFFF"
+  category: tool
+  created_at: 1746675665

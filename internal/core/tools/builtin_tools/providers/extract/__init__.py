@@ -18,6 +18,6 @@
 @Author : caixiaorong01@outlook.com
 @File   : __init__.py
 """
-from .bocha_web_search import bocha_web_search
+from .web_content_extract import web_content_extract
 
-__all__ = ["bocha_web_search"]
+__all__ = ["web_content_extract"]
