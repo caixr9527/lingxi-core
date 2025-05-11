@@ -241,6 +241,7 @@ class Router:
         bp.add_url_rule("/account/name", methods=["POST"], view_func=self.account_handler.update_name)
         bp.add_url_rule("/account/avatar", methods=["POST"], view_func=self.account_handler.update_avatar)
         bp.add_url_rule("/account/register", methods=["POST"], view_func=self.account_handler.register)
+        bp.add_url_rule("/account/forgetPassword", methods=["POST"], view_func=self.account_handler.forgetPassword)
         bp.add_url_rule("/account/sendVerificationCode", methods=["POST"],
                         view_func=self.account_handler.send_verification_code)
 

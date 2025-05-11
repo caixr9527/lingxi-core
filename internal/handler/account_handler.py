@@ -76,6 +76,13 @@ class AccountHandler:
         self.account_service.register(req)
         return success_message("注册成功")
 
+    def forgetPassword(self):
+        req = RegisterReq()
+        if not req.validate():
+            return validate_error_json(req.errors)
+        self.account_service.forgetPassword(req)
+        return success_message("修改密码成功")
+
     def send_verification_code(self):
         req = SendVerificationCodeReq()
         if not req.validate():
