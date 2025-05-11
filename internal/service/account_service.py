@@ -77,6 +77,31 @@ class AccountService(BaseService):
         self.redis_client.setex(key, 60, 1)
         self.redis_client.setex(f"verification_code:{email}", 60 * 5, code)
 
+    def forgetPassword(self, req: RegisterReq):
+        email = req.email.data
+        verification_code = req.verificationCode.data
+
+        account = self.get_account_by_email(email)
+        if not account:
+            raise FailException("邮箱不存在。")
+
+        key = f"verification_code:{email}"
+        code = self.redis_client.get(key)
+        if not code:
+            raise FailException("验证码失效，请重试。")
+        if code.decode() != verification_code:
+            raise FailException("验证码错误，请重试。")
+
+        self.redis_client.delete(key)
+
+        password = decode_password(req.password.data)
+        confirm_password = decode_password(req.confirmPassword.data)
+        if len(password) < 8 or len(password) > 16:
+            raise FailException("密码长度在8-16位。")
+        if password != confirm_password:
+            raise FailException("两次输入密码不一致。")
+        self.update_password(req.password.data, account)
+
     def register(self, req: RegisterReq):
         email = req.email.data
         verification_code = req.verificationCode.data
