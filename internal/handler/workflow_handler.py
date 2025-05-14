@@ -112,10 +112,8 @@ class WorkflowHandler:
     @login_required
     def debug_workflow(self, workflow_id: UUID):
         """根据传递的变量字典+工作流id调试指定的工作流"""
-        # 1.提取用户传递的输入变量信息
         inputs = request.get_json(force=True, silent=True) or {}
 
-        # 2.调用服务调试指定的API接口
         response = self.workflow_service.debug_workflow(workflow_id, inputs, current_user)
 
         return compact_generate_response(response)
