@@ -271,7 +271,7 @@ class FunctionCallAgent(BaseAgent):
                 task_id=state["task_id"],
                 event=QueueEvent.AGENT_END,
             ))
-        return {"messages": [AIMessage(id=gathered.id, content=gathered.content, tool_calls=gathered.tool_calls)],
+        return {"messages": [gathered],
                 "iteration_count": state["iteration_count"] + 1}
 
     def _tools_node(self, state: AgentState) -> AgentState:
