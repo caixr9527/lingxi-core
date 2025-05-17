@@ -683,7 +683,7 @@ class AppService(BaseService):
             "model_config", "dialog_round", "preset_prompt",
             "tools", "workflows", "datasets", "retrieval_config",
             "long_term_memory", "opening_statement", "opening_questions",
-            "speech_to_text", "text_to_speech", "suggested_after_answer", "review_config",
+            "speech_to_text", "text_to_speech", "suggested_after_answer", "review_config", "multimodal"
         ]
 
         # 2.判断传递的草稿配置是否在可接受字段内
