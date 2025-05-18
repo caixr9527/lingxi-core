@@ -198,6 +198,7 @@ class AppConfig(db.Model):
     opening_questions = Column(JSONB, nullable=False, server_default=text("'[]'::jsonb"))  # 开场白建议问题列表
     speech_to_text = Column(JSONB, nullable=False, server_default=text("'{}'::jsonb"))  # 语音转文本配置
     text_to_speech = Column(JSONB, nullable=False, server_default=text("'{}'::jsonb"))  # 文本转语音配置
+    multimodal = Column(JSONB, nullable=False, server_default=text("'{}'::jsonb"))  # 语音转文本配置
     suggested_after_answer = Column(
         JSONB,
         nullable=False,

@@ -90,6 +90,7 @@ class WebAppService(BaseService):
                 "features": llm.features,
                 "text_to_speech": app_config.get("text_to_speech"),
                 "speech_to_text": app_config.get("speech_to_text"),
+                "multimodal": app_config.get("multimodal")
             }
         }
 

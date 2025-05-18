@@ -330,6 +330,7 @@ class AppService(BaseService):
             text_to_speech=draft_app_config["text_to_speech"],
             suggested_after_answer=draft_app_config["suggested_after_answer"],
             review_config=draft_app_config["review_config"],
+            multimodal=draft_app_config["multimodal"],
         )
 
         # 更新应用关联的运行时配置以及状态
