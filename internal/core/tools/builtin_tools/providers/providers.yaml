@@ -62,9 +62,9 @@
   category: search
   created_at: 1746675665
 - name: extract
-  label: 内容提取
-  description: 支持从指定网页地址提取内容。
-  icon: icon.svg
+  label: 内容提取工具
+  description: 支持从指定网页地址/各类文档/文件提取内容。
+  icon: extract.svg
   background: "#FFFFFF"
   category: tool
-  created_at: 1746675665
+  created_at: 1747548779

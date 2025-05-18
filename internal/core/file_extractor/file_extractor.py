@@ -105,7 +105,7 @@ class FileExtractor:
             loader = UnstructuredHTMLLoader(file_path)
         elif file_extension == ".csv":
             loader = UnstructuredCSVLoader(file_path)
-        elif file_extension in [".ppt", "pptx"]:
+        elif file_extension in [".ppt", ".pptx"]:
             loader = UnstructuredPowerPointLoader(file_path)
         elif file_extension == ".xml":
             loader = UnstructuredXMLLoader(file_path)
