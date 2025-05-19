@@ -36,6 +36,10 @@ from cryptography.hazmat.primitives.asymmetric import padding
 from langchain_core.documents import Document
 from langchain_core.pydantic_v1 import BaseModel
 
+IMAGE_EXT = ["jpg", "jpeg", "png", "svg", "gif", "webp", "bmp", "ico"]
+FILE_EXT = ["xlsx", "xls", "pdf", "md", "markdown", "htm", "html", "csv", "ppt", "pptx", "xml",
+            "txt"]
+
 
 def dynamic_import(module_name: str, symbol_name: str) -> Any:
     module = importlib.import_module(module_name)

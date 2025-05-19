@@ -27,7 +27,7 @@ from langchain_core.pydantic_v1 import BaseModel, Field
 from langchain_core.tools import BaseTool
 from langchain_openai import ChatOpenAI
 
-from internal.lib.helper import add_attribute, get_file_extension
+from internal.lib.helper import add_attribute, get_file_extension, IMAGE_EXT, FILE_EXT
 
 
 class ContentExtractArgsSchema(BaseModel):
@@ -39,9 +39,6 @@ class ContentExtractTool(BaseTool):
     description = "当需要提取各类文档/文件/图片内容时，可以使用该工具"
     args_schema: Type[BaseModel] = ContentExtractArgsSchema
 
-    file_ext = ["xlsx", "xls", "pdf", "md", "markdown", "htm", "html", "csv", "ppt", "pptx", "xml",
-                "txt"]
-    img_ext = ["jpg", "jpeg", "png", "svg", "gif", "webp", "bmp", "ico"]
     prompt_template = """
     你是一位专业的图片文本内容提取大师，能够准确、高效地从图片中提取完整的文本内容信息。
     可以根据用户提供的图片，精准提取图片所包含的信息，仅输出图片中的文本内容，不添加多余的描述与修饰，图片文本内容是什么就输出什么。
@@ -53,12 +50,12 @@ class ContentExtractTool(BaseTool):
             url = kwargs.get("url", "")
             ext = get_file_extension(url).lower()
 
-            if ext in self.file_ext:
+            if ext in FILE_EXT:
                 from internal.core.file_extractor import FileExtractor
                 from app.http.module import injector
                 file_extractor = injector.get(FileExtractor)
                 return file_extractor.load_from_url(url, return_text=True)
-            elif ext in self.img_ext:
+            elif ext in IMAGE_EXT:
                 prompt = ChatPromptTemplate.from_messages([
                     SystemMessage(content=self.prompt_template),
                     HumanMessage(content=[
