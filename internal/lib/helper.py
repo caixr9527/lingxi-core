@@ -38,7 +38,7 @@ from langchain_core.pydantic_v1 import BaseModel
 
 IMAGE_EXT = ["jpg", "jpeg", "png", "svg", "gif", "webp", "bmp", "ico"]
 FILE_EXT = ["xlsx", "xls", "pdf", "md", "markdown", "htm", "html", "csv", "ppt", "pptx", "xml",
-            "txt"]
+            "txt", "yaml", "yml", "properties", "doc", "docx"]
 
 
 def dynamic_import(module_name: str, symbol_name: str) -> Any:

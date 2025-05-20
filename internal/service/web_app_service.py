@@ -145,6 +145,7 @@ class WebAppService(BaseService):
         )
         history = token_buffer_memory.get_history_prompt_message(
             message_limit=app_config["dialog_round"],
+            multimodal=app_config["multimodal"]["enable"],
         )
 
         # 将草稿配置中的tools转换成LangChain工具
@@ -186,7 +187,8 @@ class WebAppService(BaseService):
         # 定义字典存储推理过程，并调用智能体获取消息
         agent_thoughts = {}
         for agent_thought in agent.stream({
-            "messages": [llm.convert_to_human_message(req.query.data, req.image_urls.data)],
+            "messages": [
+                llm.convert_to_human_message(req.query.data, req.image_urls.data, app_config["multimodal"]["enable"])],
             "history": history,
             "long_term_memory": conversation.summary,
         }):
