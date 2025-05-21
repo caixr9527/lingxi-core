@@ -41,6 +41,7 @@ class TokenBufferMemory:
             self,
             max_token_limit: int = 2000,
             message_limit: int = 10,
+            multimodal: bool = False
     ) -> list[AnyMessage]:
         """"获取指定会话模型的历史消息列表"""
         # 判断会话是否存在
@@ -57,7 +58,7 @@ class TokenBufferMemory:
         prompt_messages = []
         for message in messages:
             prompt_messages.extend([
-                self.model_instance.convert_to_human_message(message.query, message.image_urls),
+                self.model_instance.convert_to_human_message(message.query, message.image_urls, multimodal),
                 AIMessage(content=message.answer),
             ])
         return trim_messages(
@@ -75,6 +76,7 @@ class TokenBufferMemory:
             ai_prefix: str = "AI",
             max_token_limit: int = 2000,
             message_limit: int = 10,
+            multimodal: bool = False
     ) -> str:
-        messages = self.get_history_prompt_message(max_token_limit, message_limit)
+        messages = self.get_history_prompt_message(max_token_limit, message_limit, multimodal)
         return get_buffer_string(messages, human_prefix, ai_prefix)

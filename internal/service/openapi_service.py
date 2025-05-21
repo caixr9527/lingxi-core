@@ -122,6 +122,7 @@ class OpenAPIService(BaseService):
         )
         history = token_buffer_memory.get_history_prompt_message(
             message_limit=app_config["dialog_round"],
+            multimodal=app_config["multimodal"]["enable"],
         )
 
         # 将草稿配置中的tools转换成LangChain工具
@@ -162,7 +163,8 @@ class OpenAPIService(BaseService):
 
         # 定义智能体状态基础数据
         agent_state = {
-            "messages": [llm.convert_to_human_message(req.query.data, req.image_urls.data)],
+            "messages": [
+                llm.convert_to_human_message(req.query.data, req.image_urls.data, app_config["multimodal"]["enable"])],
             "history": history,
             "long_term_memory": conversation.summary,
         }

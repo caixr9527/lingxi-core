@@ -1,4 +1,4 @@
 name: web_content_extract
-label: 网页内容提取器
+label: 网页内容提取工具
 description: 当需要根据网页URL链接提取内容时，可以使用该工具
 params: [ ]

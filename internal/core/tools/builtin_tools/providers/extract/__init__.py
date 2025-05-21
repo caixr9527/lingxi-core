@@ -18,6 +18,7 @@
 @Author : caixiaorong01@outlook.com
 @File   : __init__.py
 """
+from .content_extract import content_extract
 from .web_content_extract import web_content_extract
 
-__all__ = ["web_content_extract"]
+__all__ = ["web_content_extract", "content_extract"]

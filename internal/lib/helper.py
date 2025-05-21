@@ -27,6 +27,7 @@ from datetime import datetime
 from enum import Enum
 from hashlib import sha3_256
 from typing import Any
+from urllib.parse import urlparse
 from uuid import UUID
 
 from cryptography.hazmat.backends import default_backend
@@ -34,6 +35,10 @@ from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import padding
 from langchain_core.documents import Document
 from langchain_core.pydantic_v1 import BaseModel
+
+IMAGE_EXT = ["jpg", "jpeg", "png", "svg", "gif", "webp", "bmp", "ico"]
+FILE_EXT = ["xlsx", "xls", "pdf", "md", "markdown", "htm", "html", "csv", "ppt", "pptx", "xml",
+            "txt", "yaml", "yml", "properties", "doc", "docx"]
 
 
 def dynamic_import(module_name: str, symbol_name: str) -> Any:
@@ -136,3 +141,15 @@ def decode_password(password: str) -> str:
     )
     password = decrypted_bytes.decode('utf-8')
     return password
+
+
+def get_file_extension(url) -> str:
+    # 解析URL的路径部分
+    path = urlparse(url).path
+    # 提取文件名
+    filename = os.path.basename(path)
+    # 若无文件名或文件名无扩展名，返回空字符串
+    if not filename or '.' not in filename:
+        return ''
+    # 分割扩展名并去除点号
+    return os.path.splitext(filename)[1].lstrip('.')

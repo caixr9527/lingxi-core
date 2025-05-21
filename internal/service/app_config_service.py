@@ -216,6 +216,7 @@ class AppConfigService(BaseService):
             "text_to_speech": app_config.text_to_speech,
             "suggested_after_answer": app_config.suggested_after_answer,
             "review_config": app_config.review_config,
+            "multimodal": app_config.multimodal,
             "updated_at": datetime_to_timestamp(app_config.updated_at),
             "created_at": datetime_to_timestamp(app_config.created_at),
         }
