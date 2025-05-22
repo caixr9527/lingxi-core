@@ -32,7 +32,7 @@ from .llm_entity import LLMNodeData
 
 
 class LLMNode(BaseNode):
-    node_data = LLMNodeData
+    node_data: LLMNodeData
 
     def invoke(self, state: WorkflowState, config: Optional[RunnableConfig] = None) -> WorkflowState:
         start_at = time.perf_counter()
