@@ -50,7 +50,7 @@ class QuestionClassifierNode(BaseNode):
 
         # 创建LLM实例客户端，使用gpt-4o-mini作为基座模型，并配置温度与最大输出tokens
         llm = ChatOpenAI(
-            model="gpt-4o-mini",
+            model="gpt-4o",
             temperature=0,
             max_tokens=512,
         )
