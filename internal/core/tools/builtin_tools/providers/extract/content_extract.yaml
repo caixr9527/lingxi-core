@@ -1,4 +1,4 @@
 name: content_extract
 label: 各类文档内容提取工具
-description: 当需要提取各类文档/文件时，可以使用该工具
+description: 当需要提取各类文档/文件/图片时，可以使用该工具
 params: [ ]
