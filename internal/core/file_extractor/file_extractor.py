@@ -35,6 +35,7 @@ from langchain_community.document_loaders import (
     UnstructuredPowerPointLoader,
     UnstructuredXMLLoader,
     UnstructuredFileLoader,
+    UnstructuredWordDocumentLoader,
     TextLoader,
 )
 from langchain_core.documents import Document as LCDocument
@@ -109,6 +110,8 @@ class FileExtractor:
             loader = UnstructuredPowerPointLoader(file_path)
         elif file_extension == ".xml":
             loader = UnstructuredXMLLoader(file_path)
+        elif file_extension in [".doc", "docx"]:
+            loader = UnstructuredWordDocumentLoader(file_path)
         else:
             loader = UnstructuredFileLoader(file_path) if is_unstructured else TextLoader(file_path)
 
