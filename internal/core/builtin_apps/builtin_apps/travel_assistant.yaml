@@ -5,7 +5,7 @@ icon: "https://bdjw-ai-1256895154.cos.ap-guangzhou.myqcloud.com/2025/03/10/256dc
 description: "负责回答旅游行程的相关问题和推荐路线"
 model_config:
   provider: "openai"
-  model: "gpt-4o-mini"
+  model: "gpt-4o"
   parameters:
     temperature: 0.5
     top_p: 0.85
@@ -46,4 +46,6 @@ review_config:
     preset_response:
   outputs_config:
     enable: false
+multimodal:
+  enable: true
 created_at: 1731439009

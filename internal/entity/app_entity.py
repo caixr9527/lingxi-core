@@ -46,7 +46,7 @@ class AppConfigType(str, Enum):
 DEFAULT_APP_CONFIG = {
     "model_config": {
         "provider": "openai",
-        "model": "gpt-4o-mini",
+        "model": "gpt-4o",
         "parameters": {
             "temperature": 0.5,
             "top_p": 0.85,
@@ -92,4 +92,7 @@ DEFAULT_APP_CONFIG = {
             "enable": False,
         },
     },
+    "multimodal" : {
+        "enable": False,
+    }
 }
