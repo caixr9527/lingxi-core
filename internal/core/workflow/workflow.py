@@ -224,7 +224,8 @@ class Workflow(BaseTool):
                     graph.add_edge(item, target_node)
 
             # 正常添加其他边
-            graph.add_edge(source_nodes_tmp, target_node)
+            if len(source_nodes_tmp) > 0:
+                graph.add_edge(source_nodes_tmp, target_node)
 
         # 构建图程序并编译
         return graph.compile()

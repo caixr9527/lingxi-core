@@ -45,5 +45,6 @@ class BuiltinAppEntity(BaseModel):
     suggested_after_answer: dict[str, Any] = Field(
         default_factory=lambda: DEFAULT_APP_CONFIG.get("suggested_after_answer"),
     )
+    multimodal: dict[str, Any] = Field(default_factory=lambda: DEFAULT_APP_CONFIG.get("multimodal"))
     review_config: dict[str, Any] = Field(default_factory=lambda: DEFAULT_APP_CONFIG.get("review_config"))
     created_at: int = Field(default=0)

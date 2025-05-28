@@ -45,4 +45,6 @@ review_config:
     preset_response:
   outputs_config:
     enable: false
+multimodal:
+  enable: true
 created_at: 1743515472

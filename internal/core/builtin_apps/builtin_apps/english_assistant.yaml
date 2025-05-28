@@ -27,8 +27,8 @@ long_term_memory:
   enable: true
 opening_statement: "你好，我是英语学习助手。我可以根据您的需求为您提供英语学习帮助。"
 opening_questions:
-  - "生成十个英语单词。"
-  - "日常对话。"
+  - "生成十个关于科学的英语单词。"
+  - "生成一段关于旅游问路的日常对话。"
 speech_to_text:
   enable: false
 text_to_speech:
@@ -45,4 +45,6 @@ review_config:
     preset_response:
   outputs_config:
     enable: false
+multimodal:
+  enable: true
 created_at: 1743514348

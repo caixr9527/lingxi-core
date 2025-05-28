@@ -77,7 +77,7 @@ class BuiltinAppService(BaseService):
                 **builtin_app.model_dump(include={
                     "dialog_round", "preset_prompt", "tools", "retrieval_config", "long_term_memory",
                     "opening_statement", "opening_questions", "speech_to_text", "text_to_speech",
-                    "review_config", "suggested_after_answer",
+                    "review_config", "suggested_after_answer", "multimodal"
                 })
             )
             self.db.session.add(draft_app_config)
