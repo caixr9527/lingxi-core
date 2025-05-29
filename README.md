@@ -4,8 +4,8 @@
 **无需编程**，即可快速构建基于先进AI模型的各类智能应用——从简单的问答机器人到包含复杂逻辑的工作流。构建完成后，**一键发布**至主流社交平台、Web网页，或通过**开放API**无缝集成到现有系统进行深度开发。
 
 ## **技术基石**
-*   **前端：** Vue3 (响应式框架) + Arco Design (企业级UI) + Tailwind CSS (高效样式)
-*   **后端：** Python 3.12 + Flask (轻量Web框架) + LangChain 0.2 & LangGraph 0.2 (AI编排核心) + Redis (缓存/消息队列) + JWT (安全认证)
+*   **[前端](https://github.com/caixr9527/bdjw-ai-web.git)：** Vue3 (响应式框架) + Arco Design (企业级UI) + Tailwind CSS (高效样式)
+*   **[后端](https://github.com/caixr9527/bdjw-ai-ops.git)：** Python 3.12 + Flask (轻量Web框架) + LangChain 0.2 & LangGraph 0.2 (AI编排核心) + Redis (缓存/消息队列) + JWT (安全认证)
 *   **数据存储：** PostgreSQL (关系型数据库) + Weaviate (高性能向量数据库)
 *   **异步处理：** Celery (分布式任务队列)
 
