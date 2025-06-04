@@ -40,6 +40,26 @@ class VariableType(str, Enum):
     LIST_BOOLEAN = "list[BOOLEAN]"
 
 
+class ConditionType(str, Enum):
+    """条件选择类型枚举"""
+    EQ = "="  # 等于
+    NE = "!="  # 不等于
+    GT = ">"  # 大于
+    GE = ">="  # 大于等于
+    LT = "<"  # 小于
+    LE = "<="  # 小于等于
+    IN = "in"  # 包含
+    NOT_IN = "not in"  # 不包含
+    EMPTY = "empty"  # 为空
+    NOT_EMPTY = "not empty"  # 不为空
+
+
+class LogicalType(str, Enum):
+    """逻辑判断类型"""
+    AND = "and"
+    OR = "or"
+
+
 # 变量类型与声明的映射
 VARIABLE_TYPE_MAP = {
     VariableType.STRING: str,

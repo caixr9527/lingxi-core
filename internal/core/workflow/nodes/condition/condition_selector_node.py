@@ -14,11 +14,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-@Time   : 2025/5/25 13:22
+@Time   : 2025/4/14 20:16
 @Author : caixiaorong01@outlook.com
-@File   : __init__.py.py
+@File   : condition_selector_node.py
 """
-from .condition_selector_entity import ConditionSelectNodeData
-from .condition_selector_node import ConditionSelectorNode
+from typing import Optional
 
-__all__ = ["ConditionSelectorNode", "ConditionSelectNodeData"]
+from langchain_core.runnables import RunnableConfig
+
+from internal.core.workflow.entities.workflow_entity import WorkflowState
+from internal.core.workflow.nodes import BaseNode
+from internal.core.workflow.nodes.condition import ConditionSelectNodeData
+
+
+class ConditionSelectorNode(BaseNode):
+    node_data: ConditionSelectNodeData
+
+    def invoke(self,  state: WorkflowState, config: Optional[RunnableConfig] = None) -> str:
+        pass
