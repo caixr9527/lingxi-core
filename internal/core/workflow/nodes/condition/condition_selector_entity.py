@@ -27,15 +27,15 @@ class ClassConfig(BaseModel):
     variable: str = Field(default="")
     parameter: str = Field(default="")
     condition_type: str = Field(default="") # 条件判断类型
-    node_id: str = Field(default="")  # 该分类连接的节点id
-    node_type: str = Field(default="")  # 该分类连接的节点类型
-    source_handle_id: str = Field(default="")  # 起点句柄id
 
 
 class ClassConfigGroup(BaseModel):
     condition_group: list[ClassConfig] = Field(default_factory=list)
     logical_type: str = Field(default="")
     priority: int = Field(default=0)
+    node_id: str = Field(default="")  # 该分类连接的节点id
+    node_type: str = Field(default="")  # 该分类连接的节点类型
+    source_handle_id: str = Field(default="")  # 起点句柄id
 
 
 class ConditionSelectNodeData(BaseNodeData):

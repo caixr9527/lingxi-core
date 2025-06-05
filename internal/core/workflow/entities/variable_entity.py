@@ -52,6 +52,8 @@ class ConditionType(str, Enum):
     NOT_IN = "not in"  # 不包含
     EMPTY = "empty"  # 为空
     NOT_EMPTY = "not empty"  # 不为空
+    STARTS_WITH = "starts_with"
+    ENDS_WITH = "ends_with"
 
 
 class LogicalType(str, Enum):
