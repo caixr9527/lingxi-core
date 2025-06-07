@@ -43,7 +43,8 @@ from .nodes import (
     HttpRequestNode,
     QuestionClassifierNode,
     QuestionClassifierNodeData,
-    IterationNode
+    IterationNode,
+ConditionSelectorNode,
 )
 
 NodeClasses = {
@@ -57,6 +58,7 @@ NodeClasses = {
     NodeType.HTTP_REQUEST: HttpRequestNode,
     NodeType.QUESTION_CLASSIFIER: QuestionClassifierNode,
     NodeType.ITERATION: IterationNode,
+    NodeType.CONDITION_SELECTOR: ConditionSelectorNode,
 }
 
 

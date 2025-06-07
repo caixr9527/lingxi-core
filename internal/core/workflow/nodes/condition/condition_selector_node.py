@@ -53,7 +53,6 @@ class ConditionSelectorNode(BaseNode):
                 rules = []
                 match_dict = {}
                 for condition in condition_group:
-                    rule_exper = f"{condition.variable} {condition.condition_type} {condition.parameter}"
                     if (
                             condition.condition_type == ConditionType.STARTS_WITH.value
                             or condition.condition_type == ConditionType.ENDS_WITH.value
@@ -63,6 +62,8 @@ class ConditionSelectorNode(BaseNode):
                         rule_exper = f"{condition.variable} == null"
                     elif condition.condition_type == ConditionType.NOT_EMPTY.value:
                         rule_exper = f"{condition.variable} != null"
+                    else:
+                        rule_exper = f"{condition.variable} {condition.condition_type} {condition.parameter}"
 
                     rules.append(rule_exper+" ")
                     match_dict[condition.variable] = inputs_dict[condition.variable]
