@@ -18,15 +18,16 @@
 @Author : caixiaorong01@outlook.com
 @File   : condition_selector_entity.py
 """
+from langchain_core.pydantic_v1 import Field, validator, BaseModel
+
 from internal.core.workflow.entities.node_entity import BaseNodeData
 from internal.core.workflow.entities.variable_entity import VariableEntity
-from langchain_core.pydantic_v1 import Field, validator, BaseModel
 
 
 class ClassConfig(BaseModel):
     variable: str = Field(default="")
     parameter: str = Field(default="")
-    condition_type: str = Field(default="") # 条件判断类型
+    condition_type: str = Field(default="")  # 条件判断类型
 
 
 class ClassConfigGroup(BaseModel):
