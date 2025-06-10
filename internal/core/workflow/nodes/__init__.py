@@ -29,6 +29,7 @@ from .question_classifier import QuestionClassifierNode, QuestionClassifierNodeD
 from .start.start_node import StartNode, StartNodeData
 from .template_transform.template_transform_node import TemplateTransformNode, TemplateTransformNodeData
 from .tool.tool_node import ToolNode, ToolNodeData
+from .condition import ConditionSelectorNode, ConditionSelectNodeData
 
 __all__ = [
     "BaseNode",
@@ -42,4 +43,5 @@ __all__ = [
     "EndNode", "EndNodeData",
     "QuestionClassifierNode", "QuestionClassifierNodeData",
     "IterationNode", "IterationNodeData",
+    "ConditionSelectorNode", "ConditionSelectNodeData",
 ]

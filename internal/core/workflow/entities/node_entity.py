@@ -39,6 +39,7 @@ class NodeType(str, Enum):
     # 迭代节点
     ITERATION = "iteration"
     END = "end"
+    CONDITION_SELECTOR = "condition_selector"
 
 
 class BaseNodeData(BaseModel):

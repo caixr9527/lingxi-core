@@ -42,7 +42,10 @@ from internal.core.workflow.nodes import (
     LLMNodeData,
     StartNodeData,
     TemplateTransformNodeData,
-    ToolNodeData, QuestionClassifierNodeData, IterationNodeData,
+    ToolNodeData,
+    QuestionClassifierNodeData,
+    IterationNodeData,
+    ConditionSelectNodeData,
 )
 from internal.entity.workflow_entity import WorkflowStatus, DEFAULT_WORKFLOW_CONFIG, WorkflowResultStatus
 from internal.exception import ValidateException, NotFoundException, ForbiddenException, FailException
@@ -433,6 +436,7 @@ class WorkflowService(BaseService):
             NodeType.HTTP_REQUEST: HttpRequestNodeData,
             NodeType.QUESTION_CLASSIFIER: QuestionClassifierNodeData,
             NodeType.ITERATION: IterationNodeData,
+            NodeType.CONDITION_SELECTOR: ConditionSelectNodeData,
         }
 
         # 循环校验nodes中各个节点对应的数据

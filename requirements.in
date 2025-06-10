@@ -59,6 +59,7 @@ duckduckgo-search
 python-pptx
 mistune
 pypandoc==1.15
+rule_engine
 
 # 服务器部署
 gunicorn

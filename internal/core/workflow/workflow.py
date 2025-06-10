@@ -43,7 +43,9 @@ from .nodes import (
     HttpRequestNode,
     QuestionClassifierNode,
     QuestionClassifierNodeData,
-    IterationNode
+    IterationNode,
+    ConditionSelectorNode,
+    ConditionSelectNodeData,
 )
 
 NodeClasses = {
@@ -57,6 +59,7 @@ NodeClasses = {
     NodeType.HTTP_REQUEST: HttpRequestNode,
     NodeType.QUESTION_CLASSIFIER: QuestionClassifierNode,
     NodeType.ITERATION: IterationNode,
+    NodeType.CONDITION_SELECTOR: ConditionSelectorNode,
 }
 
 
@@ -177,6 +180,23 @@ class Workflow(BaseTool):
                     node_flag,
                     NodeClasses[NodeType.QUESTION_CLASSIFIER](node_data=node)
                 )
+            elif node.node_type == NodeType.CONDITION_SELECTOR:
+                graph.add_node(
+                    node_flag,
+                    lambda state: {"node_results": []}
+                )
+                assert isinstance(node, ConditionSelectNodeData)
+                for item in node.classes:
+                    graph.add_node(
+                        f"cn_source_handle_{str(item.source_handle_id)}",
+                        lambda state: {"node_results": []}
+                    )
+
+                graph.add_conditional_edges(
+                    node_flag,
+                    NodeClasses[NodeType.CONDITION_SELECTOR](node_data=node)
+                )
+
             elif node.node_type == NodeType.ITERATION:
                 graph.add_node(
                     node_flag,
@@ -197,6 +217,10 @@ class Workflow(BaseTool):
             if edge.source_type == NodeType.QUESTION_CLASSIFIER:
                 # 更新意图识别的起点，使用虚拟节点进行拼接
                 source_node = f"qc_source_handle_{str(edge.source_handle_id)}"
+                non_parallel_nodes.extend([source_node, target_node])
+
+            if edge.source_type == NodeType.CONDITION_SELECTOR:
+                source_node = f"cn_source_handle_{str(edge.source_handle_id)}"
                 non_parallel_nodes.extend([source_node, target_node])
 
             if target_node not in parallel_edges:
