@@ -20,6 +20,7 @@
 """
 from typing import Optional
 
+import rule_engine
 from langchain_core.runnables import RunnableConfig
 
 from internal.core.workflow.entities.variable_entity import ConditionType
@@ -27,7 +28,6 @@ from internal.core.workflow.entities.workflow_entity import WorkflowState
 from internal.core.workflow.nodes import BaseNode
 from internal.core.workflow.nodes.condition import ConditionSelectNodeData
 from internal.core.workflow.utils.helper import extract_variables_from_state
-import rule_engine
 
 
 class ConditionSelectorNode(BaseNode):
@@ -38,11 +38,11 @@ class ConditionSelectorNode(BaseNode):
         # 按照优先级排序
         self.node_data.classes.sort(key=lambda x: x.priority)
         node_flag = None
-        for _, class_config_group in self.node_data.classes[len(self.node_data.classes) - 1]:
+        for class_config_group in self.node_data.classes[:-1]:
             condition_group = class_config_group.condition_group
             if len(condition_group) == 1:
                 condition = condition_group[0]
-                rule = f"{condition.variable} {condition.condition_type} {condition.parameter}"
+                rule = f"{condition.variable} {condition.condition_type} '{condition.parameter}'"
                 match_dict = {
                     condition.variable: inputs_dict[condition.variable],
                 }
@@ -59,13 +59,13 @@ class ConditionSelectorNode(BaseNode):
                     ):
                         rule_exper = f'{condition.variable}.{condition.condition_type}("{condition.parameter}")'
                     elif condition.condition_type == ConditionType.EMPTY.value:
-                        rule_exper = f"{condition.variable} == null"
+                        rule_exper = f"({condition.variable} == null or {condition.variable} == '')"
                     elif condition.condition_type == ConditionType.NOT_EMPTY.value:
-                        rule_exper = f"{condition.variable} != null"
+                        rule_exper = f"({condition.variable} != null or {condition.variable != ''})"
                     else:
-                        rule_exper = f"{condition.variable} {condition.condition_type} {condition.parameter}"
+                        rule_exper = f"{condition.variable} {condition.condition_type} '{condition.parameter}'"
 
-                    rules.append(rule_exper+" ")
+                    rules.append(" " + rule_exper + " ")
                     match_dict[condition.variable] = inputs_dict[condition.variable]
 
                 rule = class_config_group.logical_type.join(rules)
@@ -75,13 +75,14 @@ class ConditionSelectorNode(BaseNode):
 
         if node_flag is not None:
             return f"cn_source_handle_{node_flag}"
-        return f"cn_source_handle_{self.node_data.classes[-1].source_handle_id}"
+        return f"cn_source_handle_{self.node_data.classes[- 1].source_handle_id}"
 
 
-# if __name__ == '__main__':
-#     print(rule_engine.Rule('name.ends_with(".png")').matches({"name": "xxx.png"}))
-#     print(rule_engine.Rule('name.starts_with("xxx")').matches({"name": "xxx.png"}))
-#     print(rule_engine.Rule('name in ["xxx.png"]').matches({"name": "xxx.png"}))
-#     print(rule_engine.Rule('name not in ["xxx.png"]').matches({"name": "xxx.png"}))
-#     print(rule_engine.Rule('name == null').matches({"name": "xxx.png"}))
-#     print(rule_engine.Rule('name == null').matches({"name": None}))
+if __name__ == '__main__':
+    # print(rule_engine.Rule('name.ends_with(".png")').matches({"name": "xxx.png"}))
+    # print(rule_engine.Rule('name.starts_with("xxx")').matches({"name": "xxx.png"}))
+    # print(rule_engine.Rule('name in ["xxx.png"]').matches({"name": "xxx.png"}))
+    # print(rule_engine.Rule('name not in ["xxx.png"]').matches({"name": "xxx.png"}))
+    # print(rule_engine.Rule('name == null').matches({"name": "xxx.png"}))
+    # print(rule_engine.Rule('name == null').matches({"name": None}))
+    print(rule_engine.Rule('name in "2"').matches({"name": 2}))
