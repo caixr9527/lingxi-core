@@ -85,4 +85,8 @@ if __name__ == '__main__':
     # print(rule_engine.Rule('name not in ["xxx.png"]').matches({"name": "xxx.png"}))
     # print(rule_engine.Rule('name == null').matches({"name": "xxx.png"}))
     # print(rule_engine.Rule('name == null').matches({"name": None}))
-    print(rule_engine.Rule('name in "2"').matches({"name": 2}))
+    # print(rule_engine.Rule('name in "2"').matches({"name": 2}))
+    dict = {"mo": {"enable": True}}
+
+    enable = (dict.get("mo", None) is not None and dict.get("mo").get("enable") is not None) or False
+    print(None or False)

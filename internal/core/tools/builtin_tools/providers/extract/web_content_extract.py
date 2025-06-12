@@ -18,10 +18,11 @@
 @Author : caixiaorong01@outlook.com
 @File   : web_content_extract.py
 """
+from typing import Type, Any
+
+from langchain_community.document_loaders import WebBaseLoader
 from langchain_core.pydantic_v1 import BaseModel, Field
 from langchain_core.tools import BaseTool
-from typing import Type, Any
-from langchain_community.document_loaders import WebBaseLoader
 
 from internal.lib.helper import add_attribute
 
@@ -32,7 +33,7 @@ class WebContentExtractArgsSchema(BaseModel):
 
 class WebContentExtractTool(BaseTool):
     name = "web_content_extract"
-    description = "当需要根据网页URL链接提取内容时，可以使用该工具"
+    description = "当用户的输入内容包含有网页URL链接且需要根据网页URL链接提取内容时，可以使用该工具"
     args_schema: Type[BaseModel] = WebContentExtractArgsSchema
 
     def _run(self, *args: Any, **kwargs: Any) -> str:

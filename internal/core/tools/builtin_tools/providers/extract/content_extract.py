@@ -36,7 +36,7 @@ class ContentExtractArgsSchema(BaseModel):
 
 class ContentExtractTool(BaseTool):
     name = "content_extract"
-    description = "当需要提取各类文档/文件/图片内容时，可以使用该工具"
+    description = "当用户输入内容包含有文档/文件/图片链接且需要提取各类文档/文件/图片内容时，可以使用该工具"
     args_schema: Type[BaseModel] = ContentExtractArgsSchema
 
     prompt_template = """
