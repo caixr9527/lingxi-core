@@ -103,7 +103,14 @@ class ConversationInfo(BaseModel):
 
 
 # 建议问题提示词模板
-SUGGESTED_QUESTIONS_TEMPLATE = "请根据传递的历史信息预测人类最后可能会问的三个问题"
+SUGGESTED_QUESTIONS_TEMPLATE = """
+请根据传递的历史信息预测人类最后可能会问的三个问题，注意：
+- 问题应该与你最后一轮的回复紧密相关，可以引发进一步的讨论。
+- 问题不要与上文已经提问或者回答过的内容重复。
+- 每句话只包含一个问题，但也可以不是问句而是一句指令。
+- 推荐你有能力回答的问题。
+- 每个问题都保持在50个字符以内。
+"""
 
 
 class SuggestedQuestions(BaseModel):

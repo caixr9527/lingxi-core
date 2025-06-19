@@ -109,8 +109,9 @@ class BaseLanguageModel(LCBaseLanguageModel, ABC):
         """将传递的query+image_url转换成人类消息HumanMessage，如果没有传递image_url或者该LLM不支持image_input，则直接返回普通人类消息"""
         # 判断图片url是否为空，或者该LLM不支持图片输入，则直接返回普通消息
         if multimodal:
-            content = query + ",文档/文件/图片/链接如下:\n" + "\n".join(image_urls)
-            return HumanMessage(content=content)
+            if len(image_urls) > 0:
+                query = query + ",文档/文件/图片/链接如下:\n" + "\n".join(image_urls)
+            return HumanMessage(content=query)
         else:
             if image_urls is None or len(image_urls) == 0 or ModelFeature.IMAGE_INPUT not in self.features:
                 return HumanMessage(content=query)
