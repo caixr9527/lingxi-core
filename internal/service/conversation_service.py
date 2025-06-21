@@ -190,7 +190,6 @@ class ConversationService(BaseService):
         structured_llm = llm.with_structured_output(SuggestedQuestions)
 
         chain = prompt | structured_llm
-        # todo 优化生成建议提示词
         suggested_questions = chain.invoke({"histories": histories})
         questions = []
         try:
