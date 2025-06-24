@@ -18,7 +18,7 @@
 @Author : caixiaorong01@outlook.com
 @File   : template_transform_entity.py
 """
-from langchain_core.pydantic_v1 import Field, validator
+from pydantic import Field, field_validator
 
 from internal.core.workflow.entities.node_entity import BaseNodeData
 from internal.core.workflow.entities.variable_entity import VariableEntity, VariableValueType
@@ -34,7 +34,7 @@ class TemplateTransformNodeData(BaseNodeData):
         ]
     )
 
-    @validator("outputs", pre=True)
+    @field_validator("outputs", mode="before")
     def validate_outputs(cls, outputs: list[VariableEntity]):
         return [
             VariableEntity(name="output", value={"type": VariableValueType.GENERATED})

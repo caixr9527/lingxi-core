@@ -21,23 +21,23 @@ email-validator
 PyJWT
 
 # LangChain框架相关
-langchain<0.3
-langgraph<0.3
-langchain-community<0.3
-langchain-core<0.3
-langchain-text-splitters<0.3
-langchain-weaviate==0.0.3
+langchain>=0.3,<0.4
+langgraph>=0.2.20,<0.3
+langchain-community>=0.3,<0.4
+langchain-core>=0.3,<0.4
+langchain-text-splitters>=0.3,<0.4
+langchain-weaviate==0.0.5
 
 # LLM大语言模型相关
-langchain-openai<0.2  # OpenAI
-langchain-ollama<0.2  # Ollama
+langchain-openai>=0.3,<0.4  # OpenAI
+langchain-ollama>=0.3,<0.4  # Ollama
 dashscope  # 通义千问
 qianfan  # 文心一言
 
 # 自然语言处理与分词
 jieba
 transformers
-pydantic>2.0,<3.0
+pydantic>=2,<3
 pandas
 
 # 并发与异步处理

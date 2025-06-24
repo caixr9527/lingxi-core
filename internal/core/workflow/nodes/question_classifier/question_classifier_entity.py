@@ -18,7 +18,7 @@
 @Author : caixiaorong01@outlook.com
 @File   : question_classifier_entity.py
 """
-from langchain_core.pydantic_v1 import Field, validator, BaseModel
+from pydantic import Field, field_validator, BaseModel
 
 from internal.core.workflow.entities.node_entity import BaseNodeData
 from internal.core.workflow.entities.variable_entity import VariableEntity
@@ -61,7 +61,7 @@ class QuestionClassifierNodeData(BaseNodeData):
     outputs: list[VariableEntity] = Field(default_factory=lambda: [])
     classes: list[ClassConfig] = Field(default_factory=list)
 
-    @validator("inputs")
+    @field_validator("inputs")
     def validate_inputs(cls, value: list[VariableEntity]):
         """校验输入变量信息"""
         # 判断是否只有一个输入变量，如果有多个则抛出错误
@@ -75,7 +75,7 @@ class QuestionClassifierNodeData(BaseNodeData):
 
         return value
 
-    @validator("outputs")
+    @field_validator("outputs")
     def validate_outputs(cls, value: list[VariableEntity]):
         """重写覆盖outputs的输出，让其变成一个只读变量"""
         return []

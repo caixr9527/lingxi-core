@@ -34,7 +34,7 @@ from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import padding
 from langchain_core.documents import Document
-from langchain_core.pydantic_v1 import BaseModel
+from pydantic import BaseModel
 
 IMAGE_EXT = ["jpg", "jpeg", "png", "svg", "gif", "webp", "bmp", "ico"]
 FILE_EXT = ["xlsx", "xls", "pdf", "md", "markdown", "htm", "html", "csv", "ppt", "pptx", "xml",

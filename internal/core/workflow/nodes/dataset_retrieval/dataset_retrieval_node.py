@@ -23,9 +23,9 @@ from typing import Optional, Any
 from uuid import UUID
 
 from flask import Flask
-from langchain_core.pydantic_v1 import PrivateAttr
 from langchain_core.runnables import RunnableConfig
 from langchain_core.tools import BaseTool
+from pydantic import PrivateAttr
 
 from internal.core.workflow.entities.node_entity import NodeResult, NodeStatus
 from internal.core.workflow.entities.workflow_entity import WorkflowState

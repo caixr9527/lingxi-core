@@ -23,7 +23,7 @@ from enum import Enum
 from typing import Union, Any, Optional
 from uuid import UUID
 
-from langchain_core.pydantic_v1 import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 
 from internal.exception import ValidateException
 
@@ -109,7 +109,7 @@ class VariableEntity(BaseModel):
             ref_node_id: Optional[UUID] = None
             ref_var_name: str = ""
 
-            @validator("ref_node_id", pre=True, always=True)
+            @field_validator("ref_node_id", mode="before", check_fields=True)
             def validate_ref_node_id(cls, ref_node_id: Optional[UUID]):
                 return ref_node_id if ref_node_id != "" else None
 
@@ -123,14 +123,14 @@ class VariableEntity(BaseModel):
     value: Value = Field(default_factory=lambda: {"type": VariableValueType.LITERAL, "content": ""})  # 变量对应的值
     meta: dict[str, Any] = Field(default_factory=dict)  # 变量元数据，存储一些额外的信息
 
-    @validator("name")
+    @field_validator("name")
     def validate_name(cls, value: str) -> str:
         """自定义校验函数，用于校验变量名字"""
         if not re.match(VARIABLE_NAME_PATTERN, value):
             raise ValidateException("变量名字仅支持字母、数字和下划线，且以字母/下划线为开头")
         return value
 
-    @validator("description")
+    @field_validator("description")
     def validate_description(cls, value: str) -> str:
         """自定义校验函数，用于校验描述信息，截取前1024个字符"""
         return value[:VARIABLE_DESCRIPTION_MAX_LENGTH]

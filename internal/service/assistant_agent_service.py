@@ -26,8 +26,8 @@ from uuid import UUID
 
 from flask import current_app
 from injector import inject
-from langchain_core.pydantic_v1 import BaseModel, Field
 from langchain_core.tools import BaseTool, tool
+from pydantic import BaseModel, Field
 from sqlalchemy import desc
 from sqlalchemy.orm import joinedload
 

@@ -23,8 +23,8 @@ import os
 from typing import Any, Type
 
 import requests
-from langchain_core.pydantic_v1 import BaseModel, Field
 from langchain_core.tools import BaseTool
+from pydantic import BaseModel, Field
 
 from internal.lib.helper import add_attribute
 
@@ -35,8 +35,8 @@ class GaodeWeatherArgsSchema(BaseModel):
 
 class GaodeWeatherTool(BaseTool):
     """根据传入的城市名查询天气"""
-    name = "gaode_weather"
-    description = "当你想查询天气或者与天气相关的问题时可以使用的工具"
+    name: str = "gaode_weather"
+    description: str = "当你想查询天气或者与天气相关的问题时可以使用的工具"
     args_schema: Type[BaseModel] = GaodeWeatherArgsSchema
 
     def _run(self, *args: Any, **kwargs: Any) -> str:

@@ -25,8 +25,8 @@ import uuid
 from typing import Type, Any
 
 import pypandoc
-from langchain_core.pydantic_v1 import BaseModel, Field
 from langchain_core.tools import BaseTool
+from pydantic import BaseModel, Field
 
 from internal.lib.helper import add_attribute
 
@@ -36,8 +36,8 @@ class MarkdownToDOCXArgsSchema(BaseModel):
 
 
 class MarkdownToDOCXTool(BaseTool):
-    name = "markdown_to_docx"
-    description = "这是一个可以将markdown文本转换成Word文档的工具，传递的参数是markdown对应的文本字符串，返回的数据是PPT的下载地址。"
+    name: str = "markdown_to_docx"
+    description: str = "这是一个可以将markdown文本转换成Word文档的工具，传递的参数是markdown对应的文本字符串，返回的数据是PPT的下载地址。"
     args_schema: Type[BaseModel] = MarkdownToDOCXArgsSchema
 
     def _run(self, *args: Any, **kwargs: Any) -> Any:

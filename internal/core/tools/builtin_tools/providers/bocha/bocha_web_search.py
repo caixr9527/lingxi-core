@@ -22,8 +22,8 @@ import os
 from typing import Any, Type
 
 import requests
-from langchain_core.pydantic_v1 import BaseModel, Field
 from langchain_core.tools import BaseTool
+from pydantic import BaseModel, Field
 
 from internal.lib.helper import add_attribute
 
@@ -33,8 +33,8 @@ class BOChaWebSearchArgsSchema(BaseModel):
 
 
 class BOChaWebSearchTool(BaseTool):
-    name = "bocha_web_search"
-    description = "当需要搜索互联网上的内容时，可以使用该工具"
+    name: str = "bocha_web_search"
+    description: str = "当需要搜索互联网上的内容时，可以使用该工具"
     args_schema: Type[BaseModel] = BOChaWebSearchArgsSchema
 
     def _run(self, *args: Any, **kwargs: Any) -> str:

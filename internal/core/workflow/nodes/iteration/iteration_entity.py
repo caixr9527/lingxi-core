@@ -20,7 +20,7 @@
 """
 from uuid import UUID
 
-from langchain_core.pydantic_v1 import Field, validator
+from pydantic import Field, field_validator
 
 from internal.core.workflow.entities.node_entity import BaseNodeData
 from internal.core.workflow.entities.variable_entity import VariableEntity, VariableType, VariableValueType
@@ -39,14 +39,14 @@ class IterationNodeData(BaseNodeData):
     ])  # 输入变量列表
     outputs: list[VariableEntity] = Field(default_factory=list)
 
-    @validator("workflow_ids")
+    @field_validator("workflow_ids")
     def validate_workflow_ids(cls, value: list[UUID]):
         """校验迭代的工作流数量是否小于等于1"""
         if len(value) > 1:
             raise FailException("迭代节点只能绑定一个工作流")
         return value
 
-    @validator("inputs")
+    @field_validator("inputs")
     def validate_inputs(cls, value: list[VariableEntity]):
         """校验输入变量是否正确"""
         # 判断是否一个输入变量，如果不是则抛出错误
@@ -70,7 +70,7 @@ class IterationNodeData(BaseNodeData):
 
         return value
 
-    @validator("outputs")
+    @field_validator("outputs")
     def validate_outputs(cls, value: list[VariableEntity]):
         """固定节点的输出为列表型字符串，该节点会将工作流中的所有结果迭代存储到该列表中"""
         return [
