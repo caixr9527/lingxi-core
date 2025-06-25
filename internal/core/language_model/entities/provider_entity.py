@@ -19,7 +19,7 @@
 @File   : provider_entity.py.py
 """
 import os.path
-from typing import Union, Type, Any, Optional
+from typing import Union, Type, Optional
 
 import yaml
 from pydantic import BaseModel, Field, model_validator
@@ -49,7 +49,7 @@ class Provider(BaseModel):
     model_class_map: dict[str, Union[None, Type[BaseLanguageModel]]] = Field(default_factory=dict)  # 模型类映射
 
     @model_validator(mode="after")
-    def validate_provider(cls, provider: BaseModel) -> dict[str, Any]:
+    def validate_provider(cls, provider: BaseModel) -> BaseModel:
         """服务提供者校验器，利用校验器完成该服务提供者的实体与类实例化"""
         # 获取服务提供商实体
         provider_entity: ProviderEntity = provider.provider_entity
@@ -101,7 +101,7 @@ class Provider(BaseModel):
             model_yaml_data["parameters"] = parameters
             provider.model_entity_map[model_name] = ModelEntity(**model_yaml_data)
 
-        return dict(provider)
+        return provider
 
     def get_model_class(self, model_type: ModelType) -> Optional[Type[BaseLanguageModel]]:
         """根据传递的模型类型获取该提供者的模型类"""

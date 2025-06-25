@@ -117,7 +117,7 @@ class BuiltinToolService:
         # 检测工具是否有args_schema属性，并且是BaseModel的子类
         if hasattr(tool, "args_schema") and issubclass(tool.args_schema, BaseModel):
 
-            for field_name, model_field in tool.args_schema.__fields__.items():
+            for field_name, model_field in tool.args_schema.model_fields.items():
                 inputs.append({
                     "name": field_name,
                     "description": model_field.description or "",

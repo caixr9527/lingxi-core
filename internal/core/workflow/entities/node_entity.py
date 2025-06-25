@@ -51,7 +51,7 @@ class BaseNodeData(BaseModel):
         y: float = 0
 
     class Config:
-        allow_population_by_field_name = True  # 允许通过字段名进行赋值
+        validate_by_name = True  # 允许通过字段名进行赋值
 
     id: UUID  # 节点id，数值必须唯一
     node_type: NodeType  # 节点类型

@@ -19,7 +19,7 @@
 @File   : language_model_manager.py.py
 """
 import os.path
-from typing import Any, Optional, Type
+from typing import Optional, Type
 
 import yaml
 from injector import inject, singleton
@@ -37,7 +37,7 @@ class LanguageModelManager(BaseModel):
     provider_map: dict[str, Provider] = Field(default_factory=dict)  # 服务提供者映射
 
     @model_validator(mode="after")
-    def validate_language_model_manager(cls, values: BaseModel) -> dict[str, Any]:
+    def validate_language_model_manager(cls, values: BaseModel) -> BaseModel:
         """使用pydantic提供的预设规则校验提供者映射，完成语言模型管理器的初始化"""
         # 获取当前类所在的路径
         current_path = os.path.abspath(__file__)
@@ -58,7 +58,7 @@ class LanguageModelManager(BaseModel):
                 position=index + 1,
                 provider_entity=provider_entity,
             )
-        return dict(values)
+        return values
 
     def get_provider(self, provider_name: str) -> Optional[Provider]:
         """根据传递的提供者名字获取提供者"""
