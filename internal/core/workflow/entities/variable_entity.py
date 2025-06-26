@@ -87,7 +87,7 @@ VARIABLE_TYPE_DEFAULT_VALUE_MAP = {
 }
 
 # 变量名字正则匹配规则
-VARIABLE_NAME_PATTERN = r'^[A-Za-z_][A-Za-z0-9_]*$'
+VARIABLE_NAME_PATTERN = r'^[A-Za-z_][A-Za-z0-9_-]*$'
 
 # 描述最大长度
 VARIABLE_DESCRIPTION_MAX_LENGTH = 1024
