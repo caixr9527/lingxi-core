@@ -27,6 +27,7 @@ from langchain_core.tools import BaseTool, StructuredTool
 from pydantic import BaseModel, create_model, Field
 
 from internal.core.tools.api_tools.entites import ToolEntity, ParameterTypeMap, ParameterIn
+from internal.lib.helper import generate_random_string
 
 
 @inject
@@ -81,7 +82,7 @@ class ApiProviderManager(BaseModel):
     def get_tool(self, tool_entity: ToolEntity) -> BaseTool:
         return StructuredTool.from_function(
             func=self._create_tool_func_from_tool_entity(tool_entity),
-            name=f"{tool_entity.id}_{tool_entity.name}",
+            name=f"{tool_entity.name}_{generate_random_string(6)}",
             description=tool_entity.description,
             args_schema=self._create_model_from_parameters(tool_entity.parameters),
         )
