@@ -41,7 +41,7 @@ class BOChaWebSearchTool(BaseTool):
         try:
             api_key = os.getenv("BOCHA_API_KEY")
             if not api_key:
-                return f"博查开放平台API为配置"
+                return f"博查开放平台API未配置"
 
             query = kwargs.get("query", "")
             freshness = kwargs.get("freshness", "noLimit")

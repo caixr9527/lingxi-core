@@ -1,0 +1,4 @@
+name: youdao_translate_suggest
+label: 有道词典英文推荐
+description: 这是一个查询对应英文单词字典的工具
+params: [ ]
