@@ -43,6 +43,5 @@ class AuthHandler:
 
     @login_required
     def logout(self):
-        # todo 未清除token退出登陆
         logout_user()
         return success_message("退出登陆成功")
