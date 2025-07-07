@@ -1,6 +1,6 @@
 name: youdao_translate
 label: 有道翻译
-description: 支持不同语言的翻译
+description: 有道翻译工具,可以支持不同语言的翻译,当需要对不同语言进行翻译时,可以使用该工具
 params:
   - name: url
     label: api地址
