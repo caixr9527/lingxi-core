@@ -26,11 +26,11 @@ import uuid
 from typing import Type, Any, Optional
 
 import mistune
-from langchain_core.pydantic_v1 import BaseModel, Field
 from langchain_core.tools import BaseTool
 from pptx import presentation, Presentation
 from pptx.dml.color import RGBColor
 from pptx.util import Pt, Length, Inches
+from pydantic import BaseModel, Field
 
 from internal.lib.helper import add_attribute
 
@@ -279,8 +279,8 @@ class MarkdownToPPTXArgsSchema(BaseModel):
 
 class MarkdownToPPTXTool(BaseTool):
     """markdown转本地pptx工具"""
-    name = "markdown_to_pptx"
-    description = "这是一个可以将markdown文本转换成PPT的工具，传递的参数是markdown对应的文本字符串，返回的数据是PPT的下载地址。"
+    name: str = "markdown_to_pptx"
+    description: str = "这是一个可以将markdown文本转换成PPT的工具，传递的参数是markdown对应的文本字符串，返回的数据是PPT的下载地址。"
     args_schema: Type[BaseModel] = MarkdownToPPTXArgsSchema
 
     def _run(self, *args: Any, **kwargs: Any) -> Any:

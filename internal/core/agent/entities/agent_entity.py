@@ -21,9 +21,9 @@
 from uuid import UUID
 
 from langchain_core.messages import AnyMessage
-from langchain_core.pydantic_v1 import BaseModel, Field
 from langchain_core.tools import BaseTool
 from langgraph.graph import MessagesState
+from pydantic import BaseModel, Field
 
 from internal.entity.app_entity import DEFAULT_APP_CONFIG
 from internal.entity.conversation_entity import InvokeFrom

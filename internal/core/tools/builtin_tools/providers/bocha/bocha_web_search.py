@@ -18,12 +18,11 @@
 @Author : caixiaorong01@outlook.com
 @File   : bocha_web_search.py
 """
-import os
 from typing import Any, Type
 
 import requests
-from langchain_core.pydantic_v1 import BaseModel, Field
 from langchain_core.tools import BaseTool
+from pydantic import BaseModel, Field
 
 from internal.lib.helper import add_attribute
 
@@ -33,35 +32,34 @@ class BOChaWebSearchArgsSchema(BaseModel):
 
 
 class BOChaWebSearchTool(BaseTool):
-    name = "bocha_web_search"
-    description = "当需要搜索互联网上的内容时，可以使用该工具"
+    name: str = "bocha_web_search"
+    description: str = "当需要搜索互联网上的内容时，可以使用该工具"
     args_schema: Type[BaseModel] = BOChaWebSearchArgsSchema
+    url: str
+    api_key: str
+    freshness: str | None = "noLimit"
+    summary: bool | None = True
+    count: int | None = 10
 
     def _run(self, *args: Any, **kwargs: Any) -> str:
         try:
-            api_key = os.getenv("BOCHA_API_KEY")
-            if not api_key:
-                return f"博查开放平台API为配置"
+            if not self.url or not self.api_key:
+                return f"接口地址/应用密钥未配置"
 
             query = kwargs.get("query", "")
-            freshness = kwargs.get("freshness", "noLimit")
-            summary = kwargs.get("summary", True)
-            count = kwargs.get("count", 10)
-            page = kwargs.get("page", 1)
-
-            url = 'https://api.bochaai.com/v1/web-search'
+            if query == "":
+                return "用户搜索内容为空"
             headers = {
-                'Authorization': f'Bearer {api_key}',
+                'Authorization': f'Bearer {self.api_key}',
                 'Content-Type': 'application/json'
             }
             data = {
                 "query": query,
-                "freshness": freshness,
-                "summary": summary,
-                "count": count,
-                page: page
+                "freshness": self.freshness,
+                "summary": self.summary,
+                "count": self.count,
             }
-            response = requests.post(url, headers=headers, json=data)
+            response = requests.post(self.url, headers=headers, json=data)
             formatted_results = ""
             if response.status_code == 200:
                 json_response = response.json()
@@ -93,4 +91,4 @@ class BOChaWebSearchTool(BaseTool):
 
 @add_attribute("args_schema", BOChaWebSearchArgsSchema)
 def bocha_web_search(**kwargs) -> BaseTool:
-    return BOChaWebSearchTool()
+    return BOChaWebSearchTool(**kwargs)

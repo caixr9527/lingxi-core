@@ -68,3 +68,10 @@
   background: "#FFFFFF"
   category: tool
   created_at: 1747548779
+- name: translate
+  label: 翻译工具
+  description: 翻译工具。
+  icon: icon.svg
+  background: "#FFFFFF"
+  category: tool
+  created_at: 1751098095

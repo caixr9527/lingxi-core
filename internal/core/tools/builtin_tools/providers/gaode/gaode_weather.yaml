@@ -1,4 +1,24 @@
 name: gaode_weather
 label: 高德天气预报查询
 description: 根据传递的城市查询该城市的天气预报信息
-params: [ ]
+params:
+  - name: url
+    label: 接口地址
+    type: string
+    default: https://restapi.amap.com/v3
+    required: true
+  - name: api_key
+    label: 应用密钥
+    type: password
+    default:
+    required: true
+  - name: extensions
+    label: 气象类型
+    type: select
+    default: all
+    required: false
+    options:
+      - value: base
+        label: 实况天气
+      - value: all
+        label: 预报天气

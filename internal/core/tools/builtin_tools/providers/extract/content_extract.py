@@ -23,9 +23,9 @@ from typing import Type, Any
 from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.pydantic_v1 import BaseModel, Field
 from langchain_core.tools import BaseTool
 from langchain_openai import ChatOpenAI
+from pydantic import BaseModel, Field
 
 from internal.lib.helper import add_attribute, get_file_extension, IMAGE_EXT, FILE_EXT
 
@@ -35,11 +35,11 @@ class ContentExtractArgsSchema(BaseModel):
 
 
 class ContentExtractTool(BaseTool):
-    name = "content_extract"
-    description = "当用户输入内容包含有文档/文件/图片链接且需要提取各类文档/文件/图片内容时，可以使用该工具"
+    name: str = "content_extract"
+    description: str = "当用户输入内容包含有文档/文件/图片链接且需要提取各类文档/文件/图片内容时，可以使用该工具"
     args_schema: Type[BaseModel] = ContentExtractArgsSchema
 
-    prompt_template = """
+    prompt_template: str = """
     你是一位专业的图片文本内容提取大师，能够准确、高效地从图片中提取完整的文本内容信息。
     可以根据用户提供的图片，精准提取图片所包含的信息，仅输出图片中的文本内容，不添加多余的描述与修饰，图片文本内容是什么就输出什么。
     如果图片中无文本文字信息，则如实告诉用户图片文本内容为空，不对图片进行过多的修饰。

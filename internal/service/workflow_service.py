@@ -495,7 +495,7 @@ class WorkflowService(BaseService):
                 node_data_dict[node_data.id] = node_data
             except Exception as e:
                 logging.exception(str(e))
-                continue
+                raise ValidateException(f"【{node.get("title", "")}】节点校验错误")
 
         # 循环校验edges中各个节点对应的数据
         edge_data_dict: dict[UUID, BaseEdgeData] = {}

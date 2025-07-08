@@ -18,7 +18,7 @@
 @Author : caixiaorong01@outlook.com
 @File   : condition_selector_entity.py
 """
-from langchain_core.pydantic_v1 import Field, validator, BaseModel
+from pydantic import Field, field_validator, BaseModel
 
 from internal.core.workflow.entities.node_entity import BaseNodeData
 from internal.core.workflow.entities.variable_entity import VariableEntity
@@ -44,7 +44,7 @@ class ConditionSelectNodeData(BaseNodeData):
     outputs: list[VariableEntity] = Field(default_factory=lambda: [])
     classes: list[ClassConfigGroup] = Field(default_factory=list)
 
-    @validator("outputs")
+    @field_validator("outputs")
     def validate_outputs(cls, value: list[VariableEntity]):
         """重写覆盖outputs的输出，让其变成一个只读变量"""
         return []

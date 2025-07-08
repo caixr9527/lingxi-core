@@ -34,7 +34,7 @@ from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import padding
 from langchain_core.documents import Document
-from langchain_core.pydantic_v1 import BaseModel
+from pydantic import BaseModel
 
 IMAGE_EXT = ["jpg", "jpeg", "png", "svg", "gif", "webp", "bmp", "ico"]
 FILE_EXT = ["xlsx", "xls", "pdf", "md", "markdown", "htm", "html", "csv", "ppt", "pptx", "xml",
@@ -81,7 +81,7 @@ def convert_model_to_dict(obj: Any, *args, **kwargs):
     """辅助函数，将Pydantic V1版本中的UUID/Enum等数据转换成可序列化存储的数据。"""
     # 1.如果是Pydantic的BaseModel类型，递归处理其字段
     if isinstance(obj, BaseModel):
-        obj_dict = obj.dict(*args, **kwargs)
+        obj_dict = obj.model_dump(*args, **kwargs)
         # 2.递归处理嵌套字段
         for key, value in obj_dict.items():
             obj_dict[key] = convert_model_to_dict(value, *args, **kwargs)

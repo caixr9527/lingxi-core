@@ -24,7 +24,7 @@ from typing import Any, Optional
 
 from langchain_core.language_models import BaseLanguageModel as LCBaseLanguageModel
 from langchain_core.messages import HumanMessage
-from langchain_core.pydantic_v1 import BaseModel, Field
+from pydantic import BaseModel, Field
 
 
 class DefaultModelParameterName(str, Enum):

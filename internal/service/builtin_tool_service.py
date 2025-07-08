@@ -25,7 +25,7 @@ from typing import Any
 
 from flask import current_app
 from injector import inject
-from langchain_core.pydantic_v1 import BaseModel
+from pydantic import BaseModel
 
 from internal.core.tools.builtin_tools.categories import BuiltinCategoryManager
 from internal.core.tools.builtin_tools.providers import BuiltinProviderManager
@@ -117,11 +117,11 @@ class BuiltinToolService:
         # 检测工具是否有args_schema属性，并且是BaseModel的子类
         if hasattr(tool, "args_schema") and issubclass(tool.args_schema, BaseModel):
 
-            for field_name, model_field in tool.args_schema.__fields__.items():
+            for field_name, model_field in tool.args_schema.model_fields.items():
                 inputs.append({
                     "name": field_name,
-                    "description": model_field.field_info.description or "",
-                    "required": model_field.required,
-                    "type": model_field.outer_type_.__name__,
+                    "description": model_field.description or "",
+                    "required": model_field.is_required(),
+                    "type": model_field.annotation.__name__,
                 })
         return inputs

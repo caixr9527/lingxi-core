@@ -24,9 +24,9 @@ from threading import Thread
 from typing import Optional, Any, Iterator
 
 from langchain_core.load import Serializable
-from langchain_core.pydantic_v1 import PrivateAttr
 from langchain_core.runnables import Runnable, RunnableConfig
 from langgraph.graph.state import CompiledStateGraph
+from pydantic import PrivateAttr
 
 from internal.core.agent.entities.agent_entity import AgentConfig, AgentState
 from internal.core.agent.entities.queue_entity import AgentResult, AgentThought, QueueEvent
@@ -36,6 +36,7 @@ from .agent_queue_manager import AgentQueueManager
 
 
 class BaseAgent(Serializable, Runnable):
+    name: Optional[str] = None
     llm: BaseLanguageModel
     agent_config: AgentConfig
     _agent: CompiledStateGraph = PrivateAttr(None)

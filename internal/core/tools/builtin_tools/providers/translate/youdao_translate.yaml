@@ -1,0 +1,488 @@
+name: youdao_translate
+label: 有道翻译
+description: 有道翻译工具,可以支持不同语言的翻译,当需要对不同语言进行翻译时,可以使用该工具
+params:
+  - name: url
+    label: api地址
+    type: string
+    default: https://openapi.youdao.com/api
+    required: true
+  - name: app_key
+    label: 应用ID
+    type: password
+    default:
+    required: true
+  - name: app_secret
+    label: 应用密钥
+    type: password
+    default:
+    required: true
+  - name: vocabId
+    label: 用户词表ID
+    type: string
+    default:
+    required: false
+  - name: translate_type
+    label: 翻译语言
+    type: select
+    default: auto
+    required: true
+    options:
+      - value: auto
+        label: 自动检测语言
+      - value: zh-CHS:ar
+        label: 中文 >> 阿拉伯语
+      - value: zh-CHS:de
+        label: 中文 >> 德语
+      - value: zh-CHS:en
+        label: 中文 >> 英语
+      - value: zh-CHS:es
+        label: 中文 >> 西班牙语
+      - value: zh-CHS:fr
+        label: 中文 >> 法语
+      - value: zh-CHS:hi
+        label: 中文 >> 印地语
+      - value: zh-CHS:id
+        label: 中文 >> 印度尼西亚语
+      - value: zh-CHS:it
+        label: 中文 >> 意大利语
+      - value: zh-CHS:ja
+        label: 中文 >> 日语
+      - value: zh-CHS:ko
+        label: 中文 >> 韩语
+      - value: zh-CHS:nl
+        label: 中文 >> 荷兰语
+      - value: zh-CHS:pt
+        label: 中文 >> 葡萄牙语
+      - value: zh-CHS:ru
+        label: 中文 >> 俄语
+      - value: zh-CHS:th
+        label: 中文 >> 泰语
+      - value: zh-CHS:vi
+        label: 中文 >> 越南语
+      - value: zh-CHS:zh-CHS
+        label: 中文 >> 简体中文
+      - value: zh-CHS:zh-CHT
+        label: 中文 >> 繁体中文
+      - value: zh-CHS:af
+        label: 中文 >> 南非荷兰语
+      - value: zh-CHS:am
+        label: 中文 >> 阿姆哈拉语
+      - value: zh-CHS:az
+        label: 中文 >> 阿塞拜疆语
+      - value: zh-CHS:be
+        label: 中文 >> 白俄罗斯语
+      - value: zh-CHS:bg
+        label: 中文 >> 保加利亚语
+      - value: zh-CHS:bn
+        label: 中文 >> 孟加拉语
+      - value: zh-CHS:bs
+        label: 中文 >> 波斯尼亚语
+      - value: zh-CHS:ca
+        label: 中文 >> 加泰隆语
+      - value: zh-CHS:ceb
+        label: 中文 >> 宿务语
+      - value: zh-CHS:co
+        label: 中文 >> 科西嘉语
+      - value: zh-CHS:cs
+        label: 中文 >> 捷克语
+      - value: zh-CHS:cy
+        label: 中文 >> 威尔士语
+      - value: zh-CHS:da
+        label: 中文 >> 丹麦语
+      - value: zh-CHS:el
+        label: 中文 >> 希腊语
+      - value: zh-CHS:eo
+        label: 中文 >> 世界语
+      - value: zh-CHS:et
+        label: 中文 >> 爱沙尼亚语
+      - value: zh-CHS:eu
+        label: 中文 >> 巴斯克语
+      - value: zh-CHS:fa
+        label: 中文 >> 波斯语
+      - value: zh-CHS:fi
+        label: 中文 >> 芬兰语
+      - value: zh-CHS:fj
+        label: 中文 >> 斐济语
+      - value: zh-CHS:fy
+        label: 中文 >> 弗里西语
+      - value: zh-CHS:ga
+        label: 中文 >> 爱尔兰语
+      - value: zh-CHS:gd
+        label: 中文 >> 苏格兰盖尔语
+      - value: zh-CHS:gl
+        label: 中文 >> 加利西亚语
+      - value: zh-CHS:gu
+        label: 中文 >> 古吉拉特语
+      - value: zh-CHS:ha
+        label: 中文 >> 豪萨语
+      - value: zh-CHS:haw
+        label: 中文 >> 夏威夷语
+      - value: zh-CHS:he
+        label: 中文 >> 希伯来语
+      - value: zh-CHS:hi
+        label: 中文 >> 印地语
+      - value: zh-CHS:hr
+        label: 中文 >> 克罗地亚语
+      - value: zh-CHS:ht
+        label: 中文 >> 海地克里奥尔语
+      - value: zh-CHS:hu
+        label: 中文 >> 匈牙利语
+      - value: zh-CHS:hy
+        label: 中文 >> 亚美尼亚语
+      - value: zh-CHS:ig
+        label: 中文 >> 伊博语
+      - value: zh-CHS:is
+        label: 中文 >> 冰岛语
+      - value: zh-CHS:jw
+        label: 中文 >> 爪哇语
+      - value: zh-CHS:ka
+        label: 中文 >> 格鲁吉亚语
+      - value: zh-CHS:kk
+        label: 中文 >> 哈萨克语
+      - value: zh-CHS:km
+        label: 中文 >> 高棉语
+      - value: zh-CHS:kn
+        label: 中文 >> 卡纳达语
+      - value: zh-CHS:ku
+        label: 中文 >> 库尔德语
+      - value: zh-CHS:ky
+        label: 中文 >> 柯尔克孜语
+      - value: zh-CHS:la
+        label: 中文 >> 拉丁语
+      - value: zh-CHS:lb
+        label: 中文 >> 卢森堡语
+      - value: zh-CHS:lo
+        label: 中文 >> 老挝语
+      - value: zh-CHS:lt
+        label: 中文 >> 立陶宛语
+      - value: zh-CHS:lv
+        label: 中文 >> 拉脱维亚语
+      - value: zh-CHS:mg
+        label: 中文 >> 马尔加什语
+      - value: zh-CHS:mi
+        label: 中文 >> 毛利语
+      - value: zh-CHS:mk
+        label: 中文 >> 马其顿语
+      - value: zh-CHS:ml
+        label: 中文 >> 马拉雅拉姆语
+      - value: zh-CHS:mn
+        label: 中文 >> 蒙古语
+      - value: zh-CHS:mr
+        label: 中文 >> 马拉地语
+      - value: zh-CHS:ms
+        label: 中文 >> 马来语
+      - value: zh-CHS:mt
+        label: 中文 >> 马耳他语
+      - value: zh-CHS:mww
+        label: 中文 >> 白苗语
+      - value: zh-CHS:my
+        label: 中文 >> 缅甸语
+      - value: zh-CHS:ne
+        label: 中文 >> 尼泊尔语
+      - value: zh-CHS:nl
+        label: 中文 >> 荷兰语
+      - value: zh-CHS:no
+        label: 中文 >> 挪威语
+      - value: zh-CHS:ny
+        label: 中文 >> 齐切瓦语
+      - value: zh-CHS:otq
+        label: 中文 >> 克雷塔罗奥托米语
+      - value: zh-CHS:pa
+        label: 中文 >> 旁遮普语
+      - value: zh-CHS:pl
+        label: 中文 >> 波兰语
+      - value: zh-CHS:ps
+        label: 中文 >> 普什图语
+      - value: zh-CHS:ro
+        label: 中文 >> 罗马尼亚语
+      - value: zh-CHS:sd
+        label: 中文 >> 信德语
+      - value: zh-CHS:si
+        label: 中文 >> 僧伽罗语
+      - value: zh-CHS:sk
+        label: 中文 >> 斯洛伐克语
+      - value: zh-CHS:sl
+        label: 中文 >> 斯洛文尼亚语
+      - value: zh-CHS:sm
+        label: 中文 >> 萨摩亚语
+      - value: zh-CHS:sn
+        label: 中文 >> 修纳语
+      - value: zh-CHS:so
+        label: 中文 >> 索马里语
+      - value: zh-CHS:sq
+        label: 中文 >> 阿尔巴尼亚语
+      - value: zh-CHS:sr-Cyrl
+        label: 中文 >> 塞尔维亚语(西里尔文)
+      - value: zh-CHS:sr-Latn
+        label: 中文 >> 塞尔维亚语(拉丁文)
+      - value: zh-CHS:st
+        label: 中文 >> 塞索托语
+      - value: zh-CHS:su
+        label: 中文 >> 巽他语
+      - value: zh-CHS:sv
+        label: 中文 >> 瑞典语
+      - value: zh-CHS:sw
+        label: 中文 >> 斯瓦希里语
+      - value: zh-CHS:ta
+        label: 中文 >> 泰米尔语
+      - value: zh-CHS:te
+        label: 中文 >> 泰卢固语
+      - value: zh-CHS:tg
+        label: 中文 >> 塔吉克语
+      - value: zh-CHS:tl
+        label: 中文 >> 菲律宾语
+      - value: zh-CHS:tlh
+        label: 中文 >> 克林贡语
+      - value: zh-CHS:to
+        label: 中文 >> 汤加语
+      - value: zh-CHS:tr
+        label: 中文 >> 土耳其语
+      - value: zh-CHS:ty
+        label: 中文 >> 塔希提语
+      - value: zh-CHS:uk
+        label: 中文 >> 乌克兰语
+      - value: zh-CHS:ur
+        label: 中文 >> 乌尔都语
+      - value: zh-CHS:uz
+        label: 中文 >> 乌兹别克语
+      - value: zh-CHS:xh
+        label: 中文 >> 南非科萨语
+      - value: zh-CHS:yi
+        label: 中文 >> 意第绪语
+      - value: zh-CHS:yo
+        label: 中文 >> 约鲁巴语
+      - value: zh-CHS:yua
+        label: 中文 >> 尤卡坦玛雅语
+      - value: zh-CHS:yue
+        label: 中文 >> 粤语
+      - value: zh-CHS:zu
+        label: 中文 >> 南非祖鲁语
+      - value: ar:zh-CHS
+        label: 阿拉伯语 >> 中文
+      - value: de:zh-CHS
+        label: 德语 >> 中文
+      - value: en:zh-CHS
+        label: 英语 >> 中文
+      - value: es:zh-CHS
+        label: 西班牙语 >> 中文
+      - value: fr:zh-CHS
+        label: 法语 >> 中文
+      - value: hi:zh-CHS
+        label: 印地语 >> 中文
+      - value: id:zh-CHS
+        label: 印度尼西亚语 >> 中文
+      - value: it:zh-CHS
+        label: 意大利语 >> 中文
+      - value: ja:zh-CHS
+        label: 日语 >> 中文
+      - value: ko:zh-CHS
+        label: 韩语 >> 中文
+      - value: nl:zh-CHS
+        label: 荷兰语 >> 中文
+      - value: pt:zh-CHS
+        label: 葡萄牙语 >> 中文
+      - value: ru:zh-CHS
+        label: 俄语 >> 中文
+      - value: th:zh-CHS
+        label: 泰语 >> 中文
+      - value: vi:zh-CHS
+        label: 越南语 >> 中文
+      - value: zh-CHS:zh-CHS
+        label: 简体中文 >> 中文
+      - value: zh-CHT:zh-CHS
+        label: 繁体中文 >> 中文
+      - value: af:zh-CHS
+        label: 南非荷兰语 >> 中文
+      - value: am:zh-CHS
+        label: 阿姆哈拉语 >> 中文
+      - value: az:zh-CHS
+        label: 阿塞拜疆语 >> 中文
+      - value: be:zh-CHS
+        label: 白俄罗斯语 >> 中文
+      - value: bg:zh-CHS
+        label: 保加利亚语 >> 中文
+      - value: bn:zh-CHS
+        label: 孟加拉语 >> 中文
+      - value: bs:zh-CHS
+        label: 波斯尼亚语 >> 中文
+      - value: ca:zh-CHS
+        label: 加泰隆语 >> 中文
+      - value: ceb:zh-CHS
+        label: 宿务语 >> 中文
+      - value: co:zh-CHS
+        label: 科西嘉语 >> 中文
+      - value: cs:zh-CHS
+        label: 捷克语 >> 中文
+      - value: cy:zh-CHS
+        label: 威尔士语 >> 中文
+      - value: da:zh-CHS
+        label: 丹麦语 >> 中文
+      - value: el:zh-CHS
+        label: 希腊语 >> 中文
+      - value: eo:zh-CHS
+        label: 世界语 >> 中文
+      - value: et:zh-CHS
+        label: 爱沙尼亚语 >> 中文
+      - value: eu:zh-CHS
+        label: 巴斯克语 >> 中文
+      - value: fa:zh-CHS
+        label: 波斯语 >> 中文
+      - value: fi:zh-CHS
+        label: 芬兰语 >> 中文
+      - value: fj:zh-CHS
+        label: 斐济语 >> 中文
+      - value: fy:zh-CHS
+        label: 弗里西语 >> 中文
+      - value: ga:zh-CHS
+        label: 爱尔兰语 >> 中文
+      - value: gd:zh-CHS
+        label: 苏格兰盖尔语 >> 中文
+      - value: gl:zh-CHS
+        label: 加利西亚语 >> 中文
+      - value: gu:zh-CHS
+        label: 古吉拉特语 >> 中文
+      - value: ha:zh-CHS
+        label: 豪萨语 >> 中文
+      - value: haw:zh-CHS
+        label: 夏威夷语 >> 中文
+      - value: he:zh-CHS
+        label: 希伯来语 >> 中文
+      - value: hi:zh-CHS
+        label: 印地语 >> 中文
+      - value: hr:zh-CHS
+        label: 克罗地亚语 >> 中文
+      - value: ht:zh-CHS
+        label: 海地克里奥尔语 >> 中文
+      - value: hu:zh-CHS
+        label: 匈牙利语 >> 中文
+      - value: hy:zh-CHS
+        label: 亚美尼亚语 >> 中文
+      - value: ig:zh-CHS
+        label: 伊博语 >> 中文
+      - value: is:zh-CHS
+        label: 冰岛语 >> 中文
+      - value: jw:zh-CHS
+        label: 爪哇语 >> 中文
+      - value: ka:zh-CHS
+        label: 格鲁吉亚语 >> 中文
+      - value: kk:zh-CHS
+        label: 哈萨克语 >> 中文
+      - value: km:zh-CHS
+        label: 高棉语 >> 中文
+      - value: kn:zh-CHS
+        label: 卡纳达语 >> 中文
+      - value: ku:zh-CHS
+        label: 库尔德语 >> 中文
+      - value: ky:zh-CHS
+        label: 柯尔克孜语 >> 中文
+      - value: la:zh-CHS
+        label: 拉丁语 >> 中文
+      - value: lb:zh-CHS
+        label: 卢森堡语 >> 中文
+      - value: lo:zh-CHS
+        label: 老挝语 >> 中文
+      - value: lt:zh-CHS
+        label: 立陶宛语 >> 中文
+      - value: lv:zh-CHS
+        label: 拉脱维亚语 >> 中文
+      - value: mg:zh-CHS
+        label: 马尔加什语 >> 中文
+      - value: mi:zh-CHS
+        label: 毛利语 >> 中文
+      - value: mk:zh-CHS
+        label: 马其顿语 >> 中文
+      - value: ml:zh-CHS
+        label: 马拉雅拉姆语 >> 中文
+      - value: mn:zh-CHS
+        label: 蒙古语 >> 中文
+      - value: mr:zh-CHS
+        label: 马拉地语 >> 中文
+      - value: ms:zh-CHS
+        label: 马来语 >> 中文
+      - value: mt:zh-CHS
+        label: 马耳他语 >> 中文
+      - value: mww:zh-CHS
+        label: 白苗语 >> 中文
+      - value: my:zh-CHS
+        label: 缅甸语 >> 中文
+      - value: ne:zh-CHS
+        label: 尼泊尔语 >> 中文
+      - value: nl:zh-CHS
+        label: 荷兰语 >> 中文
+      - value: no:zh-CHS
+        label: 挪威语 >> 中文
+      - value: ny:zh-CHS
+        label: 齐切瓦语 >> 中文
+      - value: otq:zh-CHS
+        label: 克雷塔罗奥托米语 >> 中文
+      - value: pa:zh-CHS
+        label: 旁遮普语 >> 中文
+      - value: pl:zh-CHS
+        label: 波兰语 >> 中文
+      - value: ps:zh-CHS
+        label: 普什图语 >> 中文
+      - value: ro:zh-CHS
+        label: 罗马尼亚语 >> 中文
+      - value: sd:zh-CHS
+        label: 信德语 >> 中文
+      - value: si:zh-CHS
+        label: 僧伽罗语 >> 中文
+      - value: sk:zh-CHS
+        label: 斯洛伐克语 >> 中文
+      - value: sl:zh-CHS
+        label: 斯洛文尼亚语 >> 中文
+      - value: sm:zh-CHS
+        label: 萨摩亚语 >> 中文
+      - value: sn:zh-CHS
+        label: 修纳语 >> 中文
+      - value: so:zh-CHS
+        label: 索马里语 >> 中文
+      - value: sq:zh-CHS
+        label: 阿尔巴尼亚语 >> 中文
+      - value: sr-Cyrl:zh-CHS
+        label: 塞尔维亚语(西里尔文) >> 中文
+      - value: sr-Latn:zh-CHS
+        label: 塞尔维亚语(拉丁文) >> 中文
+      - value: st:zh-CHS
+        label: 塞索托语 >> 中文
+      - value: su:zh-CHS
+        label: 巽他语 >> 中文
+      - value: sv:zh-CHS
+        label: 瑞典语 >> 中文
+      - value: sw:zh-CHS
+        label: 斯瓦希里语 >> 中文
+      - value: ta:zh-CHS
+        label: 泰米尔语 >> 中文
+      - value: te:zh-CHS
+        label: 泰卢固语 >> 中文
+      - value: tg:zh-CHS
+        label: 塔吉克语 >> 中文
+      - value: tl:zh-CHS
+        label: 菲律宾语 >> 中文
+      - value: tlh:zh-CHS
+        label: 克林贡语 >> 中文
+      - value: to:zh-CHS
+        label: 汤加语 >> 中文
+      - value: tr:zh-CHS
+        label: 土耳其语 >> 中文
+      - value: ty:zh-CHS
+        label: 塔希提语 >> 中文
+      - value: uk:zh-CHS
+        label: 乌克兰语 >> 中文
+      - value: ur:zh-CHS
+        label: 乌尔都语 >> 中文
+      - value: uz:zh-CHS
+        label: 乌兹别克语 >> 中文
+      - value: xh:zh-CHS
+        label: 南非科萨语 >> 中文
+      - value: yi:zh-CHS
+        label: 意第绪语 >> 中文
+      - value: yo:zh-CHS
+        label: 约鲁巴语 >> 中文
+      - value: yua:zh-CHS
+        label: 尤卡坦玛雅语 >> 中文
+      - value: yue:zh-CHS
+        label: 粤语 >> 中文
+      - value: zu:zh-CHS
+        label: 南非祖鲁语 >> 中文

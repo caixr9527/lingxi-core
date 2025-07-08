@@ -19,11 +19,11 @@
 @File   : language_model_manager.py.py
 """
 import os.path
-from typing import Any, Optional, Type
+from typing import Optional, Type
 
 import yaml
 from injector import inject, singleton
-from langchain_core.pydantic_v1 import BaseModel, Field, root_validator
+from pydantic import BaseModel, Field, model_validator
 
 from internal.exception import NotFoundException
 from .entities.model_entity import ModelType, BaseLanguageModel
@@ -36,8 +36,8 @@ class LanguageModelManager(BaseModel):
     """语言模型管理器"""
     provider_map: dict[str, Provider] = Field(default_factory=dict)  # 服务提供者映射
 
-    @root_validator(pre=False)
-    def validate_language_model_manager(cls, values: dict[str, Any]) -> dict[str, Any]:
+    @model_validator(mode="after")
+    def validate_language_model_manager(cls, values: BaseModel) -> BaseModel:
         """使用pydantic提供的预设规则校验提供者映射，完成语言模型管理器的初始化"""
         # 获取当前类所在的路径
         current_path = os.path.abspath(__file__)
@@ -49,11 +49,11 @@ class LanguageModelManager(BaseModel):
             providers_yaml_data = yaml.safe_load(f)
 
         # 循环读取服务提供者数据并配置模型信息
-        values["provider_map"] = {}
+        values.provider_map = {}
         for index, provider_yaml_data in enumerate(providers_yaml_data):
             # 获取提供者实体数据结构，并构建服务提供者实体
             provider_entity = ProviderEntity(**provider_yaml_data)
-            values["provider_map"][provider_entity.name] = Provider(
+            values.provider_map[provider_entity.name] = Provider(
                 name=provider_entity.name,
                 position=index + 1,
                 provider_entity=provider_entity,

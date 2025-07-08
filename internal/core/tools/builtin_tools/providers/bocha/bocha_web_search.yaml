@@ -1,4 +1,42 @@
 name: bocha_web_search
 label: 博查WEB搜索
 description: 当需要搜索互联网上的内容时，可以使用该工具。
-params: [ ]
+params:
+  - name: url
+    label: 接口地址
+    type: string
+    default: "https://api.bochaai.com/v1/web-search"
+    required: true
+  - name: api_key
+    label: 应用密钥
+    type: password
+    default:
+    required: true
+  - name: freshness
+    label: 搜索指定时间范围内的网页
+    type: select
+    default: noLimit
+    required: false
+    options:
+      - value: noLimit
+        label: 不限
+      - value: oneDay
+        label: 一天内
+      - value: oneWeek
+        label: 一周内
+      - value: oneMonth
+        label: 一个月内
+      - value: oneYear
+        label: 一年内
+  - name: summary
+    label: 是否显示文本摘要
+    type: boolean
+    default: true
+    required: false
+  - name: count
+    label: 返回结果的条数
+    type: number
+    min: 1
+    max: 50
+    default: 10
+    required: false
