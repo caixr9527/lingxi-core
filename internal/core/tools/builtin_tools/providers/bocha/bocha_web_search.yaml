@@ -9,13 +9,13 @@ params:
     required: true
   - name: api_key
     label: 应用密钥
-    type: string
+    type: password
     default:
     required: true
   - name: freshness
     label: 搜索指定时间范围内的网页
     type: select
-    default: "noLimit"
+    default: noLimit
     required: false
     options:
       - value: noLimit

@@ -9,12 +9,12 @@ params:
     required: true
   - name: app_key
     label: 应用ID
-    type: string
+    type: password
     default:
     required: true
   - name: app_secret
     label: 应用密钥
-    type: string
+    type: password
     default:
     required: true
   - name: vocabId

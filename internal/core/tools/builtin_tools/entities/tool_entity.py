@@ -29,6 +29,7 @@ class ToolParamType(str, Enum):
     NUMBER = "number"
     BOOLEAN = "boolean"
     SELECT = "select"
+    PASSWORD = "password"
 
 
 class ToolParam(BaseModel):

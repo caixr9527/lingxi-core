@@ -9,7 +9,7 @@ params:
     required: true
   - name: api_key
     label: 应用密钥
-    type: string
+    type: password
     default:
     required: true
   - name: extensions
