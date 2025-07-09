@@ -26,9 +26,9 @@ class YouDaoTranslateTool(BaseTool):
     description: str = "根据输入的文字翻译成对应的语言"
     args_schema: Type[BaseModel] = YouDaoTranslateArgsSchema
     translate_type: str
-    url: str
-    app_key: str
-    app_secret: str
+    url: str | None
+    app_key: str | None
+    app_secret: str | None
     vocabId: str | None
 
     def _run(self, *args: Any, **kwargs: Any) -> Any:
