@@ -22,7 +22,7 @@ class YouDaoSuggestTool(BaseTool):
     name: str = "youdao_suggest"
     description: str = "根据传递的单词查询其字典信息"
     args_schema: Type[BaseModel] = YouDaoSuggestArgsSchema
-    url: str
+    url: str | None
 
     def _run(self, *args: Any, **kwargs: Any) -> Any:
         try:
@@ -32,7 +32,7 @@ class YouDaoSuggestTool(BaseTool):
             headers = {
                 'Content-Type': 'application/json'
             }
-            if self.url.strip() == "":
+            if not self.url or self.url.strip() == "":
                 return "接口地址配置错误"
             query = f"{self.url}?q={q}&doctype=json"
             response = requests.get(query, headers=headers)

@@ -35,8 +35,8 @@ class BOChaWebSearchTool(BaseTool):
     name: str = "bocha_web_search"
     description: str = "当需要搜索互联网上的内容时，可以使用该工具"
     args_schema: Type[BaseModel] = BOChaWebSearchArgsSchema
-    url: str
-    api_key: str
+    url: str | None
+    api_key: str | None
     freshness: str | None = "noLimit"
     summary: bool | None = True
     count: int | None = 10

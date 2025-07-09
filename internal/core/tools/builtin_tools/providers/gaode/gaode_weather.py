@@ -37,8 +37,8 @@ class GaodeWeatherTool(BaseTool):
     name: str = "gaode_weather"
     description: str = "当你想查询天气或者与天气相关的问题时可以使用的工具"
     args_schema: Type[BaseModel] = GaodeWeatherArgsSchema
-    api_key: str
-    url: str
+    api_key: str | None
+    url: str | None
     extensions: str | None = "all"
 
     def _run(self, *args: Any, **kwargs: Any) -> str:
