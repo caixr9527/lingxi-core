@@ -61,6 +61,7 @@ class App(db.Model):
     description = Column(Text, nullable=False, server_default=text("''::text"))  # 应用描述
     token = Column(String(255), nullable=True, server_default=text("''::character varying"))  # 应用凭证信息
     status = Column(String(255), nullable=False, server_default=text("''::character varying"))  # 应用状态
+    mode = Column(Integer, nullable=False, server_default=text("0"))  # 模式 0:单agent模式 1:supervisor模式
     updated_at = Column(
         DateTime,
         nullable=False,
