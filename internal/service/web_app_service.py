@@ -23,27 +23,22 @@ from dataclasses import dataclass
 from typing import Generator, Any
 from uuid import UUID
 
-from flask import current_app
 from injector import inject
 from sqlalchemy import desc
 
-from internal.core.agent.agents import FunctionCallAgent, ReACTAgent, AgentQueueManager
-from internal.core.agent.entities.agent_entity import AgentConfig
+from internal.core.agent.agents import AgentQueueManager
 from internal.core.agent.entities.queue_entity import QueueEvent
-from internal.core.language_model.entities.model_entity import ModelFeature
-from internal.core.memory import TokenBufferMemory
 from internal.entity.app_entity import AppStatus
 from internal.entity.conversation_entity import InvokeFrom, MessageStatus
-from internal.entity.dataset_entity import RetrievalSource
 from internal.exception import NotFoundException, ForbiddenException
 from internal.model import App, Account, Conversation, Message
 from internal.schema.web_app_schema import WebAppChatReq
 from pkg.sqlalchemy import SQLAlchemy
+from .agent_service import AgentService
 from .app_config_service import AppConfigService
 from .base_service import BaseService
 from .conversation_service import ConversationService
 from .language_model_service import LanguageModelService
-from .retrieval_service import RetrievalService
 
 
 @inject
@@ -52,9 +47,9 @@ class WebAppService(BaseService):
     """WebApp服务"""
     db: SQLAlchemy
     app_config_service: AppConfigService
-    retrieval_service: RetrievalService
     conversation_service: ConversationService
     language_model_service: LanguageModelService
+    agent_service: AgentService
 
     def get_web_app(self, token: str) -> App:
         """根据传递的token获取WebApp实例"""
@@ -134,55 +129,7 @@ class WebAppService(BaseService):
             status=MessageStatus.NORMAL,
         )
 
-        # 从语言模型管理器中加载大语言模型
-        llm = self.language_model_service.load_language_model(app_config.get("model_config", {}))
-
-        # 实例化TokenBufferMemory用于提取短期记忆
-        token_buffer_memory = TokenBufferMemory(
-            db=self.db,
-            conversation=conversation,
-            model_instance=llm,
-        )
-        history = token_buffer_memory.get_history_prompt_message(
-            message_limit=app_config["dialog_round"],
-            multimodal=app_config["multimodal"]["enable"],
-        )
-
-        # 将草稿配置中的tools转换成LangChain工具
-        tools = self.app_config_service.get_langchain_tools_by_tools_config(app_config["tools"])
-
-        # 检测是否关联了知识库
-        if app_config["datasets"]:
-            # 构建LangChain知识库检索工具
-            dataset_retrieval = self.retrieval_service.create_langchain_tool_from_search(
-                flask_app=current_app._get_current_object(),
-                dataset_ids=[dataset["id"] for dataset in app_config["datasets"]],
-                account_id=account.id,
-                retrival_source=RetrievalSource.APP,
-                **app_config["retrieval_config"],
-            )
-            tools.append(dataset_retrieval)
-
-        # 检测是否关联工作流，如果关联了工作流则将工作流构建成工具添加到tools中
-        if app_config["workflows"]:
-            workflow_tools = self.app_config_service.get_langchain_tools_by_workflow_ids(
-                [workflow["id"] for workflow in app_config["workflows"]]
-            )
-            tools.extend(workflow_tools)
-
-        # 根据LLM是否支持tool_call决定使用不同的Agent
-        agent_class = FunctionCallAgent if ModelFeature.TOOL_CALL in llm.features else ReACTAgent
-        agent = agent_class(
-            llm=llm,
-            agent_config=AgentConfig(
-                user_id=account.id,
-                invoke_from=InvokeFrom.WEB_APP,
-                preset_prompt=app_config["preset_prompt"],
-                enable_long_term_memory=app_config["long_term_memory"]["enable"],
-                tools=tools,
-                review_config=app_config["review_config"],
-            ),
-        )
+        agent, history, llm = self.agent_service.create_agent(app_config, app)
 
         # 定义字典存储推理过程，并调用智能体获取消息
         agent_thoughts = {}

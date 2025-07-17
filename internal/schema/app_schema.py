@@ -67,6 +67,8 @@ class UpdateAppReq(FlaskForm):
 class GetAppsWithPageReq(PaginatorReq):
     """获取应用分页列表数据请求"""
     search_word = StringField("search_word", default="", validators=[Optional()])
+    status = StringField("status", default="", validators=[Optional()])
+    mode = IntegerField("mode", default=-1, validators=[Optional()])
 
 
 class GetAppsWithPageResp(Schema):

@@ -192,6 +192,7 @@ class AppConfig(db.Model):
     dialog_round = Column(Integer, nullable=False, server_default=text("0"))  # 鞋带上下文轮数
     preset_prompt = Column(Text, nullable=False, server_default=text("''::text"))  # 预设prompt
     tools = Column(JSONB, nullable=False, server_default=text("'[]'::jsonb"))  # 应用关联工具列表
+    agents = Column(JSONB, nullable=False, server_default=text("'[]'::jsonb"))  # 应用关联的agent列表
     workflows = Column(JSONB, nullable=False, server_default=text("'[]'::jsonb"))  # 应用关联的工作流列表
     retrieval_config = Column(JSONB, nullable=False, server_default=text("'[]'::jsonb"))  # 检索配置
     long_term_memory = Column(JSONB, nullable=False, server_default=text("'{}'::jsonb"))  # 长期记忆配置
@@ -238,6 +239,7 @@ class AppConfigVersion(db.Model):
     dialog_round = Column(Integer, nullable=False, server_default=text("0"))  # 鞋带上下文轮数
     preset_prompt = Column(Text, nullable=False, server_default=text("''::text"))  # 人设与回复逻辑
     tools = Column(JSONB, nullable=False, server_default=text("'[]'::jsonb"))  # 应用关联的工具列表
+    agents = Column(JSONB, nullable=False, server_default=text("'[]'::jsonb"))  # 应用关联的agent列表
     workflows = Column(JSONB, nullable=False, server_default=text("'[]'::jsonb"))  # 应用关联的工作流列表
     datasets = Column(JSONB, nullable=False, server_default=text("'[]'::jsonb"))  # 应用关联的知识库列表
     retrieval_config = Column(JSONB, nullable=False, server_default=text("'{}'::jsonb"))  # 检索配置
