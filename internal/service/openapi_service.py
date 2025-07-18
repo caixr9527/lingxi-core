@@ -103,7 +103,7 @@ class OpenAPIService(BaseService):
             "status": MessageStatus.NORMAL,
         })
 
-        agent, history, llm = self.agent_service.create_agent(app_config, app)
+        agent, history, llm = self.agent_service.create_agent(app_config, app, InvokeFrom.SERVICE_API)
 
         # 定义智能体状态基础数据
         agent_state = {

@@ -503,7 +503,7 @@ class AppService(BaseService):
             image_urls=req.image_urls.data,
             status=MessageStatus.NORMAL
         )
-        agent, history, llm = self.agent_service.create_agent(draft_app_config, app)
+        agent, history, llm = self.agent_service.create_agent(draft_app_config, app, InvokeFrom.DEBUGGER)
 
         agent_thoughts = {}
         for agent_thought in agent.stream({

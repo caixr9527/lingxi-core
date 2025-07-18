@@ -41,6 +41,8 @@ class BaseAgent(Serializable, Runnable):
     agent_config: AgentConfig
     _agent: CompiledStateGraph = PrivateAttr(None)
     _agent_queue_manager: AgentQueueManager = PrivateAttr(None)
+    _supervisor_agent: Optional[Any] = PrivateAttr(None)
+    _collaborative_agent: dict[str, Any] = PrivateAttr(None)
 
     class Config:
         arbitrary_types_allowed = True
@@ -51,6 +53,8 @@ class BaseAgent(Serializable, Runnable):
                  *args,
                  **kwargs):
         super().__init__(*args, llm=llm, agent_config=agent_config, **kwargs)
+        self._supervisor_agent = kwargs.get("supervisor_agent")
+        self._collaborative_agent = kwargs.get("collaborative_agent")
         self._agent = self._build_agent()
         self._agent_queue_manager = AgentQueueManager(
             user_id=agent_config.user_id,
@@ -141,3 +145,11 @@ class BaseAgent(Serializable, Runnable):
     @property
     def agent_queue_manager(self) -> AgentQueueManager:
         return self._agent_queue_manager
+
+    @property
+    def supervisor_agent(self) -> Any:
+        return self._supervisor_agent
+
+    @property
+    def collaborative_agent(self) -> dict[str, Any]:
+        return self._collaborative_agent
