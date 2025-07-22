@@ -28,7 +28,9 @@ from .function_call_agent import FunctionCallAgent
 
 class SupervisorAgent(FunctionCallAgent):
 
-    def _build_agent(self) -> CompiledStateGraph:
+    def _build_agent(self) -> CompiledStateGraph | None:
+        if not self.supervisor_agent or not self.collaborative_agent:
+            return None
         graph = StateGraph(AgentState)
         graph.add_node(self.supervisor_agent, destinations=tuple(self.collaborative_agent.keys()) + (END,))
 
