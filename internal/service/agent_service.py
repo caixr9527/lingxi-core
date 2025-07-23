@@ -110,36 +110,36 @@ class AgentService:
 
         if app.mode == AppMode.MULTI and len(config["agents"]) > 0:
             app_ids = [agent["id"] for agent in config["agents"]]
+            collaborative_agent = self.get_collaborative_agent(app_ids)
             agent = SupervisorAgent(llm=llm,
                                     agent_config=agent_config,
-                                    supervisor_agent=agent,
-                                    collaborative_agent=self.get_collaborative_agent(app_ids, invoke_from),
+                                    collaborative_agent=collaborative_agent,
                                     name=agent.name
                                     )
 
         return agent, history, llm
 
-    def get_collaborative_agent(self, app_ids: list[str],
-                                invoke_from: InvokeFrom) -> dict[str, Any]:
+    def get_collaborative_agent(self, app_ids: list[str]) -> dict[str, Any]:
         apps = self.db.session.query(App).filter(
             App.id.in_(app_ids),
             App.status == AppStatus.PUBLISHED
         ).all()
         agent_dict: {str: BaseAgent} = {}
         for app in apps:
-            if invoke_from == InvokeFrom.DEBUGGER:
-                config = app.draft_app_config.__dict__
-            else:
-                config = app.app_config.__dict__
+            config = self.app_config_service.get_app_config(app)
             llm = self.language_model_service.load_language_model(config.get("model_config", {}))
             tools = self.getTools(config, app)
+            # agent = create_react_agent(model=llm,
+            #                            tools=tools,
+            #                            prompt=config.get("preset_prompt"),
+            #                            name=app.name)
             agent_class = FunctionCallAgent if ModelFeature.TOOL_CALL in llm.features else ReACTAgent
             agent = agent_class(
                 name=app.name,
                 llm=llm,
                 agent_config=AgentConfig(
                     user_id=app.account_id,
-                    invoke_from=invoke_from,
+                    invoke_from=InvokeFrom.DEBUGGER,
                     preset_prompt=config["preset_prompt"],
                     enable_long_term_memory=False,
                     tools=tools,
