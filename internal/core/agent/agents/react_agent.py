@@ -97,6 +97,10 @@ class ReACTAgent(FunctionCallAgent):
         # 处理预设消息，将预设消息添加到用户消息前，先去删除用户的原始消息，然后补充一个新的代替
         return {
             "messages": [RemoveMessage(id=human_message.id), *preset_messages],
+            "task_id": state["task_id"],
+            "history": state["history"],
+            "long_term_memory": state["long_term_memory"],
+            "iteration_count": state["iteration_count"]
         }
 
     def _llm_node(self, state: AgentState) -> AgentState:
@@ -125,7 +129,12 @@ class ReACTAgent(FunctionCallAgent):
                     task_id=state["task_id"],
                     event=QueueEvent.AGENT_END,
                 ))
-            return {"messages": [AIMessage(MAX_ITERATION_RESPONSE)]}
+            return {"messages": [AIMessage(MAX_ITERATION_RESPONSE)],
+                    "task_id": state["task_id"],
+                    "history": state["history"],
+                    "long_term_memory": state["long_term_memory"],
+                    "iteration_count": state["iteration_count"]
+                    }
 
         # 从智能体配置中提取大语言模型
         id = uuid.uuid4()
@@ -235,7 +244,10 @@ class ReACTAgent(FunctionCallAgent):
                 ))
                 return {
                     "messages": [AIMessage(content="", tool_calls=tool_calls)],
-                    "iteration_count": state["iteration_count"] + 1
+                    "iteration_count": state["iteration_count"] + 1,
+                    "task_id": state["task_id"],
+                    "history": state["history"],
+                    "long_term_memory": state["long_term_memory"],
                 }
             except Exception as _:
                 generation_type = "message"
@@ -274,7 +286,12 @@ class ReACTAgent(FunctionCallAgent):
                 event=QueueEvent.AGENT_END,
             ))
 
-        return {"messages": [gathered], "iteration_count": state["iteration_count"] + 1}
+        return {"messages": [gathered],
+                "iteration_count": state["iteration_count"] + 1,
+                "task_id": state["task_id"],
+                "history": state["history"],
+                "long_term_memory": state["long_term_memory"],
+                }
 
     def _tools_node(self, state: AgentState) -> AgentState:
         """重写工具节点，处理工具节点的`AI工具调用参数消息`与`工具消息转人类消息`"""
@@ -299,4 +316,9 @@ class ReACTAgent(FunctionCallAgent):
             content += f"工具: {tool_message.name}\n执行结果: {tool_message.content}\n==========\n\n"
         human_message = HumanMessage(content=content)
 
-        return {"messages": [remove_tool_call_message, ai_message, human_message]}
+        return {"messages": [remove_tool_call_message, ai_message, human_message],
+                "task_id": state["task_id"],
+                "history": state["history"],
+                "long_term_memory": state["long_term_memory"],
+                "iteration_count": state["iteration_count"]
+                }
