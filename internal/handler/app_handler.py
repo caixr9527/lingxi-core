@@ -259,7 +259,7 @@ class AppHandler:
         from langgraph.prebuilt import InjectedState
         from langgraph.types import Command
         from langgraph.graph import StateGraph, START, MessagesState
-
+        from internal.core.agent.entities.agent_entity import AgentState
         def create_handoff_tool(*, agent_name: str, description: str | None = None):
             name = f"transfer_to_{agent_name}"
             description = description or f"Ask {agent_name} for help."
@@ -270,6 +270,10 @@ class AppHandler:
                     tool_call_id: Annotated[str, InjectedToolCallId],
             ) -> Command:
                 tool_message = {
+                    # "task_id": state["task_id"],
+                    # "iteration_count": state["iteration_count"],
+                    # "history": state["history"],
+                    # "long_term_memory": state["long_term_memory"],
                     "role": "tool",
                     "content": f"Successfully transferred to {agent_name}",
                     "name": name,
@@ -309,7 +313,7 @@ class AppHandler:
 
         # Define the multi-agent supervisor graph
         supervisor = (
-            StateGraph(MessagesState)
+            StateGraph(AgentState)
             # NOTE: `destinations` is only needed for visualization and doesn't affect runtime behavior
             .add_node(supervisor_agent, destinations=("research_agent", "math_agent", END))
             .add_node(research_agent)
@@ -338,6 +342,10 @@ class AppHandler:
                     "role": "user",
                     "content": "查找下苹果和香蕉的数量，并计算总数是多少？",
                 }
-            ]
+            ],
+            "task_id": uuid.uuid4(),
+            "iteration_count": 0,
+            "history": [],
+            "long_term_memory": "",
         })
         return success_json(message.get("messages")[-1].content)

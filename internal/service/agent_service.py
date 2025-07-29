@@ -26,7 +26,12 @@ from injector import inject
 from langchain_core.messages import AnyMessage
 from langchain_core.tools import BaseTool
 
-from internal.core.agent.agents import BaseAgent, FunctionCallAgent, ReACTAgent, SupervisorAgent
+from internal.core.agent.agents import (
+    BaseAgent,
+    FunctionCallAgent,
+    ReACTAgent,
+    MultiAgent, HandoffTool
+)
 from internal.core.agent.entities.agent_entity import AgentConfig
 from internal.core.language_model.entities.model_entity import BaseLanguageModel
 from internal.core.language_model.entities.model_entity import ModelFeature
@@ -34,6 +39,7 @@ from internal.core.memory import TokenBufferMemory
 from internal.entity.app_entity import AppStatus, AppMode
 from internal.entity.conversation_entity import InvokeFrom
 from internal.entity.dataset_entity import RetrievalSource
+from internal.lib.helper import generate_random_string
 from internal.model import AppConfig, AppConfigVersion, App
 from internal.service.app_config_service import AppConfigService
 from pkg.sqlalchemy import SQLAlchemy
@@ -49,7 +55,8 @@ class AgentService:
     app_config_service: AppConfigService
     retrieval_service: RetrievalService
 
-    def getTools(self, config: AppConfig | AppConfigVersion | dict[str, Any], app: App) -> list[BaseTool]:
+    def getTools(self, config: AppConfig | AppConfigVersion | dict[str, Any], app: App, invoke_from: InvokeFrom) -> \
+            list[BaseTool]:
         tools = self.app_config_service.get_langchain_tools_by_tools_config(config["tools"])
 
         # 检测是否关联了知识库
@@ -90,7 +97,7 @@ class AgentService:
         )
 
         # 将草稿配置中的tools转换成LangChain工具
-        tools = self.getTools(config, app)
+        tools = self.getTools(config, app, invoke_from)
 
         # 根据LLM是否支持tool_call决定使用不同的Agent
         agent_class = FunctionCallAgent if ModelFeature.TOOL_CALL in llm.features else ReACTAgent
@@ -110,16 +117,18 @@ class AgentService:
 
         if app.mode == AppMode.MULTI and len(config["agents"]) > 0:
             app_ids = [agent["id"] for agent in config["agents"]]
-            collaborative_agent = self.get_collaborative_agent(app_ids)
-            agent = SupervisorAgent(llm=llm,
-                                    agent_config=agent_config,
-                                    collaborative_agent=collaborative_agent,
-                                    name=agent.name
-                                    )
+            collaborative_agent = self.get_collaborative_agent(app_ids, invoke_from)
+            for name in collaborative_agent.keys():
+                agent_config.tools.append(HandoffTool(agent=collaborative_agent.get(name)))
+            agent = MultiAgent(llm=llm,
+                               agent_config=agent_config,
+                               collaborative_agent=collaborative_agent,
+                               name=agent.name
+                               )
 
         return agent, history, llm
 
-    def get_collaborative_agent(self, app_ids: list[str]) -> dict[str, Any]:
+    def get_collaborative_agent(self, app_ids: list[str], invoke_from: InvokeFrom) -> dict[str, Any]:
         apps = self.db.session.query(App).filter(
             App.id.in_(app_ids),
             App.status == AppStatus.PUBLISHED
@@ -128,24 +137,20 @@ class AgentService:
         for app in apps:
             config = self.app_config_service.get_app_config(app)
             llm = self.language_model_service.load_language_model(config.get("model_config", {}))
-            tools = self.getTools(config, app)
-            # agent = create_react_agent(model=llm,
-            #                            tools=tools,
-            #                            prompt=config.get("preset_prompt"),
-            #                            name=app.name)
+            tools = self.getTools(config, app, invoke_from)
             agent_class = FunctionCallAgent if ModelFeature.TOOL_CALL in llm.features else ReACTAgent
             agent = agent_class(
-                name=app.name,
+                name=f"transfer_to_{generate_random_string(6)}",
                 llm=llm,
+                description=app.description,
                 agent_config=AgentConfig(
                     user_id=app.account_id,
-                    invoke_from=InvokeFrom.DEBUGGER,
+                    invoke_from=invoke_from,
                     preset_prompt=config["preset_prompt"],
                     enable_long_term_memory=False,
                     tools=tools,
                     review_config=config["review_config"]
                 )
             )
-            agent_dict[app.name] = agent
-
+            agent_dict[agent.name] = agent
         return agent_dict
