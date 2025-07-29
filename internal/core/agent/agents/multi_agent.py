@@ -96,7 +96,7 @@ class MultiAgent(FunctionCallAgent):
                 id=id,
                 task_id=state["task_id"],
                 event=QueueEvent.AGENT_ACTION,
-                observation=json.dumps(answer),
+                observation=json.dumps(answer, ensure_ascii=False),
                 tool=tool_call["name"],
                 tool_input=tool_call["args"],
                 latency=(time.perf_counter() - start_at),

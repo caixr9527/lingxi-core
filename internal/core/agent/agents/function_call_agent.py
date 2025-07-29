@@ -252,7 +252,7 @@ class FunctionCallAgent(BaseAgent):
                 id=id,
                 task_id=state["task_id"],
                 event=QueueEvent.AGENT_THOUGHT,
-                thought=json.dumps(gathered.tool_calls),
+                thought=json.dumps(gathered.tool_calls, ensure_ascii=False),
                 message=messages_to_dict(state["messages"]),
                 message_token_count=input_token_count,
                 message_unit_price=input_price,
@@ -322,7 +322,7 @@ class FunctionCallAgent(BaseAgent):
             # 将工具消息添加到消息列表中
             messages.append(ToolMessage(
                 tool_call_id=tool_call["id"],
-                content=json.dumps(tool_result),
+                content=json.dumps(tool_result, ensure_ascii=False),
                 name=tool_call["name"],
             ))
 
@@ -336,7 +336,7 @@ class FunctionCallAgent(BaseAgent):
                 id=id,
                 task_id=state["task_id"],
                 event=event,
-                observation=json.dumps(tool_result),
+                observation=json.dumps(tool_result, ensure_ascii=False),
                 tool=tool_call["name"],
                 tool_input=tool_call["args"],
                 latency=(time.perf_counter() - start_at),

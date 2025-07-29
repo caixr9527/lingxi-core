@@ -229,7 +229,7 @@ class ReACTAgent(FunctionCallAgent):
                     id=id,
                     task_id=state["task_id"],
                     event=QueueEvent.AGENT_THOUGHT,
-                    thought=json.dumps(gathered.content),
+                    thought=json.dumps(gathered.content, ensure_ascii=False),
                     message=messages_to_dict(state["messages"]),
                     message_token_count=input_token_count,
                     message_unit_price=input_price,
@@ -307,7 +307,7 @@ class ReACTAgent(FunctionCallAgent):
             "name": tool_call_message.tool_calls[0].get("name", ""),
             "args": tool_call_message.tool_calls[0].get("args", {}),
         }]
-        ai_message = AIMessage(content=f"```json\n{json.dumps(tool_call_json)}\n```")
+        ai_message = AIMessage(content=f"```json\n{json.dumps(tool_call_json, ensure_ascii=False)}\n```")
 
         # 将ToolMessage转换成HumanMessage，提升LLM的兼容性
         tool_messages = super_agent_state["messages"]
