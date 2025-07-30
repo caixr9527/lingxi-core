@@ -326,6 +326,7 @@ class AppService(BaseService):
             suggested_after_answer=draft_app_config["suggested_after_answer"],
             review_config=draft_app_config["review_config"],
             multimodal=draft_app_config["multimodal"],
+            agents=[app["id"] for app in draft_app_config["agents"]]
         )
 
         # 更新应用关联的运行时配置以及状态

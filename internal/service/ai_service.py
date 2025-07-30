@@ -28,9 +28,9 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
 
-from internal.entity.ai_entity import OPTIMIZE_PROMPT_TEMPLATE
+from internal.entity.ai_entity import OPTIMIZE_PROMPT_TEMPLATE, SUPERVISOR_DEFAULT_PROMPT_TEMPLATE
 from internal.exception import ForbiddenException
-from internal.model import Account, Message
+from internal.model import Account, Message, App, AppConfigVersion
 from pkg.sqlalchemy import SQLAlchemy
 from .base_service import BaseService
 from .conversation_service import ConversationService
@@ -41,6 +41,27 @@ from .conversation_service import ConversationService
 class AIService(BaseService):
     db: SQLAlchemy
     conversation_service: ConversationService
+
+    def auto_generate_prompt(self, app_id: UUID) -> str:
+        app: App = self.get(App, app_id)
+        config: AppConfigVersion = app.draft_app_config
+
+        work_agents = []
+        if config.agents:
+            for id in config.agents:
+                agent: App = self.get(App, id)
+                work_agents.append(f"- {agent.name}: {agent.description}")
+
+        prompt = SUPERVISOR_DEFAULT_PROMPT_TEMPLATE.format(agents="\n".join(work_agents))
+        prompt_template = ChatPromptTemplate.from_messages([
+            ("system", OPTIMIZE_PROMPT_TEMPLATE),
+            ("human", "{prompt}")
+        ])
+
+        llm = ChatOpenAI(model="o4-mini", temperature=0.5)
+        optimize_chain = prompt_template | llm | StrOutputParser()
+        return optimize_chain.invoke({"prompt": prompt})
+        # return prompt
 
     def generate_suggested_questions_from_message_id(self, message_id: UUID, account: Account) -> list[str]:
         message = self.get(Message, message_id)

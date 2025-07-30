@@ -37,3 +37,9 @@ class OptimizePromptReq(FlaskForm):
         DataRequired("预设prompt不能为空"),
         Length(max=2000, message="预设prompt的长度不能超过2000个字符")
     ])
+
+
+class AutoGeneratePromptReq(FlaskForm):
+    app_id = StringField("app_id", validators=[
+        DataRequired("应用id不能为空")
+    ])
