@@ -18,11 +18,13 @@
 @Author : caixiaorong01@outlook.com
 @File   : handoff_tool.py
 """
+import uuid
 from typing import Any
 
 from langchain_core.tools import BaseTool
-from pydantic import BaseModel, Field, PrivateAttr
+from pydantic import BaseModel, PrivateAttr, Field
 
+from internal.core.agent.entities.agent_entity import AgentState
 from .base_agent import BaseAgent
 
 
@@ -42,14 +44,14 @@ class HandoffTool(BaseTool):
         )
         self._agent = agent
 
-    def _run(self, *args: Any, **kwargs: Any) -> str:
+    def _run(self, *args: Any, **kwargs: Any) -> AgentState:
         task_description = kwargs.get("task_description", "")
-        if not task_description:
-            return "请输入正确的任务描述信息"
+
         agent_state = {
             "messages": [self._agent.llm.convert_to_human_message(task_description, [])],
             "history": [],
             "long_term_memory": "",
+            "task_id": uuid.uuid4(),
+            "iteration_count": 0
         }
-        result = self._agent.invoke(input=agent_state)
-        return result.answer
+        return self._agent.graph.invoke(input=agent_state)

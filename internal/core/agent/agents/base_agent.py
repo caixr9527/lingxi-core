@@ -146,3 +146,7 @@ class BaseAgent(Serializable, Runnable):
     @property
     def agent_queue_manager(self) -> AgentQueueManager:
         return self._agent_queue_manager
+
+    @property
+    def graph(self) -> CompiledStateGraph:
+        return self._agent

@@ -24,7 +24,7 @@ import time
 import uuid
 from typing import Any, Literal
 
-from langchain_core.messages import AIMessage, ToolMessage
+from langchain_core.messages import RemoveMessage, ToolMessage
 from langgraph.constants import END
 from langgraph.graph import StateGraph
 from langgraph.graph.state import CompiledStateGraph
@@ -62,36 +62,47 @@ class MultiAgent(FunctionCallAgent):
         agent = graph.compile()
         return agent
 
+    def _sub_agent1(self, state: AgentState) -> AgentState:
+        tool_calls = state["messages"][-1].tool_calls
+        tools_by_name = {tool.name: tool for tool in self.agent_config.tools}
+
+        tool_call = tool_calls[0]
+        tool = tools_by_name[tool_call["name"]]
+        args_dict = {**tool_call["args"], "state": state}
+        tool_result = tool.invoke(args_dict)
+        tool_call_message = state["messages"][-1]
+        remove_tool_call_message = RemoveMessage(id=tool_call_message.id)
+
+        return {**tool_result, "messages": [remove_tool_call_message] + tool_result["messages"]}
+
     def _sub_agent(self, state: AgentState) -> AgentState:
+
+        tools_by_name = {tool.name: tool for tool in self.agent_config.tools}
         tool_calls = state["messages"][-1].tool_calls
 
+        tool_message = []
         messages = []
         for tool_call in tool_calls:
             id = uuid.uuid4()
             start_at = time.perf_counter()
             sub_agent = self.collaborative_agent.get(tool_call["name"])
-            human_message = sub_agent.llm.convert_to_human_message(tool_call["args"]["task_description"], [])
+
             try:
-                result = sub_agent.invoke({
-                    "messages": [human_message],
-                    "history": [],
-                    "long_term_memory": "",
-                })
-                answer = result.answer
+                tool = tools_by_name[tool_call["name"]]
+                agent_state = tool.invoke(tool_call["args"])
+                answer = f"Successfully transferred to {sub_agent.name}"
             except Exception as e:
+                agent_state = {}
                 # 添加错误工具信息
                 answer = f"{sub_agent.name}执行出错: {str(e)}"
                 logging.exception(answer)
 
-            messages.append(ToolMessage(
+            tool_message.append(ToolMessage(
                 tool_call_id=tool_call["id"],
                 content=json.dumps(answer, ensure_ascii=False),
                 name=tool_call["name"],
             ))
-            messages.append(human_message)
-            messages.append(AIMessage(
-                content=answer,
-            ))
+            messages.extend(agent_state["messages"])
             self.agent_queue_manager.publish(state["task_id"], AgentThought(
                 id=id,
                 task_id=state["task_id"],
@@ -102,7 +113,7 @@ class MultiAgent(FunctionCallAgent):
                 latency=(time.perf_counter() - start_at),
             ))
 
-        return {"messages": messages,
+        return {"messages": tool_message + messages,
                 "iteration_count": state["iteration_count"],
                 "task_id": state["task_id"],
                 "history": state["history"],
