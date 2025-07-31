@@ -57,6 +57,7 @@ class App(db.Model):
     draft_app_config_id = Column(UUID, nullable=True)  # 关联的草稿配置id
     debug_conversation_id = Column(UUID, nullable=True)  # 应用调试会话id，为None则代表没有会话信息
     name = Column(String(255), nullable=False, server_default=text("''::character varying"))  # 应用名字
+    en_name = Column(String(255), nullable=False, server_default=text("''::character varying"))  # 应用英文名字
     icon = Column(String(255), nullable=False, server_default=text("''::character varying"))  # 应用图标
     description = Column(Text, nullable=False, server_default=text("''::text"))  # 应用描述
     token = Column(String(255), nullable=True, server_default=text("''::character varying"))  # 应用凭证信息

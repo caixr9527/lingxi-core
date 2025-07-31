@@ -87,14 +87,14 @@ class MultiAgent(FunctionCallAgent):
             start_at = time.perf_counter()
             sub_agent = self.collaborative_agent.get(tool_call["name"])
 
+            agent_state = None
             try:
                 tool = tools_by_name[tool_call["name"]]
                 agent_state = tool.invoke(tool_call["args"])
-                answer = f"Successfully transferred to {sub_agent.name}"
+                answer = f"成功调度智能体《{sub_agent.zh_name}》"
             except Exception as e:
-                agent_state = {}
                 # 添加错误工具信息
-                answer = f"{sub_agent.name}执行出错: {str(e)}"
+                answer = f"{sub_agent.zh_name}执行出错: {str(e)}"
                 logging.exception(answer)
 
             tool_message.append(ToolMessage(
@@ -102,11 +102,12 @@ class MultiAgent(FunctionCallAgent):
                 content=json.dumps(answer, ensure_ascii=False),
                 name=tool_call["name"],
             ))
-            messages.extend(agent_state["messages"])
+            if agent_state:
+                messages.extend(agent_state["messages"])
             self.agent_queue_manager.publish(state["task_id"], AgentThought(
                 id=id,
                 task_id=state["task_id"],
-                event=QueueEvent.AGENT_ACTION,
+                event=QueueEvent.AGENT_DISPATCH,
                 observation=json.dumps(answer, ensure_ascii=False),
                 tool=tool_call["name"],
                 tool_input=tool_call["args"],

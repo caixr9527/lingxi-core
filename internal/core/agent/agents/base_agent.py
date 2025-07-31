@@ -45,6 +45,7 @@ class BaseAgent(Serializable, Runnable):
     _agent_queue_manager: AgentQueueManager = PrivateAttr(None)
     collaborative_agent: dict[str, Any] = None
     description: Optional[str] = None
+    zh_name: Optional[str] = None
 
     class Config:
         arbitrary_types_allowed = True

@@ -431,6 +431,7 @@ class AppConfigService(BaseService):
             agents.append({
                 "id": str(agent.id),
                 "name": agent.name,
+                "en_name": agent.en_name,
                 "icon": agent.icon,
                 "description": agent.description,
             })

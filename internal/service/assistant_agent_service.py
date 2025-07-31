@@ -209,13 +209,14 @@ class AssistantAgentService(BaseService):
         class CreateAppInput(BaseModel):
             """创建Agent/应用输入结构"""
             name: str = Field(description="需要创建的Agent/应用名称，长度不超过50个字符")
+            en_name: str = Field(description="需要创建的Agent/应用英文名称，长度不超过50个字符")
             description: str = Field(description="需要创建的Agent/应用描述，请详细概括该应用的功能")
 
         @tool("create_app", args_schema=CreateAppInput)
-        def create_app(name: str, description: str) -> str:
+        def create_app(name: str, en_name: str, description: str) -> str:
             """如果用户提出了需要创建一个Agent/应用，你可以调用此工具，参数的输入是应用的名称+描述，返回的数据是创建后的成功提示"""
             # 调用celery异步任务在后端创建应用
-            auto_create_app.delay(name, description, account_id)
+            auto_create_app.delay(name, en_name, description, account_id)
 
             # 返回成功提示
             return f"已调用后端异步任务创建Agent应用。\n应用名称: {name}\n应用描述: {description}"

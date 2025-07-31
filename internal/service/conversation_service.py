@@ -230,6 +230,7 @@ class ConversationService(BaseService):
                 QueueEvent.AGENT_THOUGHT,
                 QueueEvent.AGENT_MESSAGE,
                 QueueEvent.AGENT_ACTION,
+                QueueEvent.AGENT_DISPATCH,
                 QueueEvent.DATASET_RETRIEVAL,
             ]:
                 # 更新位置及总耗时
@@ -301,14 +302,6 @@ class ConversationService(BaseService):
 
                 # 处理生成新会话名称
                 if conversation.is_new:
-                    # Thread(
-                    #     target=self._generate_conversation_name_and_update,
-                    #     kwargs={
-                    #         "flask_app": current_app._get_current_object(),
-                    #         "conversation_id": conversation.id,
-                    #         "query": message.query,
-                    #     }
-                    # ).start()
                     self._generate_conversation_name_and_update(flask_app=current_app._get_current_object(),
                                                                 conversation_id=conversation.id, query=message.query)
 

@@ -39,6 +39,10 @@ class CreateAppReq(FlaskForm):
         DataRequired("应用名称不能为空"),
         Length(max=40, message="应用名称长度最大不能超过40个字符"),
     ])
+    en_name = StringField("en_name", validators=[
+        DataRequired("应用英文名称不能为空"),
+        Length(max=40, message="应用英文名称长度最大不能超过40个字符"),
+    ])
     icon = StringField("icon", validators=[
         DataRequired("应用图标不能为空"),
         URL(message="应用图标必须是图片URL链接"),
@@ -53,6 +57,10 @@ class UpdateAppReq(FlaskForm):
     name = StringField("name", validators=[
         DataRequired("应用名称不能为空"),
         Length(max=40, message="应用名称长度最大不能超过40个字符"),
+    ])
+    en_name = StringField("en_name", validators=[
+        DataRequired("应用英文名称不能为空"),
+        Length(max=40, message="应用英文名称长度最大不能超过40个字符"),
     ])
     icon = StringField("icon", validators=[
         DataRequired("应用图标不能为空"),
@@ -75,6 +83,7 @@ class GetAppsWithPageResp(Schema):
     """获取应用分页列表数据响应结构"""
     id = fields.UUID(dump_default="")
     name = fields.String(dump_default="")
+    en_name = fields.String(dump_default="")
     icon = fields.String(dump_default="")
     description = fields.String(dump_default="")
     preset_prompt = fields.String(dump_default="")
@@ -90,6 +99,7 @@ class GetAppsWithPageResp(Schema):
         return {
             "id": data.id,
             "name": data.name,
+            "en_name": data.en_name,
             "icon": data.icon,
             "description": data.description,
             "preset_prompt": app_config.preset_prompt,
@@ -109,6 +119,7 @@ class GetAppResp(Schema):
     id = fields.UUID(dump_default="")
     debug_conversation_id = fields.UUID(dump_default="")
     name = fields.String(dump_default="")
+    en_name = fields.String(dump_default="")
     icon = fields.String(dump_default="")
     description = fields.String(dump_default="")
     status = fields.String(dump_default="")
@@ -123,6 +134,7 @@ class GetAppResp(Schema):
             "id": data.id,
             "debug_conversation_id": data.debug_conversation_id if data.debug_conversation_id else "",
             "name": data.name,
+            "en_name": data.en_name,
             "icon": data.icon,
             "description": data.description,
             "status": data.status,

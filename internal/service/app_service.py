@@ -87,10 +87,10 @@ class AppService(BaseService):
     language_model_manager: LanguageModelManager
     agent_service: AgentService
 
-    def auto_create_app(self, name: str, description: str, account_id: UUID) -> None:
+    def auto_create_app(self, name: str, en_name: str, description: str, account_id: UUID) -> None:
         """根据传递的应用名称、描述、账号id利用AI创建一个Agent智能体"""
         # 创建LLM，用于生成icon提示与预设提示词
-        llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.8)
+        llm = ChatOpenAI(model="gpt-4o", temperature=0.8)
 
         # 创建DallEApiWrapper包装器
         dalle_api_wrapper = DallEAPIWrapper(model="dall-e-3", size="1024x1024")
@@ -134,6 +134,7 @@ class AppService(BaseService):
                 id=uuid.uuid4(),
                 account_id=account.id,
                 name=name,
+                en_name=en_name,
                 icon=icon,
                 description=description,
                 status=AppStatus.DRAFT,
@@ -166,6 +167,7 @@ class AppService(BaseService):
                 id=uuid.uuid4(),
                 account_id=account.id,
                 name=req.name.data,
+                en_name=req.en_name.data,
                 icon=req.icon.data,
                 description=req.description.data,
                 status=AppStatus.DRAFT,
@@ -504,7 +506,10 @@ class AppService(BaseService):
             image_urls=req.image_urls.data,
             status=MessageStatus.NORMAL
         )
-        agent, history, llm = self.agent_service.create_agent(draft_app_config, app, InvokeFrom.DEBUGGER)
+        agent, history, llm = self.agent_service.create_agent(draft_app_config,
+                                                              app,
+                                                              InvokeFrom.DEBUGGER,
+                                                              debug_conversation)
 
         agent_thoughts = {}
         for agent_thought in agent.stream({

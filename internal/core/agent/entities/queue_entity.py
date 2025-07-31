@@ -33,6 +33,7 @@ class QueueEvent(str, Enum):
     AGENT_THOUGHT = "agent_thought"  # 智能体观察事件
     AGENT_MESSAGE = "agent_message"  # 智能体消息事件
     AGENT_ACTION = "agent_action"  # 智能体动作
+    AGENT_DISPATCH = "agent_dispatch"  # 智能体调度
     DATASET_RETRIEVAL = "dataset_retrieval"  # 知识库检索事件
     AGENT_END = "agent_end"  # 智能体结束事件
     STOP = "stop"  # 智能体停止事件

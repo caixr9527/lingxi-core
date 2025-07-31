@@ -129,7 +129,7 @@ class WebAppService(BaseService):
             status=MessageStatus.NORMAL,
         )
 
-        agent, history, llm = self.agent_service.create_agent(app_config, app, InvokeFrom.WEB_APP)
+        agent, history, llm = self.agent_service.create_agent(app_config, app, InvokeFrom.WEB_APP, conversation)
 
         # 定义字典存储推理过程，并调用智能体获取消息
         agent_thoughts = {}

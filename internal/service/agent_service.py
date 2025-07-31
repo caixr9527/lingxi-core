@@ -40,7 +40,7 @@ from internal.entity.app_entity import AppStatus, AppMode
 from internal.entity.conversation_entity import InvokeFrom
 from internal.entity.dataset_entity import RetrievalSource
 from internal.lib.helper import generate_random_string
-from internal.model import AppConfig, AppConfigVersion, App
+from internal.model import AppConfig, AppConfigVersion, App, Conversation
 from internal.service.app_config_service import AppConfigService
 from pkg.sqlalchemy import SQLAlchemy
 from .language_model_service import LanguageModelService
@@ -55,7 +55,7 @@ class AgentService:
     app_config_service: AppConfigService
     retrieval_service: RetrievalService
 
-    def getTools(self, config: AppConfig | AppConfigVersion | dict[str, Any], app: App, invoke_from: InvokeFrom) -> \
+    def getTools(self, config: AppConfig | AppConfigVersion | dict[str, Any], app: App) -> \
             list[BaseTool]:
         tools = self.app_config_service.get_langchain_tools_by_tools_config(config["tools"])
 
@@ -80,7 +80,10 @@ class AgentService:
 
         return tools
 
-    def create_agent(self, config: AppConfig | AppConfigVersion | dict[str, Any], app: App, invoke_from: InvokeFrom) \
+    def create_agent(self, config: AppConfig | AppConfigVersion | dict[str, Any],
+                     app: App,
+                     invoke_from: InvokeFrom,
+                     conversation: Conversation) \
             -> tuple[BaseAgent, list[AnyMessage], BaseLanguageModel]:
         # 加载大语言模型
         llm = self.language_model_service.load_language_model(config.get("model_config", {}))
@@ -88,7 +91,7 @@ class AgentService:
         # 实例化TokenBufferMemory用于提取短期记忆
         token_buffer_memory = TokenBufferMemory(
             db=self.db,
-            conversation=app.debug_conversation,
+            conversation=conversation,
             model_instance=llm,
         )
         history = token_buffer_memory.get_history_prompt_message(
@@ -97,7 +100,7 @@ class AgentService:
         )
 
         # 将草稿配置中的tools转换成LangChain工具
-        tools = self.getTools(config, app, invoke_from)
+        tools = self.getTools(config, app)
 
         # 根据LLM是否支持tool_call决定使用不同的Agent
         agent_class = FunctionCallAgent if ModelFeature.TOOL_CALL in llm.features else ReACTAgent
@@ -109,11 +112,6 @@ class AgentService:
             tools=tools,
             review_config=config["review_config"]
         )
-        agent = agent_class(
-            name=app.name,
-            llm=llm,
-            agent_config=agent_config
-        )
 
         if app.mode == AppMode.MULTI and len(config["agents"]) > 0:
             app_ids = [agent["id"] for agent in config["agents"]]
@@ -123,8 +121,14 @@ class AgentService:
             agent = MultiAgent(llm=llm,
                                agent_config=agent_config,
                                collaborative_agent=collaborative_agent,
-                               name=agent.name
+                               name=app.en_name if app.en_name else app.name
                                )
+        else:
+            agent = agent_class(
+                name=app.en_name if app.en_name else app.name,
+                llm=llm,
+                agent_config=agent_config
+            )
 
         return agent, history, llm
 
@@ -137,10 +141,11 @@ class AgentService:
         for app in apps:
             config = self.app_config_service.get_app_config(app)
             llm = self.language_model_service.load_language_model(config.get("model_config", {}))
-            tools = self.getTools(config, app, invoke_from)
+            tools = self.getTools(config, app)
             agent_class = FunctionCallAgent if ModelFeature.TOOL_CALL in llm.features else ReACTAgent
             agent = agent_class(
-                name=f"transfer_to_{generate_random_string(6)}",
+                name=f"transfer_to_{app.en_name.replace(" ", "_") if app.en_name else generate_random_string(6)}",
+                zh_name=app.name,
                 llm=llm,
                 description=app.description,
                 agent_config=AgentConfig(
