@@ -57,10 +57,12 @@ class App(db.Model):
     draft_app_config_id = Column(UUID, nullable=True)  # 关联的草稿配置id
     debug_conversation_id = Column(UUID, nullable=True)  # 应用调试会话id，为None则代表没有会话信息
     name = Column(String(255), nullable=False, server_default=text("''::character varying"))  # 应用名字
+    en_name = Column(String(255), nullable=False, server_default=text("''::character varying"))  # 应用英文名字
     icon = Column(String(255), nullable=False, server_default=text("''::character varying"))  # 应用图标
     description = Column(Text, nullable=False, server_default=text("''::text"))  # 应用描述
     token = Column(String(255), nullable=True, server_default=text("''::character varying"))  # 应用凭证信息
     status = Column(String(255), nullable=False, server_default=text("''::character varying"))  # 应用状态
+    mode = Column(Integer, nullable=False, server_default=text("0"))  # 模式 0:单agent模式 1:supervisor模式
     updated_at = Column(
         DateTime,
         nullable=False,
@@ -191,6 +193,7 @@ class AppConfig(db.Model):
     dialog_round = Column(Integer, nullable=False, server_default=text("0"))  # 鞋带上下文轮数
     preset_prompt = Column(Text, nullable=False, server_default=text("''::text"))  # 预设prompt
     tools = Column(JSONB, nullable=False, server_default=text("'[]'::jsonb"))  # 应用关联工具列表
+    agents = Column(JSONB, nullable=False, server_default=text("'[]'::jsonb"))  # 应用关联的agent列表
     workflows = Column(JSONB, nullable=False, server_default=text("'[]'::jsonb"))  # 应用关联的工作流列表
     retrieval_config = Column(JSONB, nullable=False, server_default=text("'[]'::jsonb"))  # 检索配置
     long_term_memory = Column(JSONB, nullable=False, server_default=text("'{}'::jsonb"))  # 长期记忆配置
@@ -237,6 +240,7 @@ class AppConfigVersion(db.Model):
     dialog_round = Column(Integer, nullable=False, server_default=text("0"))  # 鞋带上下文轮数
     preset_prompt = Column(Text, nullable=False, server_default=text("''::text"))  # 人设与回复逻辑
     tools = Column(JSONB, nullable=False, server_default=text("'[]'::jsonb"))  # 应用关联的工具列表
+    agents = Column(JSONB, nullable=False, server_default=text("'[]'::jsonb"))  # 应用关联的agent列表
     workflows = Column(JSONB, nullable=False, server_default=text("'[]'::jsonb"))  # 应用关联的工作流列表
     datasets = Column(JSONB, nullable=False, server_default=text("'[]'::jsonb"))  # 应用关联的知识库列表
     retrieval_config = Column(JSONB, nullable=False, server_default=text("'{}'::jsonb"))  # 检索配置

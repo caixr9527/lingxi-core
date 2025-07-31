@@ -249,6 +249,8 @@ class Router:
         bp.add_url_rule("/ai/optimize-prompt", methods=["POST"], view_func=self.ai_handler.optimize_prompt)
         bp.add_url_rule("/ai/suggested-questions", methods=["POST"],
                         view_func=self.ai_handler.generate_suggested_questions)
+        bp.add_url_rule("/ai/auto-generate-prompt", methods=["POST"],
+                        view_func=self.ai_handler.auto_generate_prompt)
 
         # API秘钥模块
         bp.add_url_rule("/openapi/api-keys", view_func=self.api_key_handler.get_api_keys_with_page)

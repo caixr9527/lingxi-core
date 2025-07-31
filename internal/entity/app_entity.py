@@ -36,6 +36,11 @@ class AppStatus(str, Enum):
     PUBLISHED = "published"
 
 
+class AppMode(int, Enum):
+    SINGLE = 0
+    MULTI = 1
+
+
 class AppConfigType(str, Enum):
     """应用配置类型枚举类"""
     DRAFT = "draft"
@@ -58,6 +63,7 @@ DEFAULT_APP_CONFIG = {
     "dialog_round": 3,
     "preset_prompt": "",
     "tools": [],
+    "agents": [],
     "workflows": [],
     "datasets": [],
     "retrieval_config": {
@@ -92,7 +98,7 @@ DEFAULT_APP_CONFIG = {
             "enable": False,
         },
     },
-    "multimodal" : {
+    "multimodal": {
         "enable": False,
     }
 }

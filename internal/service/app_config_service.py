@@ -32,7 +32,7 @@ from internal.core.tools.api_tools.providers import ApiProviderManager
 from internal.core.tools.builtin_tools.providers import BuiltinProviderManager
 from internal.core.workflow import Workflow as WorkflowTool
 from internal.core.workflow.entities.workflow_entity import WorkflowConfig
-from internal.entity.app_entity import DEFAULT_APP_CONFIG
+from internal.entity.app_entity import DEFAULT_APP_CONFIG, AppStatus
 from internal.entity.workflow_entity import WorkflowStatus
 from internal.lib.helper import datetime_to_timestamp, get_value_type
 from internal.model import App, ApiTool, Dataset, AppConfig, AppConfigVersion, AppDatasetJoin, Workflow
@@ -79,11 +79,16 @@ class AppConfigService(BaseService):
         if set(validate_workflows) != set(draft_app_config.workflows):
             self.update(draft_app_config, workflows=validate_workflows)
 
+        agents, validate_agents = self._process_and_validate_agents(draft_app_config.agents)
+        if set(validate_agents) != set(draft_app_config.agents):
+            self.update(draft_app_config, agents=validate_agents)
+
         # 将数据转换成字典后返回
         return self._process_and_transformer_app_config(validate_model_config,
                                                         tools,
                                                         workflows,
                                                         datasets,
+                                                        agents,
                                                         draft_app_config)
 
     def get_app_config(self, app: App) -> dict[str, Any]:
@@ -119,12 +124,17 @@ class AppConfigService(BaseService):
         if set(validate_workflows) != set(app_config.workflows):
             self.update(app_config, workflows=validate_workflows)
 
+        agents, validate_agents = self._process_and_validate_agents(app_config.agents)
+        if set(validate_agents) != set(app_config.agents):
+            self.update(app_config, agents=validate_agents)
+
         # 将数据转换成字典后返回
         return self._process_and_transformer_app_config(
             validate_model_config,
             tools,
             workflows,
             datasets,
+            agents,
             app_config,
         )
 
@@ -197,6 +207,7 @@ class AppConfigService(BaseService):
             tools: list[dict],
             workflows: list[dict],
             datasets: list[dict],
+            agents: list[dict],
             app_config: Union[AppConfig, AppConfigVersion]
     ) -> dict[str, Any]:
         """根据传递的插件列表、工作流列表、知识库列表以及应用配置创建字典信息"""
@@ -206,6 +217,7 @@ class AppConfigService(BaseService):
             "dialog_round": app_config.dialog_round,
             "preset_prompt": app_config.preset_prompt,
             "tools": tools,
+            "agents": agents,
             "workflows": workflows,
             "datasets": datasets,
             "retrieval_config": app_config.retrieval_config,
@@ -400,6 +412,31 @@ class AppConfigService(BaseService):
         model_config["parameters"] = parameters
 
         return model_config
+
+    def _process_and_validate_agents(self, origin_agents: list[UUID]) -> tuple[list[dict], list[UUID]]:
+        agents = []
+        agent_records = self.db.session.query(App).filter(
+            App.id.in_(origin_agents),
+            App.status == AppStatus.PUBLISHED
+        ).all()
+        agent_dict = {str(agent_record.id): agent_record for agent_record in agent_records}
+        agent_sets = set(agent_dict.keys())
+
+        # 计算存在的工作流id列表，为了保留原始顺序，使用列表循环的方式来判断
+        validate_agents = [agent_id for agent_id in origin_agents if agent_id in agent_sets]
+
+        # 循环获取工作流数据
+        for agent_id in validate_agents:
+            agent = agent_dict.get(str(agent_id))
+            agents.append({
+                "id": str(agent.id),
+                "name": agent.name,
+                "en_name": agent.en_name,
+                "icon": agent.icon,
+                "description": agent.description,
+            })
+
+        return agents, validate_agents
 
     def _process_and_validate_workflows(self, origin_workflows: list[UUID]) -> tuple[list[dict], list[UUID]]:
         # 校验工作流配置列表，如果引用了不存在/被删除的工作流，则需要提出数据并更新，同时获取工作流的额外信息

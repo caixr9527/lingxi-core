@@ -39,6 +39,10 @@ class CreateAppReq(FlaskForm):
         DataRequired("应用名称不能为空"),
         Length(max=40, message="应用名称长度最大不能超过40个字符"),
     ])
+    en_name = StringField("en_name", validators=[
+        DataRequired("应用英文名称不能为空"),
+        Length(max=40, message="应用英文名称长度最大不能超过40个字符"),
+    ])
     icon = StringField("icon", validators=[
         DataRequired("应用图标不能为空"),
         URL(message="应用图标必须是图片URL链接"),
@@ -54,6 +58,10 @@ class UpdateAppReq(FlaskForm):
         DataRequired("应用名称不能为空"),
         Length(max=40, message="应用名称长度最大不能超过40个字符"),
     ])
+    en_name = StringField("en_name", validators=[
+        DataRequired("应用英文名称不能为空"),
+        Length(max=40, message="应用英文名称长度最大不能超过40个字符"),
+    ])
     icon = StringField("icon", validators=[
         DataRequired("应用图标不能为空"),
         URL(message="应用图标必须是图片URL链接"),
@@ -61,22 +69,27 @@ class UpdateAppReq(FlaskForm):
     description = StringField("description", validators=[
         Length(max=800, message="应用描述的长度不能超过800个字符")
     ])
+    mode = IntegerField("mode", validators=[Optional()])
 
 
 class GetAppsWithPageReq(PaginatorReq):
     """获取应用分页列表数据请求"""
     search_word = StringField("search_word", default="", validators=[Optional()])
+    status = StringField("status", default="", validators=[Optional()])
+    mode = IntegerField("mode", default=-1, validators=[Optional()])
 
 
 class GetAppsWithPageResp(Schema):
     """获取应用分页列表数据响应结构"""
     id = fields.UUID(dump_default="")
     name = fields.String(dump_default="")
+    en_name = fields.String(dump_default="")
     icon = fields.String(dump_default="")
     description = fields.String(dump_default="")
     preset_prompt = fields.String(dump_default="")
     model_config = fields.Dict(dump_default={})
     status = fields.String(dump_default="")
+    mode = fields.Integer(dump_default=0)
     updated_at = fields.Integer(dump_default=0)
     created_at = fields.Integer(dump_default=0)
 
@@ -86,6 +99,7 @@ class GetAppsWithPageResp(Schema):
         return {
             "id": data.id,
             "name": data.name,
+            "en_name": data.en_name,
             "icon": data.icon,
             "description": data.description,
             "preset_prompt": app_config.preset_prompt,
@@ -94,6 +108,7 @@ class GetAppsWithPageResp(Schema):
                 "model": app_config.model_config.get("model", "")
             },
             "status": data.status,
+            "mode": data.mode,
             "updated_at": datetime_to_timestamp(data.updated_at),
             "created_at": datetime_to_timestamp(data.created_at),
         }
@@ -104,10 +119,12 @@ class GetAppResp(Schema):
     id = fields.UUID(dump_default="")
     debug_conversation_id = fields.UUID(dump_default="")
     name = fields.String(dump_default="")
+    en_name = fields.String(dump_default="")
     icon = fields.String(dump_default="")
     description = fields.String(dump_default="")
     status = fields.String(dump_default="")
     draft_updated_at = fields.Integer(dump_default=0)
+    mode = fields.Integer(dump_default=0)
     updated_at = fields.Integer(dump_default=0)
     created_at = fields.Integer(dump_default=0)
 
@@ -117,12 +134,14 @@ class GetAppResp(Schema):
             "id": data.id,
             "debug_conversation_id": data.debug_conversation_id if data.debug_conversation_id else "",
             "name": data.name,
+            "en_name": data.en_name,
             "icon": data.icon,
             "description": data.description,
             "status": data.status,
             "draft_updated_at": datetime_to_timestamp(data.draft_app_config.updated_at),
             "updated_at": datetime_to_timestamp(data.updated_at),
             "created_at": datetime_to_timestamp(data.created_at),
+            "mode": data.mode,
         }
 
 

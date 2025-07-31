@@ -88,9 +88,18 @@ class FunctionCallAgent(BaseAgent):
                     task_id=state["task_id"],
                     event=QueueEvent.AGENT_END,
                 ))
-                return {"messages": [AIMessage(preset_response)]}
+                return {"messages": [AIMessage(preset_response)],
+                        "task_id": state["task_id"],
+                        "iteration_count": state["iteration_count"],
+                        "history": state["history"],
+                        "long_term_memory": state["long_term_memory"]}
 
-        return {"messages": []}
+        return {"messages": [],
+                "task_id": state["task_id"],
+                "iteration_count": state["iteration_count"],
+                "history": state["history"],
+                "long_term_memory": state["long_term_memory"]
+                }
 
     def _long_term_memory_recall_node(self, state: AgentState) -> AgentState:
         """长期记忆召回节点"""
@@ -125,6 +134,10 @@ class FunctionCallAgent(BaseAgent):
 
         return {
             "messages": [RemoveMessage(id=human_message.id), *preset_messages],
+            "task_id": state["task_id"],
+            "iteration_count": state["iteration_count"],
+            "history": state["history"],
+            "long_term_memory": state["long_term_memory"]
         }
 
     def _llm_node(self, state: AgentState) -> AgentState:
@@ -148,7 +161,12 @@ class FunctionCallAgent(BaseAgent):
                     task_id=state["task_id"],
                     event=QueueEvent.AGENT_END,
                 ))
-            return {"messages": [AIMessage(MAX_ITERATION_RESPONSE)]}
+            return {"messages": [AIMessage(MAX_ITERATION_RESPONSE)],
+                    "task_id": state["task_id"],
+                    "iteration_count": state["iteration_count"],
+                    "history": state["history"],
+                    "long_term_memory": state["long_term_memory"]
+                    }
 
         # 从智能体配置中提取大语言模型
         id = uuid.uuid4()
@@ -234,7 +252,7 @@ class FunctionCallAgent(BaseAgent):
                 id=id,
                 task_id=state["task_id"],
                 event=QueueEvent.AGENT_THOUGHT,
-                thought=json.dumps(gathered.tool_calls),
+                thought=json.dumps(gathered.tool_calls, ensure_ascii=False),
                 message=messages_to_dict(state["messages"]),
                 message_token_count=input_token_count,
                 message_unit_price=input_price,
@@ -272,7 +290,10 @@ class FunctionCallAgent(BaseAgent):
                 event=QueueEvent.AGENT_END,
             ))
         return {"messages": [gathered],
-                "iteration_count": state["iteration_count"] + 1}
+                "iteration_count": state["iteration_count"] + 1,
+                "task_id": state["task_id"],
+                "history": state["history"],
+                "long_term_memory": state["long_term_memory"]}
 
     def _tools_node(self, state: AgentState) -> AgentState:
         """工具执行节点"""
@@ -301,7 +322,7 @@ class FunctionCallAgent(BaseAgent):
             # 将工具消息添加到消息列表中
             messages.append(ToolMessage(
                 tool_call_id=tool_call["id"],
-                content=json.dumps(tool_result),
+                content=json.dumps(tool_result, ensure_ascii=False),
                 name=tool_call["name"],
             ))
 
@@ -315,13 +336,17 @@ class FunctionCallAgent(BaseAgent):
                 id=id,
                 task_id=state["task_id"],
                 event=event,
-                observation=json.dumps(tool_result),
+                observation=json.dumps(tool_result, ensure_ascii=False),
                 tool=tool_call["name"],
                 tool_input=tool_call["args"],
                 latency=(time.perf_counter() - start_at),
             ))
 
-        return {"messages": messages}
+        return {"messages": messages,
+                "iteration_count": state["iteration_count"],
+                "task_id": state["task_id"],
+                "history": state["history"],
+                "long_term_memory": state["long_term_memory"]}
 
     @classmethod
     def _tools_condition(cls, state: AgentState) -> Literal["tools", "__end__"]:

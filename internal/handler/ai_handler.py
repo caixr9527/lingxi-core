@@ -23,7 +23,7 @@ from dataclasses import dataclass
 from flask_login import login_required, current_user
 from injector import inject
 
-from internal.schema.ai_schema import OptimizePromptReq, GenerateSuggestedQuestionsReq
+from internal.schema.ai_schema import OptimizePromptReq, GenerateSuggestedQuestionsReq, AutoGeneratePromptReq
 from internal.service import AIService
 from pkg.response import validate_error_json, compact_generate_response, success_json
 
@@ -50,3 +50,10 @@ class AIHandler:
             req.message_id.data,
             account=current_user)
         return success_json(suggested_questions)
+
+    @login_required
+    def auto_generate_prompt(self):
+        req = AutoGeneratePromptReq()
+        if not req.validate():
+            return validate_error_json(req.errors)
+        return success_json(self.ai_service.auto_generate_prompt(req.app_id.data))

@@ -44,18 +44,18 @@ class GaodeWeatherTool(BaseTool):
     def _run(self, *args: Any, **kwargs: Any) -> str:
         """根据传入的城市名称运行调用api获取城市对应的天气预报信息"""
         try:
-            # 1.获取高德API秘钥，如果没有创建的话，则抛出错误
+            # 获取高德API秘钥，如果没有创建的话，则抛出错误
             if not self.url or not self.api_key:
                 return f"接口地址/应用密钥未配置"
 
-            # 2.从参数中获取city城市名字
+            # 从参数中获取city城市名字
             city = kwargs.get("city", "")
             if city == "":
                 return "搜索城市为空"
 
             session = requests.session()
 
-            # 3.发起行政区域编码查询，根据city获取ad_code
+            # 发起行政区域编码查询，根据city获取ad_code
             city_response = session.request(
                 method="GET",
                 url=f"{self.url}/config/district?key={self.api_key}&keywords={city}&subdistrict=0",
@@ -66,7 +66,7 @@ class GaodeWeatherTool(BaseTool):
             if city_data.get("info") == "OK":
                 ad_code = city_data["districts"][0]["adcode"]
 
-                # 4.根据得到的ad_code调用天气预报API接口，获取天气信息
+                # 根据得到的ad_code调用天气预报API接口，获取天气信息
                 weather_response = session.request(
                     method="GET",
                     url=f"{self.url}/weather/weatherInfo?key={self.api_key}&city={ad_code}&extensions={self.extensions}",
@@ -75,7 +75,7 @@ class GaodeWeatherTool(BaseTool):
                 weather_response.raise_for_status()
                 weather_data = weather_response.json()
                 if weather_data.get("info") == "OK":
-                    # 5.返回最后的结果字符串
+                    # 返回最后的结果字符串
                     return json.dumps(weather_data)
             return f"获取{city}天气预报信息失败"
         except Exception as e:

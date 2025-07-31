@@ -18,6 +18,8 @@
 @Author : caixiaorong01@outlook.com
 @File   : base_agent.py
 """
+from __future__ import annotations
+
 import uuid
 from abc import abstractmethod
 from threading import Thread
@@ -41,6 +43,9 @@ class BaseAgent(Serializable, Runnable):
     agent_config: AgentConfig
     _agent: CompiledStateGraph = PrivateAttr(None)
     _agent_queue_manager: AgentQueueManager = PrivateAttr(None)
+    collaborative_agent: dict[str, Any] = None
+    description: Optional[str] = None
+    zh_name: Optional[str] = None
 
     class Config:
         arbitrary_types_allowed = True
@@ -61,7 +66,8 @@ class BaseAgent(Serializable, Runnable):
     def _build_agent(self) -> CompiledStateGraph:
         raise NotImplementedError("_build_agent函数未实现")
 
-    def invoke(self, input: AgentState, config: Optional[RunnableConfig] = None) -> AgentResult:
+    def invoke(self, input: AgentState, config: Optional[RunnableConfig] = None,
+               **kwargs: Optional[Any], ) -> AgentResult:
         # 调用stream方法获取流式事件输出数据
         content = input["messages"][0].content
         query = ""
@@ -141,3 +147,7 @@ class BaseAgent(Serializable, Runnable):
     @property
     def agent_queue_manager(self) -> AgentQueueManager:
         return self._agent_queue_manager
+
+    @property
+    def graph(self) -> CompiledStateGraph:
+        return self._agent

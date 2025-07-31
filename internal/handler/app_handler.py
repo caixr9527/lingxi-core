@@ -200,16 +200,152 @@ class AppHandler:
 
     # @login_required
     def ping(self):
-        provider = self.language_model_manager.get_provider("ollama")
-        model_entity = provider.get_model_entity("qwen2.5-7b")
+        from langgraph.prebuilt import create_react_agent
+        from langchain_core.tools import StructuredTool
+        provider = self.language_model_manager.get_provider("openai")
+        model_entity = provider.get_model_entity("gpt-4o")
         model_class = provider.get_model_class(model_entity.model_type)
         llm = model_class(**{
             **model_entity.attributes,
             "features": model_entity.features,
             "metadata": model_entity.metadata,
         })
-        return success_json({
-            "content": llm.invoke("你好，你是").content,
-            "features": llm.features,
-            "metadata": llm.metadata,
+
+        def web_search() -> str:
+            """Find the quantity of apples and bananas"""
+            return "苹果数量是20个，香蕉12个。"
+
+        research_agent = create_react_agent(
+            model=llm,
+            tools=[StructuredTool.from_function(func=web_search)],
+            prompt=(
+                "You are a research agent.\n\n"
+                "INSTRUCTIONS:\n"
+                "- Assist ONLY with research-related tasks, DO NOT do any math\n"
+                "- After you're done with your tasks, respond to the supervisor directly\n"
+                "- Respond ONLY with the results of your work, do NOT include ANY other text."
+            ),
+            name="research_agent",
+        )
+
+        def add(a: float, b: float):
+            """Add two numbers."""
+            return a + b
+
+        def multiply(a: float, b: float):
+            """Multiply two numbers."""
+            return a * b
+
+        def divide(a: float, b: float):
+            """Divide two numbers."""
+            return a / b
+
+        math_agent = create_react_agent(
+            model=llm,
+            tools=[StructuredTool.from_function(func=add), StructuredTool.from_function(func=multiply),
+                   StructuredTool.from_function(func=divide)],
+            prompt=(
+                "You are a math agent.\n\n"
+                "INSTRUCTIONS:\n"
+                "- Assist ONLY with math-related tasks\n"
+                "- After you're done with your tasks, respond to the supervisor directly\n"
+                "- Respond ONLY with the results of your work, do NOT include ANY other text."
+            ),
+            name="math_agent",
+        )
+
+        from typing import Annotated
+        from langchain_core.tools import tool, InjectedToolCallId
+        from langgraph.prebuilt import InjectedState
+        from langgraph.types import Command
+        from langgraph.graph import StateGraph, START, MessagesState
+        from internal.core.agent.entities.agent_entity import AgentState
+        def create_handoff_tool(*, agent_name: str, description: str | None = None):
+            name = f"transfer_to_{agent_name}"
+            description = description or f"Ask {agent_name} for help."
+
+            @tool(name, description=description)
+            def handoff_tool(
+                    state: Annotated[MessagesState, InjectedState],
+                    tool_call_id: Annotated[str, InjectedToolCallId],
+            ) -> Command:
+                tool_message = {
+                    # "task_id": state["task_id"],
+                    # "iteration_count": state["iteration_count"],
+                    # "history": state["history"],
+                    # "long_term_memory": state["long_term_memory"],
+                    "role": "tool",
+                    "content": f"Successfully transferred to {agent_name}",
+                    "name": name,
+                    "tool_call_id": tool_call_id,
+                }
+                return Command(
+                    goto=agent_name,
+                    update={**state, "messages": state["messages"] + [tool_message]},
+                    graph=Command.PARENT,
+                )
+
+            return handoff_tool
+
+        # Handoffs
+        assign_to_research_agent = create_handoff_tool(
+            agent_name="research_agent",
+            description="Assign task to a researcher agent.",
+        )
+
+        assign_to_math_agent = create_handoff_tool(
+            agent_name="math_agent",
+            description="Assign task to a math agent.",
+        )
+        supervisor_agent = create_react_agent(
+            model=llm,
+            tools=[assign_to_research_agent, assign_to_math_agent],
+            prompt=(
+                "You are a supervisor managing two agents:\n"
+                "- a research agent. Assign research-related tasks to this agent\n"
+                "- a math agent. Assign math-related tasks to this agent\n"
+                "Assign work to one agent at a time, do not call agents in parallel.\n"
+                "Do not do any work yourself."
+            ),
+            name="supervisor",
+        )
+        from langgraph.graph import END
+
+        # Define the multi-agent supervisor graph
+        supervisor = (
+            StateGraph(AgentState)
+            # NOTE: `destinations` is only needed for visualization and doesn't affect runtime behavior
+            .add_node(supervisor_agent, destinations=("research_agent", "math_agent", END))
+            .add_node(research_agent)
+            .add_node(math_agent)
+            .add_edge(START, "supervisor")
+            # always return back to the supervisor
+            .add_edge("research_agent", "supervisor")
+            .add_edge("math_agent", "supervisor")
+            .compile()
+        )
+        # for chunk in supervisor.stream(
+        #         {
+        #             "messages": [
+        #                 {
+        #                     "role": "user",
+        #                     "content": "查找下苹果和香蕉的数量，并计算总数是多少？",
+        #                 }
+        #             ]
+        #         },
+        # ):
+        #     print(chunk)
+
+        message = supervisor.invoke({
+            "messages": [
+                {
+                    "role": "user",
+                    "content": "查找下苹果和香蕉的数量，并计算总数是多少？",
+                }
+            ],
+            "task_id": uuid.uuid4(),
+            "iteration_count": 0,
+            "history": [],
+            "long_term_memory": "",
         })
+        return success_json(message.get("messages")[-1].content)

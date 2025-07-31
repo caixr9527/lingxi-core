@@ -19,6 +19,7 @@
 @File   : __init__.py.py
 """
 from .account_service import AccountService
+from .agent_service import AgentService
 from .ai_service import AIService
 from .analysis_service import AnalysisService
 from .api_key_service import ApiKeyService
@@ -87,5 +88,6 @@ __all__ = [
     "AudioService",
     "PlatformService",
     "WechatService",
-    "SmsService"
+    "SmsService",
+    "AgentService"
 ]
