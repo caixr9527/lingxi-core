@@ -1,3 +1,5 @@
+**Read this in other languages: [English](README.md), [中文](README_zh.md).**
+
 # 《AI Application Development Platform》
 
 > Build Intelligent Apps with Zero Code, One-Click Publishing, Infinite Scalability
