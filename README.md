@@ -1,39 +1,50 @@
-# **《AI应用开发平台》：零代码构建智能应用，一键发布，无限扩展**
+# 《AI Application Development Platform》
 
-## **平台简介**
+> Build Intelligent Apps with Zero Code, One-Click Publishing, Infinite Scalability
 
-**无需编程**，即可快速构建基于先进AI模型的各类智能应用——从简单的问答机器人到包含复杂逻辑的工作流。构建完成后，**一键发布**
-至主流社交平台、Web网页，或通过**开放API**无缝集成到现有系统进行深度开发。
+## **Platform Overview**
 
-## **技术基石**
+**No coding required**—rapidly build various intelligent applications powered by advanced AI models, from simple Q&A
+bots to complex logic-driven workflows. Upon completion, **publish with one click** to major social platforms, web
+pages, or integrate seamlessly into existing systems via **Open APIs** for deeper development.
 
-* **[前端](https://github.com/caixr9527/bdjw-ai-web.git)：** Vue3 (响应式框架) + Arco Design (企业级UI) + Tailwind CSS (
-  高效样式)
-* **[后端](https://github.com/caixr9527/bdjw-ai-ops.git)：** Python 3.12 + Flask (轻量Web框架) + LangChain 0.3 &
-  LangGraph 0.2 (AI编排核心) + Redis (缓存/消息队列) + JWT (安全认证)
-* **数据存储：** PostgreSQL (关系型数据库) + Weaviate (高性能向量数据库)
-* **异步处理：** Celery (分布式任务队列)
+## **Technical Foundation**
 
-## **核心功能亮点**
+* **[Frontend](https://github.com/caixr9527/bdjw-ai-web.git):** Vue3 (Reactive Framework) + Arco Design (
+  Enterprise-Grade UI) + Tailwind CSS (Efficient Styling)
+* **[Backend](https://github.com/caixr9527/bdjw-ai-ops.git):** Python 3.12 + Flask (Lightweight Web Framework) +
+  LangChain 0.3 & LangGraph 0.2 (Core AI Orchestration) + Redis (Cache/Message Queue) + JWT (Secure Authentication)
+* **Data Storage:** PostgreSQL (Relational Database) + Weaviate (High-Performance Vector Database)
+* **Asynchronous Processing:** Celery (Distributed Task Queue)
 
-1. **智能首页：** 内置辅助Agent，助您**快速启动**个性化AI应用创建。
-2. **个人空间：** 集中管理您的AI应用、插件、工作流及知识库资源。
-3. **强大的AI应用编排：**
-    * **自定义AI角色与逻辑：** 灵活定义AI人设、回复策略，并**优化提示词**。
-    * **丰富的能力扩展：** 集成插件、工作流、知识库；配置**长期记忆**、对话**开场白/预设问题**、**用户问题建议**、**多语言/多模态输入输出
-      **、**内容审查**等。
-    * **实时预览与调试：** 边编排边测试，所见即所得，提升开发效率。
-    * **模型自由选择：** 支持**自定义大语言模型接入**及关键参数调优。
-    * **版本管理：** 支持AI应用**历史版本回溯**，保障配置安全。
-4. **便捷的应用发布：** 提供**Web网页端**及**微信公众号**一键发布能力。
-5. **多维统计分析：** 提供Agent应用的**多维度运营数据**洞察（如交互量、效果等）。
-6. **自定义插件开发：** 灵活扩展平台能力，满足**个性化业务需求**。
-7. **可视化工作流编排：**
-    * 提供丰富节点：开始/结束、大语言模型调用、插件执行、知识库检索、模板转换、意图识别、循环迭代、HTTP请求、Python代码执行、条件选择等。
-    * 支持**工作流调试**，确保逻辑准确无误。
-8. **智能知识库管理：**
-    * 支持**多格式文档上传**、智能文本分段与预处理。
-    * 基于Weaviate向量数据库，提供**RAG增强检索**：支持相似性检索、全文检索、混合检索等多种**高效检索策略**。
-9. **内置资源广场：** 提供开箱即用的**预置应用模板**与**精选插件库**，加速应用构建。
-10. **开放API接口：** 提供完善的**开放API**，支持通过接口**直接调用Agent应用**，可选择**流式(Streaming)** 或**非流式**
-    输出，便于深度集成。
+## **Core Feature Highlights**
+
+1. **Intelligent Homepage:** Built-in assistant Agent helps you **quickly start** creating personalized AI applications.
+2. **Personal Workspace:** Centrally manage your AI applications, plugins, workflows, and knowledge base resources.
+3. **Powerful AI Application Orchestration:**
+    * **Custom AI Personas & Logic:** Flexibly define AI personalities, response strategies, and **optimize prompts**.
+    * **Multi-Agent System (Beta):** Supports both single-Agent operation and Supervisor-coordinated multi-Agent
+      systems.
+    * **Rich Capability Extensions:** Integrate plugins, workflows, knowledge bases; configure **long-term memory**,
+      **opening prompts/preset questions**, **user question suggestions**, **multi-language/multi-modal input/output**,
+      **content moderation**, etc.
+    * **Real-Time Preview & Debugging:** Test while you build with WYSIWYG editing, boosting development efficiency.
+    * **Model Flexibility:** Supports **custom LLM integration** and key parameter tuning.
+    * **Version Control:** Enables **historical version rollback** for AI applications, ensuring configuration security.
+4. **Effortless Application Publishing:** Offers **one-click publishing** to **Web** interfaces and **WeChat Official
+   Accounts**.
+5. **Multi-Dimensional Analytics:** Provides **comprehensive operational insights** for Agent applications (e.g.,
+   interaction volume, effectiveness).
+6. **Custom Plugin Development:** Extend platform capabilities flexibly to meet **custom business requirements**.
+7. **Visual Workflow Orchestration:**
+    * Rich node library: Start/End, LLM Invocation, Plugin Execution, Knowledge Retrieval, Template Transformation,
+      Intent Recognition, Loop Iteration, HTTP Request, Python Code Execution, Conditional Branching, etc.
+    * Supports **workflow debugging** to ensure logical accuracy.
+8. **Intelligent Knowledge Base Management:**
+    * Supports **multi-format document upload**, intelligent text segmentation, and preprocessing.
+    * Leverages Weaviate vector database for **RAG (Retrieval-Augmented Generation) Enhanced Retrieval**: Supports
+      multiple **efficient retrieval strategies** like similarity search, full-text search, hybrid search.
+9. **Built-In Resource Hub:** Offers ready-to-use **pre-built application templates** and **curated plugin libraries**
+   to accelerate application development.
+10. **Open API Interface:** Provides comprehensive **Open APIs** to **directly invoke Agent applications**, supporting
+    both **streaming** and **non-streaming** outputs for deep integration.
