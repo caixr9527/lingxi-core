@@ -294,6 +294,11 @@ class AppService(BaseService):
             updated_at=datetime.now(),
             **draft_app_config,
         )
+        if app.status == AppStatus.PUBLISHED:
+            self.update(
+                app,
+                status=AppStatus.REPUBLISH
+            )
         return draft_app_config_record
 
     def publish_draft_app_config(self, app_id: UUID, account: Account) -> App:

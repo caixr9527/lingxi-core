@@ -34,6 +34,7 @@ class AppStatus(str, Enum):
     """应用状态枚举类"""
     DRAFT = "draft"
     PUBLISHED = "published"
+    REPUBLISH = "republish"
 
 
 class AppMode(int, Enum):
