@@ -294,6 +294,11 @@ class AppService(BaseService):
             updated_at=datetime.now(),
             **draft_app_config,
         )
+        if app.status == AppStatus.PUBLISHED:
+            self.update(
+                app,
+                status=AppStatus.REPUBLISH
+            )
         return draft_app_config_record
 
     def publish_draft_app_config(self, app_id: UUID, account: Account) -> App:
@@ -371,7 +376,7 @@ class AppService(BaseService):
         app = self.get_app(app_id, account)
 
         # 检测下当前应用的状态是否为已发布
-        if app.status != AppStatus.PUBLISHED:
+        if app.status == AppStatus.DRAFT:
             raise FailException("当前应用未发布，请核实后重试")
 
         # 修改账号的发布状态，并清空关联配置id
