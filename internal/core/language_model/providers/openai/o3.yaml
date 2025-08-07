@@ -1,5 +1,5 @@
-model: o1
-label: o1
+model: o3
+label: o3
 model_type: chat
 features:
   - tool_call
@@ -8,7 +8,7 @@ features:
 context_window: 200000
 max_output_tokens: 100000
 attributes:
-  model: o1
+  model: o3
 parameters:
   - name: temperature
     use_template: temperature
