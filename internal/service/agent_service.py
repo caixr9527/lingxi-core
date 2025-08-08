@@ -95,6 +95,7 @@ class AgentService:
             model_instance=llm,
         )
         history = token_buffer_memory.get_history_prompt_message(
+            max_token_limit=16384,
             message_limit=config["dialog_round"],
             multimodal=config["multimodal"]["enable"],
         )

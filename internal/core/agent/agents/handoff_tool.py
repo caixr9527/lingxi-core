@@ -30,6 +30,8 @@ from .base_agent import BaseAgent
 
 class QuerySchema(BaseModel):
     task_description: str = Field(description="描述下一个代理应该做什么，包括所有相关的上下文。")
+    history: list[Any]
+    long_term_memory: str
 
 
 class HandoffTool(BaseTool):
@@ -46,11 +48,13 @@ class HandoffTool(BaseTool):
 
     def _run(self, *args: Any, **kwargs: Any) -> AgentState:
         task_description = kwargs.get("task_description", "")
+        history = kwargs.get("history", [])
+        long_term_memory = kwargs.get("long_term_memory", "")
 
         agent_state = {
             "messages": [self._agent.llm.convert_to_human_message(task_description, [])],
-            "history": [],
-            "long_term_memory": "",
+            "history": history,
+            "long_term_memory": long_term_memory,
             "task_id": uuid.uuid4(),
             "iteration_count": 0
         }
