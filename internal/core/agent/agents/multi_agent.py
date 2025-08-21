@@ -24,7 +24,7 @@ import time
 import uuid
 from typing import Any, Literal
 
-from langchain_core.messages import RemoveMessage, ToolMessage
+from langchain_core.messages import ToolMessage
 from langgraph.constants import END
 from langgraph.graph import StateGraph
 from langgraph.graph.state import CompiledStateGraph
@@ -62,19 +62,6 @@ class MultiAgent(FunctionCallAgent):
         agent = graph.compile()
         return agent
 
-    def _sub_agent1(self, state: AgentState) -> AgentState:
-        tool_calls = state["messages"][-1].tool_calls
-        tools_by_name = {tool.name: tool for tool in self.agent_config.tools}
-
-        tool_call = tool_calls[0]
-        tool = tools_by_name[tool_call["name"]]
-        args_dict = {**tool_call["args"], "state": state}
-        tool_result = tool.invoke(args_dict)
-        tool_call_message = state["messages"][-1]
-        remove_tool_call_message = RemoveMessage(id=tool_call_message.id)
-
-        return {**tool_result, "messages": [remove_tool_call_message] + tool_result["messages"]}
-
     def _sub_agent(self, state: AgentState) -> AgentState:
 
         tools_by_name = {tool.name: tool for tool in self.agent_config.tools}
@@ -90,7 +77,12 @@ class MultiAgent(FunctionCallAgent):
             agent_state = None
             try:
                 tool = tools_by_name[tool_call["name"]]
-                agent_state = tool.invoke(tool_call["args"])
+                args = {
+                    "task_description": tool_call["args"]["task_description"],
+                    "history": state["history"],
+                    "long_term_memory": state["long_term_memory"]
+                }
+                agent_state = tool.invoke(args)
                 answer = f"成功调度智能体《{sub_agent.zh_name}》"
             except Exception as e:
                 # 添加错误工具信息
