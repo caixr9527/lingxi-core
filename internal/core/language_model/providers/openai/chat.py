@@ -29,6 +29,14 @@ from internal.core.language_model.entities.model_entity import BaseLanguageModel
 class Chat(ChatOpenAI, BaseLanguageModel):
     """OpenAI聊天模型基类"""
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(
+            *args,
+            openai_api_key=kwargs.get("api_key"),
+            openai_api_base=kwargs.get("base_url"),
+            **kwargs
+        )
+
     def _get_encoding_model(self) -> Tuple[str, tiktoken.Encoding]:
         """重写获取编码模型名字+模型函数，该类继承OpenAI，词表模型可以使用gpt-3.5-turbo防止出错"""
         # 将DeepSeek的词表模型设置为gpt-3.5-turbo
