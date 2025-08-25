@@ -128,12 +128,16 @@ class LanguageModelService(BaseService):
             model_entity = provider.get_model_entity(model_name)
             model_class = provider.get_model_class(model_entity.model_type)
 
+            base_url = model_config.get("baseUrl") if model_config.get("baseUrl") else os.getenv("OPENAI_BASE_URL")
+            api_key = model_config.get("apiKey") if model_config.get("apiKey") else os.getenv("OPENAI_API_KEY")
             # 实例化模型后并返回
             return model_class(
                 **model_entity.attributes,
                 **parameters,
                 features=model_entity.features,
                 metadata=model_entity.metadata,
+                base_url=base_url,
+                api_key=api_key
             )
         except Exception as error:
             logging.error("获取模型失败, 错误信息: %(error)s", {"error": error}, exc_info=True)
@@ -143,7 +147,7 @@ class LanguageModelService(BaseService):
         """加载默认的大语言模型，在模型管理器中获取不到模型或者出错时使用默认模型进行兜底"""
         # 获取openai服务提供者与模型类
         provider = self.language_model_manager.get_provider("openai")
-        model_entity = provider.get_model_entity("gpt-4o-mini")
+        model_entity = provider.get_model_entity("gpt-4o")
         model_class = provider.get_model_class(model_entity.model_type)
 
         return model_class(
@@ -152,4 +156,6 @@ class LanguageModelService(BaseService):
             max_tokens=8192,
             features=model_entity.features,
             metadata=model_entity.metadata,
+            base_url=os.getenv("OPENAI_BASE_URL"),
+            api_key=os.getenv("OPENAI_API_KEY")
         )

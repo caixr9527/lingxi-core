@@ -18,6 +18,7 @@
 @Author  : caixiaorong01@outlook.com
 @File    : app_config_service.py
 """
+import os
 from dataclasses import dataclass
 from typing import Any, Union
 from uuid import UUID
@@ -350,6 +351,8 @@ class AppConfigService(BaseService):
             "provider": origin_model_config.get("provider", ""),
             "model": origin_model_config.get("model", ""),
             "parameters": origin_model_config.get("parameters", {}),
+            "apiKey": origin_model_config.get("apiKey", os.getenv("OPENAI_API_KEY")),
+            "baseUrl": origin_model_config.get("baseUrl", os.getenv("OPENAI_BASE_URL"))
         }
 
         # 判断provider是否存在、类型是否正确，如果不符合规则则返回默认值
