@@ -663,7 +663,7 @@ class AppService(BaseService):
                 raise ValidateException("模型配置格式错误，请核实后重试")
 
             # 3.2 判断model_config键信息是否正确
-            if set(model_config.keys()) != {"provider", "model", "parameters"}:
+            if set(model_config.keys()) != {"provider", "model", "parameters", "baseUrl", "apiKey"}:
                 raise ValidateException("模型键配置格式错误，请核实后重试")
 
             # 3.3 判断模型提供者信息是否正确

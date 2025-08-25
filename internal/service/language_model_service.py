@@ -128,8 +128,8 @@ class LanguageModelService(BaseService):
             model_entity = provider.get_model_entity(model_name)
             model_class = provider.get_model_class(model_entity.model_type)
 
-            base_url = model_config.get("base_url") if model_config.get("base_url") else os.getenv("OPENAI_BASE_URL")
-            api_key = model_config.get("api_key") if model_config.get("api_key") else os.getenv("OPENAI_API_KEY")
+            base_url = model_config.get("baseUrl") if model_config.get("baseUrl") else os.getenv("OPENAI_BASE_URL")
+            api_key = model_config.get("apiKey") if model_config.get("apiKey") else os.getenv("OPENAI_API_KEY")
             # 实例化模型后并返回
             return model_class(
                 **model_entity.attributes,
