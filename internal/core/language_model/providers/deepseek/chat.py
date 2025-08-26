@@ -18,7 +18,6 @@
 @Author : caixiaorong01@outlook.com
 @File   : chat.py
 """
-import os
 from typing import Tuple
 
 import tiktoken
@@ -33,8 +32,8 @@ class Chat(BaseChatOpenAI, BaseLanguageModel):
     def __init__(self, *args, **kwargs):
         super().__init__(
             *args,
-            openai_api_key=os.getenv("OPENAI_API_KEY"),
-            openai_api_base=os.getenv("OPENAI_BASE_URL"),
+            openai_api_key=kwargs.get("api_key"),
+            openai_api_base=kwargs.get("base_url"),
             **kwargs
         )
 

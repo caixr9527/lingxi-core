@@ -19,7 +19,6 @@
 @File   : chat.py.py
 """
 import os
-from typing import Optional
 
 from langchain_ollama import ChatOllama
 
@@ -28,4 +27,10 @@ from internal.core.language_model.entities.model_entity import BaseLanguageModel
 
 class Chat(ChatOllama, BaseLanguageModel):
     """Ollama聊天模型"""
-    base_url: Optional[str] = os.getenv("OLLAMA_URL")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(
+            *args,
+            base_url=kwargs.get("base_url") if kwargs.get("base_url") else os.getenv("OLLAMA_URL"),
+            **kwargs
+        )
