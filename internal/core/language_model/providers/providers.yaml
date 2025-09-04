@@ -27,13 +27,6 @@
   background: "#FFFFF"
   supported_model_types:
     - chat
-#- name: wenxin
-#  label: 文心一言
-#  description: 百度文心一言提供的模型，例如ERNIE-3.5、ERNIE-4等。
-#  icon: icon.png
-#  background: "#FFFFFF"
-#  supported_model_types:
-#    - chat
 - name: ollama
   label: Ollama
   description: Ollama提供的本地离线大语言模型，例如qwen2.5-7b等。
