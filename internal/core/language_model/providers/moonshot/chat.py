@@ -33,8 +33,8 @@ class Chat(BaseChatOpenAI, BaseLanguageModel):
     def __init__(self, *args, **kwargs):
         super().__init__(
             *args,
-            openai_api_key=os.getenv("MOONSHOT_API_KEY"),
-            openai_api_base=os.getenv("MOONSHOT_API_BASE_URL"),
+            openai_api_base=kwargs.get("base_url") if kwargs.get("base_url") else os.getenv("MOONSHOT_API_KEY"),
+            openai_api_key=kwargs.get("api_key") if kwargs.get("api_key") else os.getenv("MOONSHOT_API_BASE_URL"),
             **kwargs
         )
 

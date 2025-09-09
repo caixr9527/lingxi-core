@@ -18,6 +18,8 @@
 @Author : caixiaorong01@outlook.com
 @File   : chat.py.py
 """
+import os
+
 from langchain_community.chat_models.tongyi import ChatTongyi
 
 from internal.core.language_model.entities.model_entity import BaseLanguageModel
@@ -25,4 +27,10 @@ from internal.core.language_model.entities.model_entity import BaseLanguageModel
 
 class Chat(ChatTongyi, BaseLanguageModel):
     """通义千问聊天模型"""
-    pass
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(
+            *args,
+            DASHSCOPE_API_KEY=kwargs.get("api_key") if kwargs.get("api_key") else os.getenv("DASHSCOPE_API_KEY"),
+            **kwargs
+        )

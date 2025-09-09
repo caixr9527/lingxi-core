@@ -25,7 +25,7 @@ import yaml
 from injector import inject, singleton
 from pydantic import BaseModel, Field
 
-from internal.core.tools.builtin_tools.entities import ProviderEntity, Provider
+from internal.core.tools.builtin_tools.entities import ProviderEntity, Provider, ToolEntity
 
 
 @inject
@@ -54,6 +54,12 @@ class BuiltinProviderManager(BaseModel):
         if provider is None:
             return None
         return provider.get_tool(tool_name)
+
+    def get_tool_entity(self, provider_name: str, tool_name: str) -> ToolEntity:
+        provider = self.get_provider(provider_name)
+        if provider is None:
+            return None
+        return provider.get_tool_entity(tool_name)
 
     def _get_provider_tool_map(self):
         if self.provider_map:

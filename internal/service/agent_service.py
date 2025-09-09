@@ -36,9 +36,12 @@ from internal.core.agent.entities.agent_entity import AgentConfig
 from internal.core.language_model.entities.model_entity import BaseLanguageModel
 from internal.core.language_model.entities.model_entity import ModelFeature
 from internal.core.memory import TokenBufferMemory
+from internal.core.tools.builtin_tools.entities import ToolEntity
+from internal.core.tools.builtin_tools.providers import BuiltinProviderManager
 from internal.entity.app_entity import AppStatus, AppMode
 from internal.entity.conversation_entity import InvokeFrom
 from internal.entity.dataset_entity import RetrievalSource
+from internal.exception import ValidateException
 from internal.lib.helper import generate_random_string
 from internal.model import AppConfig, AppConfigVersion, App, Conversation
 from internal.service.app_config_service import AppConfigService
@@ -54,6 +57,19 @@ class AgentService:
     language_model_service: LanguageModelService
     app_config_service: AppConfigService
     retrieval_service: RetrievalService
+    builtin_provider_manager: BuiltinProviderManager
+
+    def agentCheck(self, config: AppConfig | AppConfigVersion | dict[str, Any]):
+        tool_configs = config["tools"]
+        for tool_config in tool_configs:
+            if tool_config["type"] == "builtin_tool" and tool_config["tool"] and len(tool_config["tool"]) > 0:
+                provider_id = tool_config["provider"]["id"]
+                tool_id = tool_config["tool"]["name"]
+                tool_entity: ToolEntity = self.builtin_provider_manager.get_tool_entity(provider_id, tool_id)
+                for param in tool_entity.params:
+                    if param.required:
+                        if tool_config["tool"]["params"][param.name] is None:
+                            raise ValidateException(f"{param.name} 未配置")
 
     def getTools(self, config: AppConfig | AppConfigVersion | dict[str, Any], app: App) -> \
             list[BaseTool]:
