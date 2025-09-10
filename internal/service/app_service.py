@@ -20,6 +20,7 @@
 """
 import io
 import json
+import logging
 import uuid
 from dataclasses import dataclass
 from datetime import datetime
@@ -38,7 +39,7 @@ from sqlalchemy.orm import joinedload
 from werkzeug.datastructures import FileStorage
 
 from internal.core.agent.agents import AgentQueueManager
-from internal.core.agent.entities.queue_entity import QueueEvent
+from internal.core.agent.entities.queue_entity import QueueEvent, AgentThought
 from internal.core.language_model import LanguageModelManager
 from internal.core.language_model.entities.model_entity import ModelParameterType
 from internal.core.tools.builtin_tools.providers import BuiltinProviderManager
@@ -491,6 +492,7 @@ class AppService(BaseService):
 
     def debug_chat(self, app_id: UUID, req: DebugChatReq, account: Account) -> Generator:
         """根据传递的应用id+提问query向特定的应用发起会话调试"""
+        agent_thoughts = {}
         # 获取应用信息并校验权限
         app = self.get_app(app_id, account)
 
@@ -511,56 +513,81 @@ class AppService(BaseService):
             image_urls=req.image_urls.data,
             status=MessageStatus.NORMAL
         )
-        agent, history, llm = self.agent_service.create_agent(draft_app_config,
-                                                              app,
-                                                              InvokeFrom.DEBUGGER,
-                                                              debug_conversation)
+        try:
+            agent, history, llm = self.agent_service.create_agent(draft_app_config,
+                                                                  app,
+                                                                  InvokeFrom.DEBUGGER,
+                                                                  debug_conversation)
 
-        agent_thoughts = {}
-        for agent_thought in agent.stream({
-            "messages": [
-                llm.convert_to_human_message(req.query.data, req.image_urls.data,
-                                             draft_app_config["multimodal"]["enable"])],
-            "history": history,
-            "long_term_memory": debug_conversation.summary,
-        }):
-            event_id = str(agent_thought.id)
+            for agent_thought in agent.stream({
+                "messages": [
+                    llm.convert_to_human_message(req.query.data, req.image_urls.data,
+                                                 draft_app_config["multimodal"]["enable"])],
+                "history": history,
+                "long_term_memory": debug_conversation.summary,
+            }):
+                event_id = str(agent_thought.id)
 
-            if agent_thought.event != QueueEvent.PING:
-                if agent_thought.event == QueueEvent.AGENT_MESSAGE:
-                    if event_id not in agent_thoughts:
-                        # 初始化智能体消息
-                        agent_thoughts[event_id] = agent_thought
+                if agent_thought.event != QueueEvent.PING:
+                    if agent_thought.event == QueueEvent.AGENT_MESSAGE:
+                        if event_id not in agent_thoughts:
+                            # 初始化智能体消息
+                            agent_thoughts[event_id] = agent_thought
+                        else:
+                            # 叠加智能体消息
+                            agent_thoughts[event_id] = agent_thoughts[event_id].model_copy(update={
+                                "thought": agent_thoughts[event_id].thought + agent_thought.thought,
+                                "message": agent_thought.message,
+                                "message_token_count": agent_thought.message_token_count,
+                                "message_unit_price": agent_thought.message_unit_price,
+                                "message_price_unit": agent_thought.message_price_unit,
+                                "answer": agent_thoughts[event_id].answer + agent_thought.answer,
+                                "answer_token_count": agent_thought.answer_token_count,
+                                "answer_unit_price": agent_thought.answer_unit_price,
+                                "answer_price_unit": agent_thought.answer_price_unit,
+                                "total_token_count": agent_thought.total_token_count,
+                                "total_price": agent_thought.total_price,
+                                "latency": agent_thought.latency
+                            })
                     else:
-                        # 叠加智能体消息
-                        agent_thoughts[event_id] = agent_thoughts[event_id].model_copy(update={
-                            "thought": agent_thoughts[event_id].thought + agent_thought.thought,
-                            "message": agent_thought.message,
-                            "message_token_count": agent_thought.message_token_count,
-                            "message_unit_price": agent_thought.message_unit_price,
-                            "message_price_unit": agent_thought.message_price_unit,
-                            "answer": agent_thoughts[event_id].answer + agent_thought.answer,
-                            "answer_token_count": agent_thought.answer_token_count,
-                            "answer_unit_price": agent_thought.answer_unit_price,
-                            "answer_price_unit": agent_thought.answer_price_unit,
-                            "total_token_count": agent_thought.total_token_count,
-                            "total_price": agent_thought.total_price,
-                            "latency": agent_thought.latency
-                        })
-                else:
-                    agent_thoughts[event_id] = agent_thought
+                        agent_thoughts[event_id] = agent_thought
 
+                data = {
+                    **agent_thought.model_dump(include={
+                        "event", "thought", "observation", "tool", "tool_input", "answer", "total_token_count",
+                        "total_price", "latency"
+                    }),
+                    "id": event_id,
+                    "conversation_id": str(debug_conversation.id),
+                    "message_id": str(message.id),
+                    "task_id": str(agent_thought.task_id),
+                }
+                yield f"event: {agent_thought.event}\ndata:{json.dumps(data)}\n\n"
+        except Exception as e:
+            logging.exception(f"执行出错, 错误信息: {str(e)}")
+            agent_thought = AgentThought(
+                id=uuid.uuid4(),
+                task_id=uuid.uuid4(),
+                event=QueueEvent.AGENT_MESSAGE,
+                observation="",
+                tool="",
+                tool_input={},
+                message=[],
+                answer="智能体校验失败,请检查配置后重试。",
+                thought="智能体校验失败,请检查配置后重试。",
+            )
+            agent_thoughts[agent_thought.id] = agent_thought
             data = {
                 **agent_thought.model_dump(include={
                     "event", "thought", "observation", "tool", "tool_input", "answer", "total_token_count",
                     "total_price", "latency"
                 }),
-                "id": event_id,
+                "id": str(agent_thought.id),
                 "conversation_id": str(debug_conversation.id),
                 "message_id": str(message.id),
                 "task_id": str(agent_thought.task_id),
             }
-            yield f"event: {agent_thought.event}\ndata:{json.dumps(data)}\n\n"
+            yield f"event: {QueueEvent.AGENT_MESSAGE.value}\ndata:{json.dumps(data)}\n\n"
 
         # 添加到数据库
         self.conversation_service.save_agent_thoughts(
