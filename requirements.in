@@ -27,6 +27,7 @@ langchain-community>=0.3,<0.4
 langchain-core>=0.3,<0.4
 langchain-text-splitters>=0.3,<0.4
 langchain-weaviate==0.0.5
+langchain_mcp_adapters==0.1.9
 
 # LLM大语言模型相关
 langchain-openai>=0.3,<0.4  # OpenAI
