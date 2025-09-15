@@ -1,4 +1,5 @@
 - name: google
+  type: tool
   label: Google
   description: 谷歌服务提供商，涵盖了谷歌搜索等工具
   icon: icon.svg
@@ -6,6 +7,7 @@
   category: search
   created_at: 1726979052
 - name: time
+  type: tool
   label: 时间
   description: 一个用于获取当前时间的工具
   icon: icon.svg
@@ -13,6 +15,7 @@
   category: tool
   created_at: 1726979052
 - name: duckduckgo
+  type: tool
   label: DuckDuckGo
   description: 这是一个注重隐私等搜索引擎
   icon: icon.svg
@@ -20,6 +23,7 @@
   category: search
   created_at: 1726979052
 - name: dalle
+  type: tool
   label: DALLE
   description: DALLE是一个文生图工具
   icon: icon.png
@@ -27,6 +31,7 @@
   category: image
   created_at: 1726979052
 - name: gaode
+  type: tool
   label: 高德天气工具包
   description: 内置高德天气预报和ip查询功能
   icon: icon.png
@@ -34,6 +39,7 @@
   category: weather
   created_at: 1726979052
 - name: wikipedia
+  type: tool
   label: 维基百科
   description: 维基百科是一个由全世界志愿者创建和编辑的免费在线百科全书
   icon: icon.svg
@@ -41,6 +47,7 @@
   category: other
   created_at: 1726979052
 - name: pptx
+  type: tool
   label: PPT工具包
   description: 这是一个PPT处理工具包，可以将特定内容生成PPT文档。
   icon: icon.png
@@ -48,6 +55,7 @@
   category: tool
   created_at: 1742612570
 - name: docx
+  type: tool
   label: WORD工具包
   description: 这是一个word文档处理工具包，可以将特定内容生成word文档。
   icon: icon.svg
@@ -55,6 +63,7 @@
   category: tool
   created_at: 1746710242
 - name: bocha
+  type: tool
   label: 博查搜索
   description: 从全网搜索任何网页信息和网页链接，结果准确、摘要完整，更适合AI使用。
   icon: icon.png
@@ -62,6 +71,7 @@
   category: search
   created_at: 1746675665
 - name: extract
+  type: tool
   label: 内容提取工具
   description: 支持从指定网页地址/各类文档/文件提取内容。
   icon: extract.svg
@@ -69,9 +79,18 @@
   category: tool
   created_at: 1747548779
 - name: translate
+  type: tool
   label: 翻译工具
   description: 翻译工具。
   icon: icon.svg
   background: "#FFFFFF"
   category: tool
   created_at: 1751098095
+- name: gaode
+  type: mcp_tool
+  label: 高德地图MCP工具包
+  description: 提供了基于位置服务、地点信息搜索、路径规划、天气查询等12大核心高鲜度数据，让用户在出行规划、位置信息检索场景下轻松获取即时信息
+  icon: icon.png
+  background: "#E5E7EB"
+  category: mcp
+  created_at: 1726979052
