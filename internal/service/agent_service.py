@@ -25,6 +25,7 @@ from flask import current_app
 from injector import inject
 from langchain_core.messages import AnyMessage
 from langchain_core.tools import BaseTool
+from langchain_mcp_adapters.client import MultiServerMCPClient
 
 from internal.core.agent.agents import (
     BaseAgent,
@@ -93,6 +94,11 @@ class AgentService:
                 [workflow["id"] for workflow in config["workflows"]]
             )
             tools.extend(workflow_tools)
+
+        if config["mcp_server"]:
+            client = MultiServerMCPClient(config["mcp_server"])
+            _, _, mcp_tools = client.get_tools()
+            tools.extend(mcp_tools)
 
         return tools
 
