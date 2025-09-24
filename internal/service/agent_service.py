@@ -18,6 +18,7 @@
 @Author : caixiaorong01@outlook.com
 @File   : agent_service.py
 """
+import asyncio
 from dataclasses import dataclass
 from typing import Any
 
@@ -96,8 +97,8 @@ class AgentService:
             tools.extend(workflow_tools)
 
         if config["mcp_server"]:
-            client = MultiServerMCPClient(config["mcp_server"])
-            _, _, mcp_tools = client.get_tools()
+            client = MultiServerMCPClient(config["mcp_server"]["mcpServers"])
+            mcp_tools = asyncio.run(client.get_tools())
             tools.extend(mcp_tools)
 
         return tools
