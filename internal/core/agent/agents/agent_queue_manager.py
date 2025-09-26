@@ -81,6 +81,8 @@ class AgentQueueManager:
                     self.publish(task_id, AgentThought(
                         id=uuid.uuid4(),
                         task_id=task_id,
+                        thought="服务器繁忙,请稍后重试",
+                        observation="服务器繁忙,请稍后重试",
                         event=QueueEvent.TIMEOUT
                     ))
                     first_ping_time = 0

@@ -18,6 +18,7 @@
 @Author : caixiaorong01@outlook.com
 @File   : agent_service.py
 """
+import asyncio
 from dataclasses import dataclass
 from typing import Any
 
@@ -25,6 +26,7 @@ from flask import current_app
 from injector import inject
 from langchain_core.messages import AnyMessage
 from langchain_core.tools import BaseTool
+from langchain_mcp_adapters.client import MultiServerMCPClient
 
 from internal.core.agent.agents import (
     BaseAgent,
@@ -93,6 +95,11 @@ class AgentService:
                 [workflow["id"] for workflow in config["workflows"]]
             )
             tools.extend(workflow_tools)
+
+        if config["mcp_server"]:
+            client = MultiServerMCPClient(config["mcp_server"]["mcpServers"])
+            mcp_tools = asyncio.run(client.get_tools())
+            tools.extend(mcp_tools)
 
         return tools
 

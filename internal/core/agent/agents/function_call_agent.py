@@ -18,6 +18,7 @@
 @Author : caixiaorong01@outlook.com
 @File   : function_call_agent.py
 """
+import asyncio
 import json
 import logging
 import re
@@ -313,7 +314,10 @@ class FunctionCallAgent(BaseAgent):
             try:
                 # 获取工具并调用工具
                 tool = tools_by_name[tool_call["name"]]
-                tool_result = tool.invoke(tool_call["args"])
+                try:
+                    tool_result = tool.invoke(tool_call["args"])
+                except NotImplementedError as e:
+                    tool_result = asyncio.run(tool.ainvoke(tool_call["args"]))
             except Exception as e:
                 # 添加错误工具信息
                 tool_result = f"工具执行出错: {str(e)}"
