@@ -30,6 +30,8 @@ pages, or integrate seamlessly into existing systems via **Open APIs** for deepe
     * **Rich Capability Extensions:** Integrate plugins, workflows, knowledge bases; configure **long-term memory**,
       **opening prompts/preset questions**, **user question suggestions**, **multi-language/multi-modal input/output**,
       **content moderation**, etc.
+    * **MCP Client Configuration:** Adhering to the MCP protocol specification, it can seamlessly invoke external tools
+      and services, enhancing external scalability.
     * **Real-Time Preview & Debugging:** Test while you build with WYSIWYG editing, boosting development efficiency.
     * **Model Flexibility:** Supports **custom LLM integration** and key parameter tuning.
     * **Version Control:** Enables **historical version rollback** for AI applications, ensuring configuration security.
